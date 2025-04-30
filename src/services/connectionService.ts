@@ -135,9 +135,11 @@ export const inviteByEmail = async (email: string): Promise<{ success: boolean; 
       };
     }
 
-    // Simplified query to avoid complex type instantiation
-    // Check if a connection already exists where current user is sender
-    const { data: existingConnectionAsSender, error: senderError } = await supabase
+    // Check for existing connections - fixing the problematic part
+    // Instead of using a complex OR clause, we'll do two separate queries
+    
+    // First check where current user is the sender
+    const { data: existingSenderConnection, error: senderError } = await supabase
       .from("connections")
       .select("*")
       .eq("user_id", userData.user.id)
@@ -149,8 +151,8 @@ export const inviteByEmail = async (email: string): Promise<{ success: boolean; 
       return { success: false, message: "Error processing invitation" };
     }
     
-    // Check if a connection already exists where current user is receiver
-    const { data: existingConnectionAsReceiver, error: receiverError } = await supabase
+    // Then check where current user is the receiver
+    const { data: existingReceiverConnection, error: receiverError } = await supabase
       .from("connections")
       .select("*")
       .eq("user_id", invitedUserData.id)
@@ -163,7 +165,7 @@ export const inviteByEmail = async (email: string): Promise<{ success: boolean; 
     }
 
     // If connection exists in either direction
-    if (existingConnectionAsSender || existingConnectionAsReceiver) {
+    if (existingSenderConnection || existingReceiverConnection) {
       return { success: false, message: "A connection with this user already exists" };
     }
 
