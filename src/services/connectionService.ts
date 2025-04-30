@@ -1,175 +1,162 @@
 
-import { supabase } from '@/integrations/supabase/client';
-
-// Define type for connection status
-export type ConnectionStatus = 'pending' | 'accepted' | 'declined';
-
-// Define types for our connections
-export interface Connection {
-  id: string;
-  user_id: string;
-  connected_user_id: string;
-  status: ConnectionStatus;
-  created_at: string;
-  updated_at: string;
-  // Include user information
-  username?: string;
-  email?: string;
-}
+import { supabase } from "@/integrations/supabase/client";
+import { Connection, ConnectionStatus } from "@/integrations/supabase/types";
 
 // Get all connections for the current user
 export const getConnections = async (): Promise<Connection[]> => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user?.user) {
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) throw new Error("User not authenticated");
+
+    const userId = userData.user.id;
+
+    // Get connections where the user is either the sender or receiver
+    const { data: connections, error } = await supabase
+      .from("connections")
+      .select("*")
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+
+    if (error) throw error;
+
+    // Format the connections to include necessary information
+    const formattedConnections = await Promise.all(
+      (connections || []).map(async (connection) => {
+        // Determine if the current user is the sender or receiver
+        const isUserSender = connection.sender_id === userId;
+        const otherUserId = isUserSender
+          ? connection.receiver_id
+          : connection.sender_id;
+
+        // Get the other user's details
+        const { data: otherUserData } = await supabase
+          .from("profiles")
+          .select("username, avatar_url")
+          .eq("id", otherUserId)
+          .single();
+
+        return {
+          id: connection.id,
+          otherUserId,
+          username: otherUserData?.username || "Unknown User",
+          avatarUrl: otherUserData?.avatar_url,
+          status: connection.status,
+          createdAt: connection.created_at,
+          updatedAt: connection.updated_at,
+          isUserSender,
+        };
+      })
+    );
+
+    return formattedConnections;
+  } catch (error) {
+    console.error("Error getting connections:", error);
     return [];
   }
-
-  // Fetch connections
-  const { data: connectionsData, error } = await supabase
-    .from('connections')
-    .select('*')
-    .or(`user_id.eq.${user.user.id},connected_user_id.eq.${user.user.id}`)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching connections:', error);
-    throw new Error('Failed to fetch connections');
-  }
-
-  // Process connections and fetch related profile data
-  const processedConnections = await Promise.all(connectionsData.map(async (conn) => {
-    // Determine the ID of the other user
-    const otherUserId = conn.user_id === user.user.id ? conn.connected_user_id : conn.user_id;
-    
-    // Fetch profile data for the other user
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', otherUserId)
-      .single();
-    
-    // Ensure consistent structure from current user's perspective
-    let connectionWithUsername: Connection;
-    if (conn.user_id === user.user.id) {
-      // Current user initiated the connection
-      connectionWithUsername = {
-        ...conn,
-        status: conn.status as ConnectionStatus,
-        username: profileData?.username || 'Unknown User'
-      };
-    } else {
-      // The connection was initiated by someone else
-      connectionWithUsername = {
-        ...conn,
-        // Swap the IDs so from the current user's perspective, they're always the "user_id"
-        user_id: conn.connected_user_id,
-        connected_user_id: conn.user_id,
-        status: conn.status as ConnectionStatus,
-        username: profileData?.username || 'Unknown User'
-      };
-    }
-    
-    return connectionWithUsername;
-  }));
-  
-  return processedConnections;
 };
 
-// Invite a new connection by email
-export const inviteByEmail = async (email: string): Promise<Connection | null> => {
-  const { data: user } = await supabase.auth.getUser();
-  if (!user?.user) {
-    throw new Error('User not authenticated');
+// Update the status of a connection
+export const updateConnectionStatus = async (
+  connectionId: string,
+  status: ConnectionStatus
+): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from("connections")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", connectionId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error updating connection status:", error);
+    return false;
   }
-
-  // Check if user with this email exists
-  const { data: userData } = await supabase
-    .from('profiles')
-    .select('id, username')
-    .eq('email', email)
-    .maybeSingle();
-
-  if (!userData) {
-    // If user doesn't exist, we can still create a pending invitation
-    // that will be claimable when they sign up
-    // For simplicity, we'll throw an error for now
-    throw new Error('User with this email not found');
-  }
-
-  // Create a connection
-  const { data, error } = await supabase
-    .from('connections')
-    .insert({
-      user_id: user.user.id,
-      connected_user_id: userData.id,
-      status: 'pending' as ConnectionStatus
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating connection invitation:', error);
-    throw new Error('Failed to create connection invitation');
-  }
-
-  return {
-    ...data,
-    status: data.status as ConnectionStatus,
-    username: userData?.username || 'Unknown User',
-    email
-  };
-};
-
-// Update a connection status
-export const updateConnectionStatus = async (connectionId: string, status: ConnectionStatus): Promise<Connection | null> => {
-  const { data, error } = await supabase
-    .from('connections')
-    .update({ 
-      status, 
-      updated_at: new Date().toISOString() 
-    })
-    .eq('id', connectionId)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error updating connection status:', error);
-    throw new Error('Failed to update connection status');
-  }
-
-  // After getting the connection, fetch the profile separately
-  const { data: user } = await supabase.auth.getUser();
-  
-  // Determine the ID of the other user
-  const otherUserId = data.user_id === user?.user?.id ? data.connected_user_id : data.user_id;
-  
-  // Fetch profile for the other user
-  const { data: profileData } = await supabase
-    .from('profiles')
-    .select('username')
-    .eq('id', otherUserId)
-    .maybeSingle();
-
-  return {
-    ...data,
-    status: data.status as ConnectionStatus,
-    username: profileData?.username || 'Unknown User'
-  };
 };
 
 // Delete a connection
 export const deleteConnection = async (connectionId: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from('connections')
-    .delete()
-    .eq('id', connectionId);
+  try {
+    const { error } = await supabase
+      .from("connections")
+      .delete()
+      .eq("id", connectionId);
 
-  if (error) {
-    console.error('Error deleting connection:', error);
-    throw new Error('Failed to delete connection');
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error deleting connection:", error);
+    return false;
   }
+};
 
-  return true;
+// Send email invitation to connect
+export const inviteByEmail = async (email: string): Promise<{ success: boolean; message: string }> => {
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      return { success: false, message: "You must be logged in to invite connections" };
+    }
+
+    // Check if user is trying to invite themselves
+    if (email === userData.user.email) {
+      return { success: false, message: "You cannot invite yourself" };
+    }
+
+    // Check if the invited user exists in the system
+    const { data: invitedUserData, error: userError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (userError) {
+      console.error("Error checking for invited user:", userError);
+      return { success: false, message: "Error processing invitation" };
+    }
+
+    if (!invitedUserData) {
+      // No user found with this email
+      return { 
+        success: false, 
+        message: "No user found with this email address. They need to register first."
+      };
+    }
+
+    // Check if a connection already exists
+    const { data: existingConnection, error: connectionError } = await supabase
+      .from("connections")
+      .select("*")
+      .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${invitedUserData.id}),and(sender_id.eq.${invitedUserData.id},receiver_id.eq.${userData.user.id})`)
+      .maybeSingle();
+
+    if (connectionError) {
+      console.error("Error checking for existing connection:", connectionError);
+      return { success: false, message: "Error processing invitation" };
+    }
+
+    if (existingConnection) {
+      return { success: false, message: "A connection with this user already exists" };
+    }
+
+    // Create the new connection
+    const { error: createError } = await supabase
+      .from("connections")
+      .insert({
+        sender_id: userData.user.id,
+        receiver_id: invitedUserData.id,
+        status: "pending" as ConnectionStatus,
+      });
+
+    if (createError) {
+      console.error("Error creating connection:", createError);
+      return { success: false, message: "Failed to send invitation" };
+    }
+
+    return { success: true, message: "Invitation sent successfully" };
+  } catch (error) {
+    console.error("Error inviting by email:", error);
+    return { success: false, message: "An unexpected error occurred" };
+  }
 };
 
 // This function is renamed for reference purposes - searchUsers is no longer needed
@@ -177,22 +164,20 @@ export const deleteConnection = async (connectionId: string): Promise<boolean> =
 export const searchUsers = async (query: string): Promise<{ id: string; username: string }[]> => {
   const { data: currentUser } = await supabase.auth.getUser();
   
-  if (!currentUser?.user) {
-    throw new Error('User not authenticated');
-  }
-
+  if (!currentUser.user) return [];
+  
   // Search for users by username
   const { data, error } = await supabase
-    .from('profiles')
-    .select('id, username')
-    .ilike('username', `%${query}%`)
-    .neq('id', currentUser.user.id)
+    .from("profiles")
+    .select("id, username")
+    .ilike("username", `%${query}%`)
+    .neq("id", currentUser.user.id)
     .limit(10);
-
+  
   if (error) {
-    console.error('Error searching users:', error);
-    throw new Error('Failed to search users');
+    console.error("Error searching users:", error);
+    return [];
   }
-
-  return data as { id: string; username: string }[];
+  
+  return data || [];
 };

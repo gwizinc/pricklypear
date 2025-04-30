@@ -11,15 +11,30 @@ import {
   LogOut, 
   Users, 
   Menu,
-  X
+  X,
+  Sun,
+  Moon,
+  Laptop,
+  UserRound
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTheme } from 'next-themes';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { setTheme } = useTheme();
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -30,6 +45,25 @@ const Navigation = () => {
       title: 'Logged out',
       description: 'You have been successfully logged out.'
     });
+  };
+
+  const getUserInitials = () => {
+    if (!user) return '?';
+    
+    // Try to get username from metadata if available
+    const username = user.user_metadata?.username || user.email;
+    
+    if (!username) return '?';
+    
+    if (user.user_metadata?.username) {
+      // If we have a username, get first letter
+      return username.charAt(0).toUpperCase();
+    } else if (user.email) {
+      // If we have an email, get first letter
+      return user.email.charAt(0).toUpperCase();
+    }
+    
+    return '?';
   };
 
   const navItems = [
@@ -58,6 +92,55 @@ const Navigation = () => {
     </>
   );
 
+  const renderUserMenu = () => {
+    if (!user) {
+      return (
+        <Button asChild>
+          <Link to="/auth">
+            <LogIn className="h-4 w-4 mr-2" />
+            Sign In
+          </Link>
+        </Button>
+      );
+    }
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user.user_metadata?.avatar_url} alt="User avatar" />
+              <AvatarFallback>{getUserInitials()}</AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuLabel>
+            {user.user_metadata?.username || user.email || 'My Account'}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setTheme('light')}>
+            <Sun className="mr-2 h-4 w-4" />
+            <span>Light</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('dark')}>
+            <Moon className="mr-2 h-4 w-4" />
+            <span>Dark</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme('system')}>
+            <Laptop className="mr-2 h-4 w-4" />
+            <span>System</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Sign Out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -82,21 +165,8 @@ const Navigation = () => {
           </nav>
           
           <div className="flex flex-1 items-center justify-end space-x-2">
-            <ThemeToggle />
-            
-            {!user ? (
-              <Button asChild>
-                <Link to="/auth">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
-                </Link>
-              </Button>
-            ) : (
-              <Button variant="ghost" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            )}
+            {!user && <ThemeToggle />}
+            {renderUserMenu()}
           </div>
         </div>
 
@@ -111,7 +181,8 @@ const Navigation = () => {
 
         {/* Mobile Right Actions */}
         <div className="flex items-center md:hidden">
-          <ThemeToggle />
+          {!user && <ThemeToggle />}
+          {user && renderUserMenu()}
         </div>
       </div>
 
@@ -123,17 +194,12 @@ const Navigation = () => {
             
             <Separator className="my-2" />
             
-            {!user ? (
+            {!user && (
               <Button asChild className="w-full">
                 <Link to="/auth">
                   <LogIn className="h-4 w-4 mr-2" />
                   Sign In
                 </Link>
-              </Button>
-            ) : (
-              <Button variant="ghost" className="w-full" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
               </Button>
             )}
           </nav>
