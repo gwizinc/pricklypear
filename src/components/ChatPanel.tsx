@@ -1,9 +1,11 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
 import MessageBubble from "./MessageBubble";
+import MessageReviewDialog from "./MessageReviewDialog";
+import { reviewMessage } from "@/utils/messageReview";
 import type { Message } from "@/types/message";
 
 interface ChatPanelProps {
@@ -19,15 +21,43 @@ const ChatPanel = ({
   bgColor, 
   onSendMessage 
 }: ChatPanelProps) => {
-  const [inputValue, setInputValue] = React.useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [originalMessage, setOriginalMessage] = useState("");
+  const [kindMessage, setKindMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (inputValue.trim()) {
-      onSendMessage(inputValue);
-      setInputValue("");
+      setOriginalMessage(inputValue.trim());
+      setIsProcessing(true);
+      
+      try {
+        // Get AI rephrasing
+        const rephrasedMessage = await reviewMessage(inputValue.trim());
+        setKindMessage(rephrasedMessage);
+        
+        // Open review dialog
+        setIsReviewDialogOpen(true);
+      } catch (error) {
+        console.error("Error processing message:", error);
+        // Fallback to original message
+        setKindMessage(inputValue.trim());
+        setIsReviewDialogOpen(true);
+      } finally {
+        setIsProcessing(false);
+      }
     }
+  };
+
+  const handleSendMessage = (finalMessage: string) => {
+    onSendMessage(finalMessage);
+    setInputValue("");
+    setOriginalMessage("");
+    setKindMessage("");
   };
 
   // Scroll to bottom when new messages come in
@@ -62,11 +92,22 @@ const ChatPanel = ({
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Type your message..."
           className="flex-1"
+          disabled={isProcessing}
         />
-        <Button type="submit" size="icon">
+        <Button type="submit" size="icon" disabled={!inputValue.trim() || isProcessing}>
           <Send className="h-4 w-4" />
         </Button>
       </form>
+
+      {/* Message review dialog */}
+      <MessageReviewDialog
+        open={isReviewDialogOpen}
+        onOpenChange={setIsReviewDialogOpen}
+        originalMessage={originalMessage}
+        kindMessage={kindMessage}
+        onAccept={handleSendMessage}
+        isLoading={isProcessing}
+      />
     </div>
   );
 };
