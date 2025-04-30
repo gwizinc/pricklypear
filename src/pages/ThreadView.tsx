@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, LogIn } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import ChatContainer from "@/components/ChatContainer";
 import type { Thread } from "@/types/thread";
 import { useToast } from "@/hooks/use-toast";
@@ -91,13 +91,6 @@ const ThreadView = () => {
   return (
     <div className="container py-8">
       <div className="mb-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate("/threads")}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Threads
-        </Button>
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold mb-2">{thread.title}</h1>
           <Badge variant={thread.status === 'open' ? 'default' : 'secondary'}>
