@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MessageReviewDialogProps {
   open: boolean;
@@ -53,7 +55,14 @@ const MessageReviewDialog = ({
           </div>
           <div>
             <p className="text-sm text-muted-foreground mb-2">AI suggested rephrasing:</p>
-            <div className="bg-muted p-3 rounded-md text-sm">{kindMessage}</div>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ) : (
+              <div className="bg-muted p-3 rounded-md text-sm">{kindMessage}</div>
+            )}
           </div>
         </div>
         <DialogFooter className="flex sm:justify-between">
@@ -69,7 +78,14 @@ const MessageReviewDialog = ({
             onClick={handleAccept}
             disabled={!kindMessage.trim() || isLoading}
           >
-            {isLoading ? "Processing..." : "Accept & Send"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Accept & Send"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

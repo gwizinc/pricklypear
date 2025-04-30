@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import MessageBubble from "./MessageBubble";
 import MessageReviewDialog from "./MessageReviewDialog";
 import { reviewMessage } from "@/utils/messageReview";
@@ -39,6 +39,12 @@ const ChatPanel = ({
       setIsProcessing(true);
       
       try {
+        // Show toast notification that rephrasing is in progress
+        toast({
+          title: "Processing message",
+          description: "AI is suggesting a kinder phrasing...",
+        });
+        
         // Get AI rephrasing
         const rephrasedMessage = await reviewMessage(inputValue.trim());
         setKindMessage(rephrasedMessage);
@@ -50,6 +56,12 @@ const ChatPanel = ({
         // Fallback to original message
         setKindMessage(inputValue.trim());
         setIsReviewDialogOpen(true);
+        
+        toast({
+          title: "Error",
+          description: "Could not generate AI suggestion. Using original message.",
+          variant: "destructive",
+        });
       } finally {
         setIsProcessing(false);
       }
@@ -103,17 +115,21 @@ const ChatPanel = ({
         </div>
       </div>
       
-      {/* Input area */}
+      {/* Input area with loading indicator */}
       <form onSubmit={handleSubmit} className="p-4 border-t flex gap-2">
         <Input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Type your message..."
+          placeholder={isProcessing ? "Processing message..." : "Type your message..."}
           className="flex-1"
           disabled={isProcessing}
         />
         <Button type="submit" size="icon" disabled={!inputValue.trim() || isProcessing}>
-          <Send className="h-4 w-4" />
+          {isProcessing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </Button>
       </form>
 
