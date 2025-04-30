@@ -352,7 +352,7 @@ const Connections = () => {
             className="mt-4"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            Find Users
+            Add Connection
           </Button>
         </div>
       )}
