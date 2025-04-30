@@ -1,6 +1,19 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Connection, ConnectionStatus } from "@/integrations/supabase/types";
+
+// Define types based on actual database schema
+export type ConnectionStatus = 'pending' | 'accepted' | 'declined';
+
+export interface Connection {
+  id: string;
+  otherUserId: string;
+  username: string;
+  avatarUrl?: string;
+  status: ConnectionStatus;
+  createdAt: string;
+  updatedAt: string;
+  isUserSender: boolean;
+}
 
 // Get all connections for the current user
 export const getConnections = async (): Promise<Connection[]> => {
@@ -14,7 +27,7 @@ export const getConnections = async (): Promise<Connection[]> => {
     const { data: connections, error } = await supabase
       .from("connections")
       .select("*")
-      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+      .or(`user_id.eq.${userId},connected_user_id.eq.${userId}`);
 
     if (error) throw error;
 
@@ -22,15 +35,15 @@ export const getConnections = async (): Promise<Connection[]> => {
     const formattedConnections = await Promise.all(
       (connections || []).map(async (connection) => {
         // Determine if the current user is the sender or receiver
-        const isUserSender = connection.sender_id === userId;
+        const isUserSender = connection.user_id === userId;
         const otherUserId = isUserSender
-          ? connection.receiver_id
-          : connection.sender_id;
+          ? connection.connected_user_id
+          : connection.user_id;
 
         // Get the other user's details
         const { data: otherUserData } = await supabase
           .from("profiles")
-          .select("username, avatar_url")
+          .select("username")
           .eq("id", otherUserId)
           .single();
 
@@ -38,8 +51,8 @@ export const getConnections = async (): Promise<Connection[]> => {
           id: connection.id,
           otherUserId,
           username: otherUserData?.username || "Unknown User",
-          avatarUrl: otherUserData?.avatar_url,
-          status: connection.status,
+          avatarUrl: undefined, // profile doesn't have avatar_url field based on error
+          status: connection.status as ConnectionStatus,
           createdAt: connection.created_at,
           updatedAt: connection.updated_at,
           isUserSender,
@@ -126,7 +139,7 @@ export const inviteByEmail = async (email: string): Promise<{ success: boolean; 
     const { data: existingConnection, error: connectionError } = await supabase
       .from("connections")
       .select("*")
-      .or(`and(sender_id.eq.${userData.user.id},receiver_id.eq.${invitedUserData.id}),and(sender_id.eq.${invitedUserData.id},receiver_id.eq.${userData.user.id})`)
+      .or(`and(user_id.eq.${userData.user.id},connected_user_id.eq.${invitedUserData.id}),and(user_id.eq.${invitedUserData.id},connected_user_id.eq.${userData.user.id})`)
       .maybeSingle();
 
     if (connectionError) {
@@ -142,9 +155,9 @@ export const inviteByEmail = async (email: string): Promise<{ success: boolean; 
     const { error: createError } = await supabase
       .from("connections")
       .insert({
-        sender_id: userData.user.id,
-        receiver_id: invitedUserData.id,
-        status: "pending" as ConnectionStatus,
+        user_id: userData.user.id,
+        connected_user_id: invitedUserData.id,
+        status: "pending",
       });
 
     if (createError) {

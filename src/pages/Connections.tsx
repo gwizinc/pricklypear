@@ -36,8 +36,8 @@ import {
   UserCheck
 } from "lucide-react";
 import { 
-  Connection, 
-  ConnectionStatus, 
+  Connection,
+  ConnectionStatus,
   getConnections, 
   updateConnectionStatus,
   deleteConnection,
@@ -88,9 +88,9 @@ const Connections = () => {
     
     setIsInviting(true);
     try {
-      const newConnection = await inviteByEmail(email);
+      const response = await inviteByEmail(email);
       
-      if (newConnection) {
+      if (response.success) {
         setEmail("");
         setIsDialogOpen(false);
         loadConnections();
@@ -98,6 +98,12 @@ const Connections = () => {
         toast({
           title: "Invitation sent",
           description: `You've sent a connection invitation to ${email}`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: response.message,
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -151,11 +157,11 @@ const Connections = () => {
 
   // Filter connections by status and relation to current user
   const pendingIncomingConnections = connections.filter(
-    c => c.status === 'pending' && c.connected_user_id === user?.id
+    c => c.status === 'pending' && !c.isUserSender
   );
   
   const pendingOutgoingConnections = connections.filter(
-    c => c.status === 'pending' && c.connected_user_id !== user?.id
+    c => c.status === 'pending' && c.isUserSender
   );
   
   const acceptedConnections = connections.filter(c => c.status === 'accepted');
@@ -290,7 +296,7 @@ const Connections = () => {
                         </Badge>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Connected since {new Date(connection.updated_at).toLocaleDateString()}</p>
+                        <p>Connected since {new Date(connection.updatedAt).toLocaleDateString()}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
