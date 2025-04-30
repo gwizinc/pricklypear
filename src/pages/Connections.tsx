@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,7 @@ import {
   UserPlus, 
   Users, 
   Loader2, 
-  Search, 
+  Mail, 
   CheckCircle2, 
   XCircle, 
   Trash2, 
@@ -42,7 +41,7 @@ import {
   createConnection, 
   updateConnectionStatus,
   deleteConnection,
-  searchUsers
+  inviteByEmail
 } from "@/services/connectionService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -50,9 +49,8 @@ import { useAuth } from "@/contexts/AuthContext";
 const Connections = () => {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{ id: string; username: string }[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isInviting, setIsInviting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -78,47 +76,39 @@ const Connections = () => {
     }
   };
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    
-    setIsSearching(true);
-    try {
-      const results = await searchUsers(searchQuery);
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Error searching users:", error);
+  const handleInvite = async () => {
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({
-        title: "Error",
-        description: "Failed to search users",
+        title: "Invalid email",
+        description: "Please enter a valid email address",
         variant: "destructive",
       });
-    } finally {
-      setIsSearching(false);
+      return;
     }
-  };
-
-  const handleCreateConnection = async (userId: string) => {
+    
+    setIsInviting(true);
     try {
-      const newConnection = await createConnection(userId);
+      const newConnection = await inviteByEmail(email);
       
       if (newConnection) {
-        setSearchResults([]);
-        setSearchQuery("");
+        setEmail("");
         setIsDialogOpen(false);
         loadConnections();
         
         toast({
-          title: "Connection request sent",
-          description: `You've sent a connection request to ${newConnection.username}`,
+          title: "Invitation sent",
+          description: `You've sent a connection invitation to ${email}`,
         });
       }
     } catch (error) {
-      console.error("Error creating connection:", error);
+      console.error("Error inviting connection:", error);
       toast({
         title: "Error",
-        description: "Failed to send connection request",
+        description: "Failed to send invitation",
         variant: "destructive",
       });
+    } finally {
+      setIsInviting(false);
     }
   };
 
@@ -194,57 +184,35 @@ const Connections = () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Find Users</DialogTitle>
+              <DialogTitle>Invite via Email</DialogTitle>
             </DialogHeader>
             
             <div className="flex items-center gap-2 mt-2">
               <Input
-                placeholder="Search by username"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Enter email address"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSearch();
+                  if (e.key === "Enter" && !isInviting) {
+                    handleInvite();
                   }
                 }}
               />
               <Button 
-                onClick={handleSearch}
-                disabled={!searchQuery.trim() || isSearching}
+                onClick={handleInvite}
+                disabled={!email.trim() || isInviting}
               >
-                {isSearching ? (
+                {isInviting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Search className="h-4 w-4" />
+                  <Mail className="h-4 w-4" />
                 )}
               </Button>
             </div>
             
-            <div className="mt-4">
-              {searchResults.length > 0 ? (
-                <div className="space-y-3">
-                  {searchResults.map((result) => (
-                    <div 
-                      key={result.id} 
-                      className="flex items-center justify-between p-2 border rounded-md"
-                    >
-                      <span>{result.username}</span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleCreateConnection(result.id)}
-                      >
-                        <UserPlus className="h-4 w-4 mr-1" />
-                        Connect
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                  {searchQuery && !isSearching ? "No users found" : "Search for users to connect"}
-                </div>
-              )}
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              Enter your friend's email address to send them a connection invitation.
             </div>
             
             <DialogFooter>
