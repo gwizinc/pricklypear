@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { 
   Dialog,
   DialogContent,
@@ -195,7 +196,12 @@ const ThreadCard = ({ thread }: { thread: Thread }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{thread.title}</CardTitle>
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg">{thread.title}</CardTitle>
+          <Badge variant={thread.status === 'open' ? 'default' : 'secondary'}>
+            {thread.status === 'open' ? 'Open' : 'Closed'}
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">

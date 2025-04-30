@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, LogIn } from "lucide-react";
 import ChatContainer from "@/components/ChatContainer";
 import type { Thread } from "@/types/thread";
@@ -97,7 +98,12 @@ const ThreadView = () => {
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Threads
         </Button>
-        <h1 className="text-3xl font-bold mb-2">{thread.title}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold mb-2">{thread.title}</h1>
+          <Badge variant={thread.status === 'open' ? 'default' : 'secondary'}>
+            {thread.status === 'open' ? 'Open' : 'Closed'}
+          </Badge>
+        </div>
         <p className="text-muted-foreground">
           Conversation with {otherParticipant}
         </p>

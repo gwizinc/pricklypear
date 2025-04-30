@@ -20,7 +20,8 @@ export const createThread = async (title: string, participants: string[]): Promi
         title,
         participants,
         created_at: new Date().toISOString(),
-        owner_id: user.id
+        owner_id: user.id,
+        status: 'open'
       })
       .select()
       .single();
@@ -34,7 +35,8 @@ export const createThread = async (title: string, participants: string[]): Promi
       id: data.id,
       title: data.title,
       createdAt: new Date(data.created_at),
-      participants: data.participants
+      participants: data.participants,
+      status: data.status
     };
   } catch (error) {
     console.error("Exception creating thread:", error);
@@ -58,7 +60,8 @@ export const getThreads = async (): Promise<Thread[]> => {
       id: thread.id,
       title: thread.title,
       createdAt: new Date(thread.created_at),
-      participants: thread.participants
+      participants: thread.participants,
+      status: thread.status
     }));
   } catch (error) {
     console.error("Exception fetching threads:", error);
@@ -83,7 +86,8 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
       id: data.id,
       title: data.title,
       createdAt: new Date(data.created_at),
-      participants: data.participants
+      participants: data.participants,
+      status: data.status
     };
   } catch (error) {
     console.error("Exception fetching thread:", error);

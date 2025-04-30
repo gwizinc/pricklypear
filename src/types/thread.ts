@@ -5,4 +5,5 @@ export type Thread = {
   createdAt: Date;
   participants: string[];
   owner_id?: string;
+  status: string;
 };
