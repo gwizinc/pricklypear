@@ -5,6 +5,13 @@ import { v4 as uuidv4 } from "uuid";
 
 export const createThread = async (title: string, participants: string[]): Promise<Thread | null> => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.error("No authenticated user found");
+      return null;
+    }
+    
     const threadId = uuidv4();
     const { data, error } = await supabase
       .from('threads')
@@ -12,7 +19,8 @@ export const createThread = async (title: string, participants: string[]): Promi
         id: threadId,
         title,
         participants,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        owner_id: user.id
       })
       .select()
       .single();

@@ -39,22 +39,43 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       threads: {
         Row: {
           created_at: string | null
           id: string
+          owner_id: string | null
           participants: string[]
           title: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          owner_id?: string | null
           participants?: string[]
           title: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          owner_id?: string | null
           participants?: string[]
           title?: string
         }
