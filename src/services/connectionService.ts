@@ -135,19 +135,35 @@ export const inviteByEmail = async (email: string): Promise<{ success: boolean; 
       };
     }
 
-    // Check if a connection already exists
-    const { data: existingConnection, error: connectionError } = await supabase
+    // Simplified query to avoid complex type instantiation
+    // Check if a connection already exists where current user is sender
+    const { data: existingConnectionAsSender, error: senderError } = await supabase
       .from("connections")
       .select("*")
-      .or(`and(user_id.eq.${userData.user.id},connected_user_id.eq.${invitedUserData.id}),and(user_id.eq.${invitedUserData.id},connected_user_id.eq.${userData.user.id})`)
+      .eq("user_id", userData.user.id)
+      .eq("connected_user_id", invitedUserData.id)
       .maybeSingle();
-
-    if (connectionError) {
-      console.error("Error checking for existing connection:", connectionError);
+      
+    if (senderError) {
+      console.error("Error checking for existing connection as sender:", senderError);
+      return { success: false, message: "Error processing invitation" };
+    }
+    
+    // Check if a connection already exists where current user is receiver
+    const { data: existingConnectionAsReceiver, error: receiverError } = await supabase
+      .from("connections")
+      .select("*")
+      .eq("user_id", invitedUserData.id)
+      .eq("connected_user_id", userData.user.id)
+      .maybeSingle();
+    
+    if (receiverError) {
+      console.error("Error checking for existing connection as receiver:", receiverError);
       return { success: false, message: "Error processing invitation" };
     }
 
-    if (existingConnection) {
+    // If connection exists in either direction
+    if (existingConnectionAsSender || existingConnectionAsReceiver) {
       return { success: false, message: "A connection with this user already exists" };
     }
 
