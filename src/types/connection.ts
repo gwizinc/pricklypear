@@ -13,6 +13,8 @@ export interface Connection {
 }
 
 export interface InviteResponse {
+  connection?: Connection;
+  error?: Error;
   success: boolean;
   message: string;
 }

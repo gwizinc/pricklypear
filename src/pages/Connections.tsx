@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import { 
   Connection,
-  ConnectionStatus,
+  ConnectionStatus, 
   getConnections, 
   updateConnectionStatus,
   deleteConnection,

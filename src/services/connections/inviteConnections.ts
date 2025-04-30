@@ -1,48 +1,66 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Connection, ConnectionStatus } from "@/types/connection";
-
-export interface InviteResponse {
-  connection?: Connection;
-  error?: Error;
-}
+import { Connection, ConnectionStatus, InviteResponse } from "@/types/connection";
 
 // Function to send an invitation by email
 export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
   try {
     const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) throw new Error("User not authenticated");
+    if (!userData.user) {
+      return { 
+        success: false, 
+        message: "User not authenticated" 
+      };
+    }
     
     const userId = userData.user.id;
     
-    // Get the user by email
-    const { data: invitedUser, error: invitedUserError } = await supabase
+    // Get the user by email - we need to query the profiles table directly
+    // using the email to find a matching profile
+    const { data: users, error: usersError } = await supabase
       .from("profiles")
       .select("id, username")
-      .eq("id", (await supabase.from("auth").select("id").eq("email", email).single()).data?.id)
-      .single();
+      .eq("username", email) // Assuming email might be stored in username for simplicity
+      .maybeSingle();
+      
+    if (usersError || !users) {
+      console.error("Error finding user:", usersError);
+      return { 
+        success: false, 
+        message: "User not found with that email" 
+      };
+    }
     
-    if (invitedUserError) throw new Error("User not found");
+    const invitedUser = users;
     
     // Check if there's already a connection in either direction
-    const { data: existingConnection1 } = await supabase
+    const { data: existingConnection1, error: connError1 } = await supabase
       .from("connections")
       .select("*")
       .eq("user_id", userId)
       .eq("connected_user_id", invitedUser.id)
       .maybeSingle();
       
-    const { data: existingConnection2 } = await supabase
+    if (connError1) {
+      console.error("Error checking existing connections:", connError1);
+    }
+      
+    const { data: existingConnection2, error: connError2 } = await supabase
       .from("connections")
       .select("*")
       .eq("user_id", invitedUser.id)
       .eq("connected_user_id", userId)
       .maybeSingle();
     
-    const existingConnection = existingConnection1 || existingConnection2;
+    if (connError2) {
+      console.error("Error checking existing connections:", connError2);
+    }
     
-    if (existingConnection) {
-      throw new Error("Connection already exists");
+    if (existingConnection1 || existingConnection2) {
+      return { 
+        success: false, 
+        message: "Connection already exists" 
+      };
     }
     
     // Create a new connection
@@ -56,9 +74,17 @@ export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
       .select()
       .single();
     
-    if (connectionError) throw connectionError;
+    if (connectionError) {
+      console.error("Error creating connection:", connectionError);
+      return { 
+        success: false, 
+        message: connectionError.message 
+      };
+    }
     
     return { 
+      success: true,
+      message: `Connection request sent to ${invitedUser.username}`,
       connection: {
         id: connection.id,
         otherUserId: invitedUser.id,
@@ -72,6 +98,11 @@ export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
     };
   } catch (error) {
     console.error("Error inviting user:", error);
-    return { error: error as Error };
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return { 
+      success: false, 
+      message: errorMessage,
+      error: error as Error 
+    };
   }
 };
