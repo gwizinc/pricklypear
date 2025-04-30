@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,12 +139,12 @@ const ChatPanel = ({
   return (
     <div className={`flex flex-col h-full ${bgColor}`}>
       <div className="p-4 border-b flex justify-between items-center">
-        <h3 className="font-medium">{currentUser}</h3>
         {otherUser && (
           <div className="text-sm text-muted-foreground">
             Chatting with {otherUser}
           </div>
         )}
+        <div></div> {/* Empty div to maintain the space between elements */}
       </div>
       
       {/* Messages container with scrolling */}
