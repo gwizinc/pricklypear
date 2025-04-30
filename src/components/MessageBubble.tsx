@@ -1,8 +1,10 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types/message";
+import { RotateCcw } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MessageBubbleProps {
   message: Message;
@@ -10,6 +12,13 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = ({ message, isCurrentUser }: MessageBubbleProps) => {
+  const [showOriginal, setShowOriginal] = useState(false);
+  const hasOriginalText = message.original_text && message.original_text !== message.text;
+
+  const toggleOriginalText = () => {
+    setShowOriginal(prev => !prev);
+  };
+
   return (
     <div
       className={cn(
@@ -22,15 +31,38 @@ const MessageBubble = ({ message, isCurrentUser }: MessageBubbleProps) => {
         <span>•</span>
         <span>{format(message.timestamp, "h:mm a")}</span>
       </div>
-      <div
-        className={cn(
-          "px-4 py-2 rounded-2xl shadow-sm",
-          isCurrentUser
-            ? "bg-chat-sender1 text-white rounded-tr-none"
-            : "bg-chat-gray rounded-tl-none"
+      <div className="flex items-start gap-1">
+        <div
+          className={cn(
+            "px-4 py-2 rounded-2xl shadow-sm",
+            isCurrentUser
+              ? "bg-chat-sender1 text-white rounded-tr-none"
+              : "bg-chat-gray rounded-tl-none"
+          )}
+        >
+          {showOriginal && hasOriginalText ? message.original_text : message.text}
+        </div>
+        
+        {isCurrentUser && hasOriginalText && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button 
+                  onClick={toggleOriginalText} 
+                  className={cn(
+                    "p-1 rounded-full hover:bg-gray-200 transition-colors",
+                    showOriginal && "bg-gray-200"
+                  )}
+                >
+                  <RotateCcw className="h-4 w-4 text-gray-500" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{showOriginal ? "Show AI rephrased message" : "Show original message"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
-      >
-        {message.text}
       </div>
     </div>
   );
