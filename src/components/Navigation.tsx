@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -120,9 +119,6 @@ const Navigation = () => {
               <Settings className="mr-2 h-4 w-4" />
               <span>Preferences</span>
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center justify-center">
-            <ThemeToggle />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
