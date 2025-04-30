@@ -43,6 +43,9 @@ const Threads = () => {
     fetchThreads();
   }, [user]);
 
+  const openThreads = threads.filter(thread => thread.status === 'open');
+  const closedThreads = threads.filter(thread => thread.status === 'closed');
+
   const handleCreateThread = async () => {
     if (!user) {
       toast({
@@ -130,10 +133,50 @@ const Threads = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {threads.map((thread) => (
-          <ThreadCard key={thread.id} thread={thread} />
-        ))}
+      <div className="space-y-8">
+        {/* Open Threads Section */}
+        <section>
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            Open Threads
+            {openThreads.length > 0 && (
+              <Badge variant="outline" className="ml-2">{openThreads.length}</Badge>
+            )}
+          </h2>
+          
+          {openThreads.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {openThreads.map((thread) => (
+                <ThreadCard key={thread.id} thread={thread} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 border border-dashed rounded-lg">
+              <p className="text-muted-foreground">No open threads</p>
+            </div>
+          )}
+        </section>
+        
+        {/* Closed Threads Section */}
+        <section>
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            Closed Threads
+            {closedThreads.length > 0 && (
+              <Badge variant="outline" className="ml-2">{closedThreads.length}</Badge>
+            )}
+          </h2>
+          
+          {closedThreads.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {closedThreads.map((thread) => (
+                <ThreadCard key={thread.id} thread={thread} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 border border-dashed rounded-lg">
+              <p className="text-muted-foreground">No closed threads</p>
+            </div>
+          )}
+        </section>
       </div>
     );
   };
