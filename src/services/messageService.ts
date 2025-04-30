@@ -13,12 +13,12 @@ export const saveMessage = async (
     const { data, error } = await supabase
       .from('messages')
       .insert({
-        id: uuidv4(),
         sender,
         original_text: original,
         kind_text: kind,
         selected_text: selected,
-        timestamp: new Date()
+        // Convert Date to ISO string to match the expected string type
+        timestamp: new Date().toISOString()
       })
       .select();
 
