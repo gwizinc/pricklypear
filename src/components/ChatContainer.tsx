@@ -50,7 +50,7 @@ const ChatContainer = ({
           toast({
             title: "User Not Found",
             description: `User "${user1}" doesn't exist in the database. Messages from this user won't be saved.`,
-            variant: "warning",
+            variant: "default", // Changed from "warning" to "default"
           });
         }
         
@@ -58,7 +58,7 @@ const ChatContainer = ({
           toast({
             title: "User Not Found",
             description: `User "${user2}" doesn't exist in the database. Messages from this user won't be saved.`,
-            variant: "warning",
+            variant: "default", // Changed from "warning" to "default"
           });
         }
       }
