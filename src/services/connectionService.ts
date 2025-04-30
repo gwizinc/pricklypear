@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
 
 // Define type for connection status
 export type ConnectionStatus = 'pending' | 'accepted' | 'declined';
@@ -29,7 +28,7 @@ export const getConnections = async (): Promise<Connection[]> => {
     .from('connections')
     .select(`
       *,
-      profiles:connected_user_id(id, username)
+      profiles!connections_connected_user_id_fkey(username)
     `)
     .or(`user_id.eq.${user.user.id},connected_user_id.eq.${user.user.id}`)
     .order('created_at', { ascending: false });
@@ -47,6 +46,7 @@ export const getConnections = async (): Promise<Connection[]> => {
       // Current user initiated the connection
       connectionWithUsername = {
         ...conn,
+        status: conn.status as ConnectionStatus,
         username: conn.profiles?.username || 'Unknown User'
       };
     } else {
@@ -56,6 +56,7 @@ export const getConnections = async (): Promise<Connection[]> => {
         // Swap the IDs so from the current user's perspective, they're always the "user_id"
         user_id: conn.connected_user_id,
         connected_user_id: conn.user_id,
+        status: conn.status as ConnectionStatus,
         username: conn.profiles?.username || 'Unknown User'
       };
     }
@@ -84,11 +85,11 @@ export const createConnection = async (userId: string): Promise<Connection | nul
     .insert({
       user_id: user.user.id,
       connected_user_id: userId,
-      status: 'pending'
+      status: 'pending' as ConnectionStatus
     })
     .select(`
       *,
-      profiles:connected_user_id(id, username)
+      profiles!connections_connected_user_id_fkey(username)
     `)
     .single();
 
@@ -100,7 +101,8 @@ export const createConnection = async (userId: string): Promise<Connection | nul
   // Return with username included
   return {
     ...data,
-    username: data.profiles?.username || 'Unknown User'
+    status: data.status as ConnectionStatus,
+    username: data.profiles?.username || profileData?.username || 'Unknown User'
   };
 };
 
@@ -115,7 +117,7 @@ export const updateConnectionStatus = async (connectionId: string, status: Conne
     .eq('id', connectionId)
     .select(`
       *,
-      profiles:connected_user_id(id, username)
+      profiles!connections_connected_user_id_fkey(username)
     `)
     .single();
 
@@ -126,6 +128,7 @@ export const updateConnectionStatus = async (connectionId: string, status: Conne
 
   return {
     ...data,
+    status: data.status as ConnectionStatus,
     username: data.profiles?.username || 'Unknown User'
   };
 };
