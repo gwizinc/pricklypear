@@ -9,9 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 interface ChatContainerProps {
   user1: string;
   user2: string;
+  threadId?: string;
 }
 
-const ChatContainer = ({ user1, user2 }: ChatContainerProps) => {
+const ChatContainer = ({ user1, user2, threadId }: ChatContainerProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -19,13 +20,13 @@ const ChatContainer = ({ user1, user2 }: ChatContainerProps) => {
   useEffect(() => {
     const fetchMessages = async () => {
       setIsLoading(true);
-      const fetchedMessages = await getMessages();
+      const fetchedMessages = await getMessages(threadId);
       setMessages(fetchedMessages);
       setIsLoading(false);
     };
 
     fetchMessages();
-  }, []);
+  }, [threadId]);
 
   const handleSendMessage = async (sender: string, text: string) => {
     // Create optimistic update
@@ -35,6 +36,7 @@ const ChatContainer = ({ user1, user2 }: ChatContainerProps) => {
       text,
       sender,
       timestamp: new Date(),
+      threadId,
     };
     
     setMessages((prevMessages) => [...prevMessages, tempMessage]);
@@ -55,12 +57,14 @@ const ChatContainer = ({ user1, user2 }: ChatContainerProps) => {
             currentUser={user1}
             bgColor="bg-chat-blue/20"
             onSendMessage={(text) => handleSendMessage(user1, text)}
+            threadId={threadId}
           />
           <ChatPanel
             messages={messages}
             currentUser={user2}
             bgColor="bg-chat-purple/20"
             onSendMessage={(text) => handleSendMessage(user2, text)}
+            threadId={threadId}
           />
         </>
       )}

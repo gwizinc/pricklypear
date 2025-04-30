@@ -69,6 +69,7 @@ const ThreadView = () => {
       <ChatContainer 
         user1={thread.participants[0]} 
         user2={thread.participants[1]} 
+        threadId={thread.id}
       />
     </div>
   );

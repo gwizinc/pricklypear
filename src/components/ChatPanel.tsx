@@ -15,13 +15,15 @@ interface ChatPanelProps {
   currentUser: string;
   bgColor: string;
   onSendMessage: (text: string) => void;
+  threadId?: string;
 }
 
 const ChatPanel = ({ 
   messages, 
   currentUser, 
   bgColor, 
-  onSendMessage 
+  onSendMessage,
+  threadId
 }: ChatPanelProps) => {
   const [inputValue, setInputValue] = useState("");
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -74,7 +76,7 @@ const ChatPanel = ({
     
     try {
       // Then save to database (both original and AI versions)
-      await saveMessage(currentUser, originalMessage, kindMessage, finalMessage);
+      await saveMessage(currentUser, originalMessage, kindMessage, finalMessage, threadId);
     } catch (error) {
       console.error("Failed to save message to database:", error);
       toast({

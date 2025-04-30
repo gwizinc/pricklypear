@@ -7,7 +7,8 @@ export const saveMessage = async (
   sender: string, 
   original: string, 
   kind: string, 
-  selected: string
+  selected: string,
+  threadId?: string
 ): Promise<string | null> => {
   try {
     const { data, error } = await supabase
@@ -17,6 +18,7 @@ export const saveMessage = async (
         original_text: original,
         kind_text: kind,
         selected_text: selected,
+        conversation_id: threadId,
         // Convert Date to ISO string to match the expected string type
         timestamp: new Date().toISOString()
       })
@@ -34,12 +36,19 @@ export const saveMessage = async (
   }
 };
 
-export const getMessages = async (): Promise<Message[]> => {
+export const getMessages = async (threadId?: string): Promise<Message[]> => {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('messages')
       .select('*')
       .order('timestamp', { ascending: true });
+    
+    // If a threadId is provided, filter messages for that thread
+    if (threadId) {
+      query = query.eq('conversation_id', threadId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Error fetching messages:", error);
@@ -52,7 +61,8 @@ export const getMessages = async (): Promise<Message[]> => {
       sender: msg.sender,
       timestamp: new Date(msg.timestamp),
       original_text: msg.original_text,
-      kind_text: msg.kind_text
+      kind_text: msg.kind_text,
+      threadId: msg.conversation_id
     }));
   } catch (error) {
     console.error("Exception fetching messages:", error);
