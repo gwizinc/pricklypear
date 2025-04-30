@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
   const { signIn, signUp, user } = useAuth();
@@ -42,7 +42,7 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signUp(email, password, username || undefined);
+      await signUp(email, password, fullName);
       navigate('/threads');
     } catch (error) {
       console.error('Signup error:', error);
@@ -130,13 +130,14 @@ const AuthPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username (optional)</Label>
+                    <Label htmlFor="fullName">Full Name</Label>
                     <Input 
-                      id="username" 
+                      id="fullName" 
                       type="text" 
-                      placeholder="YourUsername" 
-                      value={username} 
-                      onChange={(e) => setUsername(e.target.value)} 
+                      placeholder="John Doe" 
+                      value={fullName} 
+                      onChange={(e) => setFullName(e.target.value)} 
+                      required 
                     />
                   </div>
                   <div className="space-y-2">
