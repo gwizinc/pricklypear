@@ -8,7 +8,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 interface MessageReviewDialogProps {
@@ -28,16 +27,11 @@ const MessageReviewDialog = ({
   onAccept,
   isLoading,
 }: MessageReviewDialogProps) => {
-  const [editedMessage, setEditedMessage] = React.useState(kindMessage);
   const { toast } = useToast();
 
-  React.useEffect(() => {
-    setEditedMessage(kindMessage);
-  }, [kindMessage]);
-
   const handleAccept = () => {
-    if (editedMessage.trim()) {
-      onAccept(editedMessage);
+    if (kindMessage.trim()) {
+      onAccept(kindMessage);
       onOpenChange(false);
       toast({
         title: "Message sent",
@@ -59,12 +53,7 @@ const MessageReviewDialog = ({
           </div>
           <div>
             <p className="text-sm text-muted-foreground mb-2">AI suggested rephrasing:</p>
-            <Textarea
-              value={editedMessage}
-              onChange={(e) => setEditedMessage(e.target.value)}
-              className="min-h-[100px]"
-              placeholder="Edit the suggested message..."
-            />
+            <div className="bg-muted p-3 rounded-md text-sm">{kindMessage}</div>
           </div>
         </div>
         <DialogFooter className="flex sm:justify-between">
@@ -73,12 +62,12 @@ const MessageReviewDialog = ({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            Try Again
           </Button>
           <Button
             type="button"
             onClick={handleAccept}
-            disabled={!editedMessage.trim() || isLoading}
+            disabled={!kindMessage.trim() || isLoading}
           >
             {isLoading ? "Processing..." : "Accept & Send"}
           </Button>
