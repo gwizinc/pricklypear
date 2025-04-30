@@ -3,21 +3,33 @@ import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ChatPanel from "./ChatPanel";
 import type { Message } from "@/types/message";
-import { getMessages, saveMessage } from "@/services/messageService";
+import { getMessages } from "@/services/messageService";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface ChatContainerProps {
   user1: string;
   user2: string;
-  threadId?: string;
+  threadId: string;
 }
 
 const ChatContainer = ({ user1, user2, threadId }: ChatContainerProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!threadId) {
+      toast({
+        title: "Error",
+        description: "Thread ID is required",
+        variant: "destructive",
+      });
+      navigate("/threads");
+      return;
+    }
+
     const fetchMessages = async () => {
       setIsLoading(true);
       const fetchedMessages = await getMessages(threadId);
@@ -26,9 +38,18 @@ const ChatContainer = ({ user1, user2, threadId }: ChatContainerProps) => {
     };
 
     fetchMessages();
-  }, [threadId]);
+  }, [threadId, navigate, toast]);
 
   const handleSendMessage = async (sender: string, text: string) => {
+    if (!threadId) {
+      toast({
+        title: "Error",
+        description: "Cannot send messages outside of a thread",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Create optimistic update
     const tempId = uuidv4();
     const tempMessage: Message = {

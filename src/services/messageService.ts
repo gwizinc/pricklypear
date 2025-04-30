@@ -8,9 +8,14 @@ export const saveMessage = async (
   original: string, 
   kind: string, 
   selected: string,
-  threadId?: string
+  threadId: string
 ): Promise<string | null> => {
   try {
+    if (!threadId) {
+      console.error("Thread ID is required");
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('messages')
       .insert({
@@ -36,19 +41,18 @@ export const saveMessage = async (
   }
 };
 
-export const getMessages = async (threadId?: string): Promise<Message[]> => {
+export const getMessages = async (threadId: string): Promise<Message[]> => {
   try {
-    let query = supabase
-      .from('messages')
-      .select('*')
-      .order('timestamp', { ascending: true });
-    
-    // If a threadId is provided, filter messages for that thread
-    if (threadId) {
-      query = query.eq('conversation_id', threadId);
+    if (!threadId) {
+      console.error("Thread ID is required");
+      return [];
     }
 
-    const { data, error } = await query;
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', threadId)
+      .order('timestamp', { ascending: true });
 
     if (error) {
       console.error("Error fetching messages:", error);

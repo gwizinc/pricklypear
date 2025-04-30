@@ -9,13 +9,14 @@ import { reviewMessage } from "@/utils/messageReview";
 import { saveMessage } from "@/services/messageService";
 import type { Message } from "@/types/message";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface ChatPanelProps {
   messages: Message[];
   currentUser: string;
   bgColor: string;
   onSendMessage: (text: string) => void;
-  threadId?: string;
+  threadId: string;
 }
 
 const ChatPanel = ({ 
@@ -32,9 +33,20 @@ const ChatPanel = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!threadId) {
+      toast({
+        title: "Error",
+        description: "Cannot send messages outside of a thread",
+        variant: "destructive",
+      });
+      navigate("/threads");
+      return;
+    }
     
     if (inputValue.trim()) {
       setOriginalMessage(inputValue.trim());
@@ -71,6 +83,15 @@ const ChatPanel = ({
   };
 
   const handleSendMessage = async (finalMessage: string) => {
+    if (!threadId) {
+      toast({
+        title: "Error",
+        description: "Cannot send messages outside of a thread",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // First call parent's onSendMessage for immediate UI update
     onSendMessage(finalMessage);
     
