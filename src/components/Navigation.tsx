@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,8 @@ import {
   Users, 
   Menu,
   X,
-  UserRound
+  UserRound,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -113,6 +115,12 @@ const Navigation = () => {
             {user.user_metadata?.username || user.email || 'My Account'}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link to="/preferences" className="flex w-full items-center">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Preferences</span>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem className="flex items-center justify-center">
             <ThemeToggle />
           </DropdownMenuItem>

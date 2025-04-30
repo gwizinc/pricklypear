@@ -14,6 +14,7 @@ import ThreadView from "./pages/ThreadView";
 import Connections from "./pages/Connections";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import Preferences from "./pages/Preferences";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="/threads/:threadId" element={<ThreadView />} />
                 <Route path="/connections" element={<Connections />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/preferences" element={<Preferences />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
