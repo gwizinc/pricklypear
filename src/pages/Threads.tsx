@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -247,12 +246,20 @@ const ThreadCard = ({ thread }: { thread: Thread }) => {
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground">
-          Created {thread.createdAt.toLocaleDateString()}
-        </p>
-        <p className="text-sm">
-          Participants: {thread.participants.join(", ")}
-        </p>
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Created {thread.createdAt.toLocaleDateString()}
+          </p>
+          <p className="text-sm">
+            Participants: {thread.participants.join(", ")}
+          </p>
+          <div className="mt-3">
+            <p className="text-sm font-medium">Summary:</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {thread.summary ? thread.summary : "No summary generated yet."}
+            </p>
+          </div>
+        </div>
       </CardContent>
       <CardFooter>
         <Button asChild variant="outline" className="w-full">

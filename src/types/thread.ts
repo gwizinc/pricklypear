@@ -6,4 +6,5 @@ export type Thread = {
   participants: string[];
   owner_id?: string;
   status: string;
+  summary?: string | null;
 };

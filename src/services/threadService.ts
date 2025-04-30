@@ -21,7 +21,8 @@ export const createThread = async (title: string, participants: string[]): Promi
         participants,
         created_at: new Date().toISOString(),
         owner_id: user.id,
-        status: 'open'
+        status: 'open',
+        summary: null
       })
       .select()
       .single();
@@ -36,7 +37,8 @@ export const createThread = async (title: string, participants: string[]): Promi
       title: data.title,
       createdAt: new Date(data.created_at),
       participants: data.participants,
-      status: data.status
+      status: data.status,
+      summary: data.summary
     };
   } catch (error) {
     console.error("Exception creating thread:", error);
@@ -61,7 +63,8 @@ export const getThreads = async (): Promise<Thread[]> => {
       title: thread.title,
       createdAt: new Date(thread.created_at),
       participants: thread.participants,
-      status: thread.status
+      status: thread.status,
+      summary: thread.summary
     }));
   } catch (error) {
     console.error("Exception fetching threads:", error);
@@ -87,10 +90,30 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
       title: data.title,
       createdAt: new Date(data.created_at),
       participants: data.participants,
-      status: data.status
+      status: data.status,
+      summary: data.summary
     };
   } catch (error) {
     console.error("Exception fetching thread:", error);
     return null;
+  }
+};
+
+export const updateThreadSummary = async (threadId: string, summary: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('threads')
+      .update({ summary })
+      .eq('id', threadId);
+
+    if (error) {
+      console.error("Error updating thread summary:", error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Exception updating thread summary:", error);
+    return false;
   }
 };
