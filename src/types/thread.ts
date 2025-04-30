@@ -7,4 +7,5 @@ export type Thread = {
   owner_id?: string;
   status: string;
   summary?: string | null;
+  closeRequestedBy?: string | null;
 };

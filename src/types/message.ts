@@ -9,4 +9,7 @@ export type Message = {
   original_text?: string;
   kind_text?: string;
   threadId?: string;
+  
+  // For system messages (close requests etc.)
+  isSystem?: boolean;
 };

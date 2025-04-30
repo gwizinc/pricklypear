@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 import { v4 as uuidv4 } from "uuid";
@@ -84,5 +83,41 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
   } catch (error) {
     console.error("Exception fetching messages:", error);
     return [];
+  }
+};
+
+export const saveSystemMessage = async (
+  text: string,
+  threadId: string
+): Promise<string | null> => {
+  try {
+    if (!threadId) {
+      console.error("Thread ID is required");
+      return null;
+    }
+
+    // System messages don't need actual users
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        sender: 'system',
+        original_text: text,
+        kind_text: text,
+        selected_text: text,
+        conversation_id: threadId,
+        timestamp: new Date().toISOString(),
+        is_system: true
+      })
+      .select();
+
+    if (error) {
+      console.error("Error saving system message:", error);
+      return null;
+    }
+
+    return data?.[0]?.id || null;
+  } catch (error) {
+    console.error("Exception saving system message:", error);
+    return null;
   }
 };
