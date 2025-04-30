@@ -250,9 +250,6 @@ const ThreadCard = ({ thread }: { thread: Thread }) => {
           <p className="text-sm text-muted-foreground">
             Created {thread.createdAt.toLocaleDateString()}
           </p>
-          <p className="text-sm">
-            Participants: {thread.participants.join(", ")}
-          </p>
           <div className="mt-3">
             <p className="text-sm font-medium">Summary:</p>
             <p className="text-sm text-muted-foreground mt-1">
