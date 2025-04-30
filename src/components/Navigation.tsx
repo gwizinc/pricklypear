@@ -14,6 +14,11 @@ const Navigation = () => {
           <NavigationMenuList>
             <NavigationMenuItem className="list-none">
               <Button asChild variant="ghost">
+                <Link to="/threads">Threads</Link>
+              </Button>
+            </NavigationMenuItem>
+            <NavigationMenuItem className="list-none">
+              <Button asChild variant="ghost">
                 <Link to="/demo">Demo</Link>
               </Button>
             </NavigationMenuItem>
