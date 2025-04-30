@@ -63,34 +63,57 @@ const Connections = () => {
 
   const loadConnections = async () => {
     setIsLoading(true);
-    const fetchedConnections = await getConnections();
-    setConnections(fetchedConnections);
-    setIsLoading(false);
+    try {
+      const fetchedConnections = await getConnections();
+      setConnections(fetchedConnections);
+    } catch (error) {
+      console.error("Error loading connections:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load connections",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     
     setIsSearching(true);
-    const results = await searchUsers(searchQuery);
-    setSearchResults(results);
-    setIsSearching(false);
+    try {
+      const results = await searchUsers(searchQuery);
+      setSearchResults(results);
+    } catch (error) {
+      console.error("Error searching users:", error);
+      toast({
+        title: "Error",
+        description: "Failed to search users",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleCreateConnection = async (userId: string) => {
-    const newConnection = await createConnection(userId);
-    
-    if (newConnection) {
-      setSearchResults([]);
-      setSearchQuery("");
-      setIsDialogOpen(false);
-      loadConnections();
+    try {
+      const newConnection = await createConnection(userId);
       
-      toast({
-        title: "Connection request sent",
-        description: `You've sent a connection request to ${newConnection.username}`,
-      });
-    } else {
+      if (newConnection) {
+        setSearchResults([]);
+        setSearchQuery("");
+        setIsDialogOpen(false);
+        loadConnections();
+        
+        toast({
+          title: "Connection request sent",
+          description: `You've sent a connection request to ${newConnection.username}`,
+        });
+      }
+    } catch (error) {
+      console.error("Error creating connection:", error);
       toast({
         title: "Error",
         description: "Failed to send connection request",
@@ -100,15 +123,15 @@ const Connections = () => {
   };
 
   const handleUpdateStatus = async (connectionId: string, status: ConnectionStatus) => {
-    const success = await updateConnectionStatus(connectionId, status);
-    
-    if (success) {
+    try {
+      await updateConnectionStatus(connectionId, status);
       loadConnections();
       
       toast({
         title: status === 'accepted' ? "Connection accepted" : "Connection declined",
       });
-    } else {
+    } catch (error) {
+      console.error("Error updating connection:", error);
       toast({
         title: "Error",
         description: "Failed to update connection",
@@ -118,16 +141,16 @@ const Connections = () => {
   };
 
   const handleDeleteConnection = async (connectionId: string) => {
-    const success = await deleteConnection(connectionId);
-    
-    if (success) {
+    try {
+      await deleteConnection(connectionId);
       loadConnections();
       
       toast({
         title: "Connection removed",
         description: "The connection has been removed",
       });
-    } else {
+    } catch (error) {
+      console.error("Error deleting connection:", error);
       toast({
         title: "Error",
         description: "Failed to remove connection",
@@ -136,12 +159,13 @@ const Connections = () => {
     }
   };
 
+  // Filter connections by status and relation to current user
   const pendingIncomingConnections = connections.filter(
-    c => c.status === 'pending' && c.connectedUserId === user?.id
+    c => c.status === 'pending' && c.connected_user_id === user?.id
   );
   
   const pendingOutgoingConnections = connections.filter(
-    c => c.status === 'pending' && c.connectedUserId !== user?.id
+    c => c.status === 'pending' && c.connected_user_id !== user?.id
   );
   
   const acceptedConnections = connections.filter(c => c.status === 'accepted');
@@ -298,7 +322,7 @@ const Connections = () => {
                         </Badge>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Connected since {connection.updatedAt.toLocaleDateString()}</p>
+                        <p>Connected since {new Date(connection.updated_at).toLocaleDateString()}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
