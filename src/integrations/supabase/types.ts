@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           conversation_id: string | null
           id: string
+          is_system: boolean | null
           kind_text: string
           original_text: string
           selected_text: string
@@ -22,6 +23,7 @@ export type Database = {
         Insert: {
           conversation_id?: string | null
           id?: string
+          is_system?: boolean | null
           kind_text: string
           original_text: string
           selected_text: string
@@ -31,6 +33,7 @@ export type Database = {
         Update: {
           conversation_id?: string | null
           id?: string
+          is_system?: boolean | null
           kind_text?: string
           original_text?: string
           selected_text?: string
@@ -59,6 +62,7 @@ export type Database = {
       }
       threads: {
         Row: {
+          close_requested_by: string | null
           created_at: string | null
           id: string
           owner_id: string | null
@@ -68,6 +72,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          close_requested_by?: string | null
           created_at?: string | null
           id?: string
           owner_id?: string | null
@@ -77,6 +82,7 @@ export type Database = {
           title: string
         }
         Update: {
+          close_requested_by?: string | null
           created_at?: string | null
           id?: string
           owner_id?: string | null

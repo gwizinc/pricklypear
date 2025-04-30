@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 import { v4 as uuidv4 } from "uuid";
@@ -78,7 +79,8 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       timestamp: new Date(msg.timestamp),
       original_text: msg.original_text,
       kind_text: msg.kind_text,
-      threadId: msg.conversation_id
+      threadId: msg.conversation_id,
+      isSystem: msg.is_system
     }));
   } catch (error) {
     console.error("Exception fetching messages:", error);

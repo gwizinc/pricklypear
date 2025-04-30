@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Thread } from "@/types/thread";
 import { v4 as uuidv4 } from "uuid";
@@ -63,7 +64,8 @@ export const getThreads = async (): Promise<Thread[]> => {
       createdAt: new Date(thread.created_at),
       participants: thread.participants,
       status: thread.status,
-      summary: thread.summary
+      summary: thread.summary,
+      closeRequestedBy: thread.close_requested_by
     }));
   } catch (error) {
     console.error("Exception fetching threads:", error);
