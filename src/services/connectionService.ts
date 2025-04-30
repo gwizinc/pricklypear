@@ -28,8 +28,9 @@ export const getConnections = async (): Promise<Connection[]> => {
     .from('connections')
     .select(`
       *,
-      profiles!connections_connected_user_id_fkey(username)
+      profiles(username)
     `)
+    .eq('connected_user_id.profiles.id', 'profiles.id')
     .or(`user_id.eq.${user.user.id},connected_user_id.eq.${user.user.id}`)
     .order('created_at', { ascending: false });
 
@@ -47,7 +48,7 @@ export const getConnections = async (): Promise<Connection[]> => {
       connectionWithUsername = {
         ...conn,
         status: conn.status as ConnectionStatus,
-        username: conn.profiles?.username || 'Unknown User'
+        username: 'Unknown User'
       };
     } else {
       // The connection was initiated by someone else
@@ -57,7 +58,7 @@ export const getConnections = async (): Promise<Connection[]> => {
         user_id: conn.connected_user_id,
         connected_user_id: conn.user_id,
         status: conn.status as ConnectionStatus,
-        username: conn.profiles?.username || 'Unknown User'
+        username: 'Unknown User'
       };
     }
     
@@ -87,10 +88,7 @@ export const createConnection = async (userId: string): Promise<Connection | nul
       connected_user_id: userId,
       status: 'pending' as ConnectionStatus
     })
-    .select(`
-      *,
-      profiles!connections_connected_user_id_fkey(username)
-    `)
+    .select()
     .single();
 
   if (error) {
@@ -102,7 +100,7 @@ export const createConnection = async (userId: string): Promise<Connection | nul
   return {
     ...data,
     status: data.status as ConnectionStatus,
-    username: data.profiles?.username || profileData?.username || 'Unknown User'
+    username: profileData?.username || 'Unknown User'
   };
 };
 
@@ -115,10 +113,7 @@ export const updateConnectionStatus = async (connectionId: string, status: Conne
       updated_at: new Date().toISOString() 
     })
     .eq('id', connectionId)
-    .select(`
-      *,
-      profiles!connections_connected_user_id_fkey(username)
-    `)
+    .select()
     .single();
 
   if (error) {
@@ -126,10 +121,17 @@ export const updateConnectionStatus = async (connectionId: string, status: Conne
     throw new Error('Failed to update connection status');
   }
 
+  // After getting the connection, fetch the profile separately
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', data.connected_user_id)
+    .single();
+
   return {
     ...data,
     status: data.status as ConnectionStatus,
-    username: data.profiles?.username || 'Unknown User'
+    username: profileData?.username || 'Unknown User'
   };
 };
 
