@@ -15,6 +15,8 @@ interface ChatContainerProps {
   ephemeralMode?: boolean;
   ephemeralMessages?: Message[];
   onSendEphemeralMessage?: (message: Message) => void;
+  singleUserMode?: boolean;
+  currentUserEmail?: string;
 }
 
 const ChatContainer = ({ 
@@ -23,12 +25,17 @@ const ChatContainer = ({
   threadId, 
   ephemeralMode = false,
   ephemeralMessages = [],
-  onSendEphemeralMessage 
+  onSendEphemeralMessage,
+  singleUserMode = false,
+  currentUserEmail = ''
 }: ChatContainerProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Determine the current user based on email if in single user mode
+  const currentUser = singleUserMode ? (currentUserEmail ? currentUserEmail.split('@')[0] : user1) : null;
 
   // Verify users exist in the database when component mounts
   useEffect(() => {
@@ -50,7 +57,7 @@ const ChatContainer = ({
           toast({
             title: "User Not Found",
             description: `User "${user1}" doesn't exist in the database. Messages from this user won't be saved.`,
-            variant: "default", // Changed from "warning" to "default"
+            variant: "default",
           });
         }
         
@@ -58,7 +65,7 @@ const ChatContainer = ({
           toast({
             title: "User Not Found",
             description: `User "${user2}" doesn't exist in the database. Messages from this user won't be saved.`,
-            variant: "default", // Changed from "warning" to "default"
+            variant: "default",
           });
         }
       }
@@ -130,32 +137,55 @@ const ChatContainer = ({
 
   const displayMessages = ephemeralMode ? ephemeralMessages : messages;
 
+  if (isLoading) {
+    return (
+      <div className="col-span-2 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // In single user mode, only show the current user's panel
+  if (singleUserMode) {
+    // Determine which panel to show based on the current user
+    const isUser1 = currentUser === user1;
+    const otherUser = isUser1 ? user2 : user1;
+    const currentUserName = isUser1 ? user1 : user2;
+    
+    return (
+      <ChatPanel
+        messages={displayMessages}
+        currentUser={currentUserName}
+        bgColor={isUser1 ? "bg-chat-blue/20" : "bg-chat-purple/20"}
+        onSendMessage={(text) => handleSendMessage(currentUserName, text)}
+        threadId={threadId}
+        ephemeralMode={ephemeralMode}
+        otherUser={otherUser}
+      />
+    );
+  }
+
+  // Default two-panel view for non-single user mode
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 h-[85vh] rounded-lg overflow-hidden border shadow-md">
-      {isLoading ? (
-        <div className="col-span-2 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      ) : (
-        <>
-          <ChatPanel
-            messages={displayMessages}
-            currentUser={user1}
-            bgColor="bg-chat-blue/20"
-            onSendMessage={(text) => handleSendMessage(user1, text)}
-            threadId={threadId}
-            ephemeralMode={ephemeralMode}
-          />
-          <ChatPanel
-            messages={displayMessages}
-            currentUser={user2}
-            bgColor="bg-chat-purple/20"
-            onSendMessage={(text) => handleSendMessage(user2, text)}
-            threadId={threadId}
-            ephemeralMode={ephemeralMode}
-          />
-        </>
-      )}
+      <ChatPanel
+        messages={displayMessages}
+        currentUser={user1}
+        bgColor="bg-chat-blue/20"
+        onSendMessage={(text) => handleSendMessage(user1, text)}
+        threadId={threadId}
+        ephemeralMode={ephemeralMode}
+        otherUser={user2}
+      />
+      <ChatPanel
+        messages={displayMessages}
+        currentUser={user2}
+        bgColor="bg-chat-purple/20"
+        onSendMessage={(text) => handleSendMessage(user2, text)}
+        threadId={threadId}
+        ephemeralMode={ephemeralMode}
+        otherUser={user1}
+      />
     </div>
   );
 };

@@ -82,6 +82,11 @@ const ThreadView = () => {
     return null; // This should not happen as we navigate away if thread is not found
   }
 
+  // Find the other participant in the conversation
+  const otherParticipant = thread.participants.find(participant => participant !== user.email?.split('@')[0]);
+  // Current user is derived from the email
+  const currentUser = user.email?.split('@')[0] || '';
+
   return (
     <div className="container py-8">
       <div className="mb-6">
@@ -94,15 +99,21 @@ const ThreadView = () => {
         </Button>
         <h1 className="text-3xl font-bold mb-2">{thread.title}</h1>
         <p className="text-muted-foreground">
-          Conversation between {thread.participants.join(" and ")}
+          Conversation with {otherParticipant}
         </p>
       </div>
       
-      <ChatContainer 
-        user1={thread.participants[0]} 
-        user2={thread.participants[1]} 
-        threadId={thread.id}
-      />
+      <div className="h-[85vh] rounded-lg overflow-hidden border shadow-md">
+        {currentUser && otherParticipant && (
+          <ChatContainer 
+            user1={currentUser}
+            user2={otherParticipant} 
+            threadId={thread.id}
+            singleUserMode={true}
+            currentUserEmail={user.email || ''}
+          />
+        )}
+      </div>
     </div>
   );
 };

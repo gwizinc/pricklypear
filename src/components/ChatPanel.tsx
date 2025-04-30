@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,6 @@ import { saveMessage } from "@/services/messageService";
 import type { Message } from "@/types/message";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -19,6 +17,7 @@ interface ChatPanelProps {
   onSendMessage: (text: string) => void;
   threadId: string;
   ephemeralMode?: boolean;
+  otherUser?: string;
 }
 
 const ChatPanel = ({ 
@@ -27,7 +26,8 @@ const ChatPanel = ({
   bgColor, 
   onSendMessage,
   threadId,
-  ephemeralMode = false
+  ephemeralMode = false,
+  otherUser
 }: ChatPanelProps) => {
   const [inputValue, setInputValue] = useState("");
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -132,16 +132,24 @@ const ChatPanel = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Filter messages to show the conversation view (both users' messages)
+  const conversationMessages = messages;
+
   return (
     <div className={`flex flex-col h-full ${bgColor}`}>
-      <div className="p-4 border-b">
+      <div className="p-4 border-b flex justify-between items-center">
         <h3 className="font-medium">{currentUser}</h3>
+        {otherUser && (
+          <div className="text-sm text-muted-foreground">
+            Chatting with {otherUser}
+          </div>
+        )}
       </div>
       
       {/* Messages container with scrolling */}
       <div className="flex-1 overflow-y-auto p-4 chat-scrollbar">
         <div className="flex flex-col">
-          {messages.map((message) => (
+          {conversationMessages.map((message) => (
             <MessageBubble
               key={message.id}
               message={message}
