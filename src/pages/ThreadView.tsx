@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Send, RefreshCw, Lock, X } from "lucide-react";
-import { MessageReviewDialog } from "@/components/MessageReviewDialog";
 import MessageBubble from "@/components/MessageBubble";
 import ThreadCloseRequest from "@/components/ThreadCloseRequest";
 import { saveMessage, getMessages, saveSystemMessage } from "@/services/messageService";

@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Demo from "./pages/Demo";
 import Threads from "./pages/Threads";
 import ThreadView from "./pages/ThreadView";
+import Connections from "./pages/Connections";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/threads" element={<Threads />} />
                 <Route path="/threads/:threadId" element={<ThreadView />} />
+                <Route path="/connections" element={<Connections />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
