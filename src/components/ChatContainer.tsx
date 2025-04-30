@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ChatPanel from "./ChatPanel";
@@ -5,6 +6,7 @@ import type { Message } from "@/types/message";
 import { getMessages } from "@/services/messageService";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ChatContainerProps {
   user1: string;
@@ -27,6 +29,43 @@ const ChatContainer = ({
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Verify users exist in the database when component mounts
+  useEffect(() => {
+    const verifyUsers = async () => {
+      if (!ephemeralMode) {
+        const { data: user1Data } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', user1)
+          .maybeSingle();
+          
+        const { data: user2Data } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', user2)
+          .maybeSingle();
+        
+        if (!user1Data) {
+          toast({
+            title: "User Not Found",
+            description: `User "${user1}" doesn't exist in the database. Messages from this user won't be saved.`,
+            variant: "warning",
+          });
+        }
+        
+        if (!user2Data) {
+          toast({
+            title: "User Not Found",
+            description: `User "${user2}" doesn't exist in the database. Messages from this user won't be saved.`,
+            variant: "warning",
+          });
+        }
+      }
+    };
+    
+    verifyUsers();
+  }, [user1, user2, ephemeralMode, toast]);
 
   useEffect(() => {
     if (!threadId) {

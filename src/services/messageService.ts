@@ -16,6 +16,19 @@ export const saveMessage = async (
       return null;
     }
 
+    // Check if sender exists in the database
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', sender)
+      .single();
+
+    if (profileError || !profileData) {
+      console.error("Sender does not exist in the database:", profileError || "No profile found");
+      return null;
+    }
+
+    // Proceed with saving the message since the user exists
     const { data, error } = await supabase
       .from('messages')
       .insert({

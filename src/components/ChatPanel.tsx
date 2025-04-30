@@ -102,7 +102,15 @@ const ChatPanel = ({
     if (!ephemeralMode) {
       try {
         // Then save to database (both original and AI versions)
-        await saveMessage(currentUser, originalMessage, kindMessage, finalMessage, threadId);
+        const messageId = await saveMessage(currentUser, originalMessage, kindMessage, finalMessage, threadId);
+        
+        if (!messageId) {
+          toast({
+            title: "Error",
+            description: `Failed to save message. User "${currentUser}" may not exist in the database.`,
+            variant: "destructive",
+          });
+        }
       } catch (error) {
         console.error("Failed to save message to database:", error);
         toast({
