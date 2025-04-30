@@ -172,7 +172,7 @@ export const deleteConnection = async (connectionId: string): Promise<boolean> =
   return true;
 };
 
-// This function is no longer needed, but kept for reference
+// This function is renamed for reference purposes - searchUsers is no longer needed
 // Function is now replaced by inviteByEmail
 export const searchUsers = async (query: string): Promise<{ id: string; username: string }[]> => {
   const { data: currentUser } = await supabase.auth.getUser();
