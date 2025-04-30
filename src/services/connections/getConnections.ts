@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Connection } from "@/types/connection";
+import { Connection, ConnectionStatus } from "@/types/connection";
 
 // Get all connections for the current user
 export const getConnections = async (): Promise<Connection[]> => {
@@ -39,7 +39,7 @@ export const getConnections = async (): Promise<Connection[]> => {
           otherUserId,
           username: otherUserData?.username || "Unknown User",
           avatarUrl: undefined, // profile doesn't have avatar_url field based on error
-          status: connection.status,
+          status: connection.status as ConnectionStatus, // Cast the status to ConnectionStatus
           createdAt: connection.created_at,
           updatedAt: connection.updated_at,
           isUserSender,
