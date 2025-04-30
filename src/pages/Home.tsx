@@ -6,7 +6,10 @@ import { Link } from "react-router-dom";
 const Home = () => {
   return (
     <div className="container py-12 flex flex-col items-center">
-      <h1 className="text-4xl font-bold mb-4 text-center">Nest</h1>
+      <h1 className="text-4xl font-bold mb-4 text-center flex items-center gap-2 justify-center">
+        <span className="text-4xl">🪺</span>
+        <span>Nest</span>
+      </h1>
       <p className="text-xl text-muted-foreground text-center mb-8 max-w-2xl">
         A safe place for parenting communication. Making co-parenting conversations kinder and more productive.
       </p>
@@ -43,3 +46,4 @@ const FeatureCard = ({ title, description }: { title: string; description: strin
 );
 
 export default Home;
+

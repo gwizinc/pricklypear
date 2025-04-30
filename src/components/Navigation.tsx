@@ -16,7 +16,10 @@ const Navigation = () => {
   return (
     <header className="border-b py-4">
       <div className="container flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold">Nest</Link>
+        <Link to="/" className="text-2xl font-bold flex items-center gap-2">
+          <span className="text-2xl">🪺</span>
+          <span>Nest</span>
+        </Link>
         
         <NavigationMenu>
           <NavigationMenuList className="flex items-center gap-2">
@@ -58,3 +61,4 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
