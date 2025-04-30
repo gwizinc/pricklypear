@@ -6,7 +6,9 @@ import { Send } from "lucide-react";
 import MessageBubble from "./MessageBubble";
 import MessageReviewDialog from "./MessageReviewDialog";
 import { reviewMessage } from "@/utils/messageReview";
+import { saveMessage } from "@/services/messageService";
 import type { Message } from "@/types/message";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -27,6 +29,7 @@ const ChatPanel = ({
   const [kindMessage, setKindMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,8 +56,23 @@ const ChatPanel = ({
     }
   };
 
-  const handleSendMessage = (finalMessage: string) => {
+  const handleSendMessage = async (finalMessage: string) => {
+    // First call parent's onSendMessage for immediate UI update
     onSendMessage(finalMessage);
+    
+    try {
+      // Then save to database (both original and AI versions)
+      await saveMessage(currentUser, originalMessage, kindMessage, finalMessage);
+    } catch (error) {
+      console.error("Failed to save message to database:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save message to database",
+        variant: "destructive",
+      });
+    }
+    
+    // Reset form
     setInputValue("");
     setOriginalMessage("");
     setKindMessage("");
