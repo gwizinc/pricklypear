@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,35 +13,58 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { MessageCirclePlus } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
+import { MessageCirclePlus, Loader2 } from "lucide-react";
 import type { Thread } from "@/types/thread";
 import { useToast } from "@/hooks/use-toast";
+import { createThread, getThreads } from "@/services/threadService";
 
 const Threads = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
 
-  const handleCreateThread = () => {
+  useEffect(() => {
+    const fetchThreads = async () => {
+      setIsLoading(true);
+      const fetchedThreads = await getThreads();
+      setThreads(fetchedThreads);
+      setIsLoading(false);
+    };
+
+    fetchThreads();
+  }, []);
+
+  const handleCreateThread = async () => {
     if (!newThreadTitle.trim()) return;
     
-    const newThread: Thread = {
-      id: uuidv4(),
-      title: newThreadTitle,
-      createdAt: new Date(),
-      participants: ["Alice", "Bob"],
-    };
+    setIsCreating(true);
     
-    setThreads([...threads, newThread]);
-    setNewThreadTitle("");
-    setIsDialogOpen(false);
+    const newThread = await createThread(
+      newThreadTitle,
+      ["Alice", "Bob"] // Default participants for now
+    );
     
-    toast({
-      title: "Thread created",
-      description: `"${newThreadTitle}" has been created successfully.`,
-    });
+    setIsCreating(false);
+    
+    if (newThread) {
+      setThreads(prevThreads => [newThread, ...prevThreads]);
+      setNewThreadTitle("");
+      setIsDialogOpen(false);
+      
+      toast({
+        title: "Thread created",
+        description: `"${newThreadTitle}" has been created successfully.`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to create thread. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -70,18 +93,32 @@ const Threads = () => {
               className="mt-2"
             />
             <DialogFooter className="mt-4">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isCreating}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateThread} disabled={!newThreadTitle.trim()}>
-                Create
+              <Button 
+                onClick={handleCreateThread} 
+                disabled={!newThreadTitle.trim() || isCreating}
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create"
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      {threads.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : threads.length === 0 ? (
         <div className="text-center py-12">
           <h3 className="text-lg font-medium mb-2">No threads yet</h3>
           <p className="text-muted-foreground mb-4">

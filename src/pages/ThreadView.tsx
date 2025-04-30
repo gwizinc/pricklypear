@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import ChatContainer from "@/components/ChatContainer";
 import type { Thread } from "@/types/thread";
 import { useToast } from "@/hooks/use-toast";
+import { getThread } from "@/services/threadService";
 
 const ThreadView = () => {
   const { threadId } = useParams<{ threadId: string }>();
@@ -15,39 +16,39 @@ const ThreadView = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, we would fetch the thread from the server
-    // For now, we'll create a mock thread
-    setTimeout(() => {
+    const fetchThread = async () => {
+      setIsLoading(true);
       if (threadId) {
-        setThread({
-          id: threadId,
-          title: `Thread ${threadId.slice(0, 5)}`,
-          createdAt: new Date(),
-          participants: ["Alice", "Bob"]
-        });
+        const fetchedThread = await getThread(threadId);
+        if (fetchedThread) {
+          setThread(fetchedThread);
+        } else {
+          toast({
+            title: "Thread not found",
+            description: "The thread you're looking for doesn't exist.",
+            variant: "destructive",
+          });
+          navigate("/threads");
+        }
       }
       setIsLoading(false);
-    }, 500);
-  }, [threadId]);
+    };
+
+    fetchThread();
+  }, [threadId, navigate, toast]);
 
   if (isLoading) {
     return (
       <div className="container py-8">
         <div className="flex justify-center items-center h-[70vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
       </div>
     );
   }
 
   if (!thread) {
-    toast({
-      title: "Thread not found",
-      description: "The thread you're looking for doesn't exist.",
-      variant: "destructive",
-    });
-    navigate("/threads");
-    return null;
+    return null; // This should not happen as we navigate away if thread is not found
   }
 
   return (

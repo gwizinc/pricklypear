@@ -39,6 +39,27 @@ export type Database = {
         }
         Relationships: []
       }
+      threads: {
+        Row: {
+          created_at: string | null
+          id: string
+          participants: string[]
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          participants?: string[]
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          participants?: string[]
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
