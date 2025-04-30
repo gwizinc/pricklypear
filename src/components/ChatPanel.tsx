@@ -10,6 +10,7 @@ import { saveMessage } from "@/services/messageService";
 import type { Message } from "@/types/message";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -17,6 +18,7 @@ interface ChatPanelProps {
   bgColor: string;
   onSendMessage: (text: string) => void;
   threadId: string;
+  ephemeralMode?: boolean;
 }
 
 const ChatPanel = ({ 
@@ -24,7 +26,8 @@ const ChatPanel = ({
   currentUser, 
   bgColor, 
   onSendMessage,
-  threadId
+  threadId,
+  ephemeralMode = false
 }: ChatPanelProps) => {
   const [inputValue, setInputValue] = useState("");
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -95,16 +98,19 @@ const ChatPanel = ({
     // First call parent's onSendMessage for immediate UI update
     onSendMessage(finalMessage);
     
-    try {
-      // Then save to database (both original and AI versions)
-      await saveMessage(currentUser, originalMessage, kindMessage, finalMessage, threadId);
-    } catch (error) {
-      console.error("Failed to save message to database:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save message to database",
-        variant: "destructive",
-      });
+    // Only save to database if not in ephemeral mode
+    if (!ephemeralMode) {
+      try {
+        // Then save to database (both original and AI versions)
+        await saveMessage(currentUser, originalMessage, kindMessage, finalMessage, threadId);
+      } catch (error) {
+        console.error("Failed to save message to database:", error);
+        toast({
+          title: "Error",
+          description: "Failed to save message to database",
+          variant: "destructive",
+        });
+      }
     }
     
     // Reset form
