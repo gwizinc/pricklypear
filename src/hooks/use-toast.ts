@@ -168,11 +168,6 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast() {
-  // Ensure we're in a browser environment before using React
-  if (typeof window === 'undefined' || !React || !React.useState) {
-    return { toasts: [], toast, dismiss: () => {} }
-  }
-
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
