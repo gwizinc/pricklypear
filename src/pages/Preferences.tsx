@@ -13,7 +13,6 @@ import {
   CardTitle 
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -30,26 +29,60 @@ const Preferences = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   // Form with validation
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: user?.user_metadata?.full_name || '',
+      fullName: '',
     },
   });
 
-  // Redirect if not logged in
+  // Fetch user profile data when component mounts
   useEffect(() => {
     if (!user) {
       navigate('/auth');
-    } else {
-      // Update form when user data is available
-      form.reset({
-        fullName: user.user_metadata?.full_name || '',
-      });
+      return;
     }
-  }, [user, navigate, form]);
+
+    const fetchUserProfile = async () => {
+      try {
+        setProfileLoading(true);
+        
+        // Get user profile from the profiles table
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          throw profileError;
+        }
+
+        // Get the user's metadata for the full name
+        const fullName = user.user_metadata?.full_name || profileData?.username || '';
+        
+        // Update form with fetched data
+        form.reset({
+          fullName: fullName,
+        });
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        toast({
+          title: 'Error loading profile',
+          description: 'There was a problem loading your profile data.',
+          variant: 'destructive',
+        });
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, navigate, form, toast]);
 
   const onSubmit = async (data: FormValues) => {
     if (!user) return;
@@ -57,15 +90,24 @@ const Preferences = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.updateUser({
+      // Update user metadata
+      const { error: metadataError } = await supabase.auth.updateUser({
         data: { full_name: data.fullName },
       });
 
-      if (error) throw error;
+      if (metadataError) throw metadataError;
+
+      // Also update the profile username for consistency
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ username: data.fullName })
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
 
       toast({
         title: 'Profile updated',
-        description: 'Your full name has been updated successfully.',
+        description: 'Your profile information has been updated successfully.',
       });
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -91,29 +133,33 @@ const Preferences = () => {
           <CardDescription>Update your personal details</CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your full name" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      This is the name that will be displayed on your profile.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </form>
-          </Form>
+          {profileLoading ? (
+            <div className="flex justify-center py-4">Loading profile information...</div>
+          ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your full name" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        This is the name that will be displayed on your profile.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </form>
+            </Form>
+          )}
         </CardContent>
       </Card>
     </div>
