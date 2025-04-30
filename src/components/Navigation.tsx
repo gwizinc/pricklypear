@@ -69,7 +69,9 @@ const Navigation = () => {
         
         <div className="mr-4 hidden md:flex">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="font-bold">ThoughtLink</span>
+            <span className="font-bold flex items-center">
+              <span className="mr-1">🪺</span> Nest
+            </span>
           </Link>
         </div>
 
@@ -101,7 +103,9 @@ const Navigation = () => {
         {/* Mobile Title (centered) */}
         <div className="flex flex-1 justify-center md:hidden">
           <Link to="/" className="flex items-center">
-            <span className="font-bold">ThoughtLink</span>
+            <span className="font-bold flex items-center">
+              <span className="mr-1">🪺</span> Nest
+            </span>
           </Link>
         </div>
 
