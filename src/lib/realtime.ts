@@ -1,12 +1,12 @@
-
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabaseClient, activeChannels } from '@/lib/supabaseClient';
 import { broadcastRealtimeEvent } from '@/lib/realtimeBroadcast';
+import type { Database } from '@/integrations/supabase/types';
 
 export type ReconnectedHandler = (channel: RealtimeChannel) => Promise<void>;
 
 export interface SubscriptionOptions {
-  event?: string;
+  event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
   filter?: string;
   backfillOnReconnect?: boolean;
   crossTabBroadcast?: boolean;
@@ -27,8 +27,8 @@ const channelSubscriberCounts = new Map<string, number>();
  */
 export function subscribeToRealtimeChanges(
   channelName: string,
-  tableName: string,
-  callback: (payload: any) => void,
+  tableName: keyof Database['public']['Tables'],
+  callback: (payload: RealtimePostgresChangesPayload<Database['public']['Tables'][typeof tableName]>) => void,
   options: SubscriptionOptions = {},
   reconnectedHandler?: ReconnectedHandler
 ): () => void {
@@ -54,19 +54,16 @@ export function subscribeToRealtimeChanges(
     channel = supabaseClient.channel(channelKey);
     
     // Configure channel with postgres_changes listener
-    // Fix: The on() method was being called with incorrect types
-    // We need to properly separate the postgres_changes listener from the system event listener
     channel
       .on(
-        'postgres_changes',
+        'postgres_changes' as 'system',
         {
-          event,
+          event: options.event || '*',
           schema: 'public',
           table: tableName,
-          filter,
+          filter: options.filter || undefined,
         },
-        (payload) => {
-          // Handle the payload
+        (payload: RealtimePostgresChangesPayload<Database['public']['Tables'][typeof tableName]>) => {
           callback(payload);
           
           // Broadcast to other tabs if requested
@@ -126,7 +123,7 @@ export function subscribeToRealtimeChanges(
  */
 export function subscribeToThread(
   threadId: string,
-  callback: (payload: any) => void,
+  callback: (payload: RealtimePostgresChangesPayload<Database['public']['Tables']['threads']>) => void,
   reconnectedHandler?: ReconnectedHandler
 ): () => void {
   return subscribeToRealtimeChanges(
