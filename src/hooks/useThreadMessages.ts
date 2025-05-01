@@ -65,7 +65,7 @@ export const useThreadMessages = (threadId: string | undefined) => {
     );
     
     if (success) {
-      // Add to local messages list immediately
+      // Add to local messages list immediately with isCurrentUser flag
       const newMsg: Message = {
         id: crypto.randomUUID(), // Generate a temporary ID
         text: selectedMessage,
@@ -73,7 +73,8 @@ export const useThreadMessages = (threadId: string | undefined) => {
         timestamp: new Date(),
         original_text: originalMessage,
         kind_text: kindMessage,
-        threadId: threadId
+        threadId: threadId,
+        isCurrentUser: true
       };
       
       setMessages(prev => [...prev, newMsg]);
