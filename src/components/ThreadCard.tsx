@@ -4,13 +4,15 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import NotificationBadge from "@/components/ui/notification-badge";
 import type { Thread } from "@/types/thread";
 
 interface ThreadCardProps {
   thread: Thread;
+  unreadCount?: number;
 }
 
-const ThreadCard = ({ thread }: ThreadCardProps) => {
+const ThreadCard = ({ thread, unreadCount = 0 }: ThreadCardProps) => {
   const topicLabels: Record<string, { label: string, icon: string }> = {
     'travel': { label: 'Travel', icon: '✈️' },
     'parenting_time': { label: 'Parenting Time', icon: '👨‍👩‍👧' },
@@ -29,7 +31,14 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
     <Card className="rounded-xl shadow-card hover:bg-bgLight transition-all hover-tilt">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg font-rounded text-primary">{thread.title}</CardTitle>
+          <CardTitle className="text-lg font-rounded text-primary relative">
+            {thread.title}
+            {unreadCount > 0 && (
+              <span className="ml-2 bg-accent text-white text-xs font-medium rounded-full px-2 py-0.5">
+                {unreadCount}
+              </span>
+            )}
+          </CardTitle>
           <div className="flex gap-2">
             <Badge variant="outline" className="flex items-center gap-1 font-medium">
               <span>{topicInfo.icon}</span> {topicInfo.label}
@@ -64,10 +73,13 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
         <Button 
           asChild 
           variant="default" 
-          className="w-full bg-secondary hover:bg-secondary/90 text-primary font-semibold hover-rotate"
+          className="w-full bg-secondary hover:bg-secondary/90 text-primary font-semibold hover-rotate relative"
         >
           <Link to={`/threads/${thread.id}`}>
             View Conversation
+            {unreadCount > 0 && (
+              <NotificationBadge count={unreadCount} className="top-0 right-0" />
+            )}
           </Link>
         </Button>
         <p className="text-sm text-muted-foreground text-center">

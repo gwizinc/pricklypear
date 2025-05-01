@@ -1,113 +1,68 @@
 
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, LogIn } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import ThreadCard from "./ThreadCard";
+import { Plus, Loader2 } from "lucide-react";
+import ThreadCard from "@/components/ThreadCard";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import type { Thread } from "@/types/thread";
+import type { User } from "@/types/user";
 
 interface ThreadsListProps {
   threads: Thread[];
   isLoading: boolean;
-  user: any;
+  user: User | null;
   onNewThreadClick: () => void;
 }
 
 const ThreadsList = ({ threads, isLoading, user, onNewThreadClick }: ThreadsListProps) => {
-  // Filter threads by status
-  const openThreads = threads.filter(thread => thread.status === 'open');
-  const closedThreads = threads.filter(thread => thread.status === 'closed');
-
+  const { threadCounts } = useUnreadMessages();
+  
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="text-center py-12">
-        <h3 className="text-lg font-medium mb-2">Sign in to view your threads</h3>
-        <p className="text-muted-foreground mb-4">
-          Create an account or sign in to start conversations.
-        </p>
-        <Button asChild>
-          <Link to="/auth" className="flex gap-2 items-center">
-            <LogIn className="h-4 w-4" />
-            Sign In
-          </Link>
-        </Button>
-        <div className="mt-4">
-          <Button asChild variant="outline">
-            <Link to="/demo">Try the Demo</Link>
-          </Button>
-        </div>
       </div>
     );
   }
 
   if (threads.length === 0) {
     return (
-      <div className="text-center py-12">
-        <h3 className="text-lg font-medium mb-2">No threads yet</h3>
-        <p className="text-muted-foreground mb-4">
-          Create your first thread to start a conversation.
-        </p>
-        <Button onClick={onNewThreadClick}>
-          Create Thread
-        </Button>
+      <div className="py-12 text-center">
+        <p className="mb-6 text-lg">No threads found.</p>
+        {user && (
+          <Button onClick={onNewThreadClick} className="gap-2 bg-secondary hover:bg-secondary/90 text-primary font-semibold">
+            <Plus className="h-5 w-5" />
+            Start a new conversation
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Open Threads Section */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          Open Threads
-          {openThreads.length > 0 && (
-            <Badge variant="outline" className="ml-2">{openThreads.length}</Badge>
-          )}
-        </h2>
-        
-        {openThreads.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {openThreads.map((thread) => (
-              <ThreadCard key={thread.id} thread={thread} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6 border border-dashed rounded-lg">
-            <p className="text-muted-foreground">No open threads</p>
-          </div>
-        )}
-      </section>
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {threads.map((thread) => (
+        <ThreadCard 
+          key={thread.id} 
+          thread={thread} 
+          unreadCount={threadCounts[thread.id] || 0}
+        />
+      ))}
       
-      {/* Closed Threads Section */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          Closed Threads
-          {closedThreads.length > 0 && (
-            <Badge variant="outline" className="ml-2">{closedThreads.length}</Badge>
-          )}
-        </h2>
-        
-        {closedThreads.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {closedThreads.map((thread) => (
-              <ThreadCard key={thread.id} thread={thread} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6 border border-dashed rounded-lg">
-            <p className="text-muted-foreground">No closed threads</p>
-          </div>
-        )}
-      </section>
+      {user && (
+        <div className="flex items-center justify-center min-h-64 border-2 border-dashed rounded-xl p-4 hover:border-secondary/60 transition-colors">
+          <Button 
+            onClick={onNewThreadClick} 
+            variant="ghost" 
+            className="flex flex-col gap-3 h-auto py-8 hover:bg-transparent"
+          >
+            <div className="rounded-full bg-secondary/20 p-4">
+              <Plus className="h-8 w-8 text-secondary" />
+            </div>
+            <span className="text-lg font-semibold">Start a new conversation</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -11,12 +11,15 @@ import {
   X,
   UserRound,
   Settings,
-  FileText
+  FileText,
+  Bell
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import NotificationBadge from '@/components/ui/notification-badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +35,7 @@ const Navigation = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { totalUnread } = useUnreadMessages();
 
   const handleLogout = async () => {
     await signOut();
@@ -62,7 +66,7 @@ const Navigation = () => {
 
   // Only show these nav items when user is logged in
   const navItems = user ? [
-    { path: '/threads', label: 'Threads', icon: <MessageSquare className="h-4 w-4 mr-2" /> },
+    { path: '/threads', label: 'Threads', icon: <MessageSquare className="h-4 w-4 mr-2" />, badgeCount: totalUnread },
     { path: '/connections', label: 'Connections', icon: <Users className="h-4 w-4 mr-2" /> },
     { path: '/documents', label: 'Documents', icon: <FileText className="h-4 w-4 mr-2" /> },
   ] : [];
@@ -77,10 +81,13 @@ const Navigation = () => {
         <Link key={item.path} to={item.path}>
           <Button 
             variant={isActive(item.path) ? "default" : "ghost"}
-            className="flex items-center"
+            className="flex items-center relative"
           >
             {item.icon}
             {item.label}
+            {item.badgeCount && item.badgeCount > 0 && (
+              <NotificationBadge count={item.badgeCount} className="top-0 right-0 transform translate-x-1/2 -translate-y-1/2" />
+            )}
           </Button>
         </Link>
       ))}
@@ -107,13 +114,32 @@ const Navigation = () => {
               <AvatarImage src={user.user_metadata?.avatar_url} alt="User avatar" />
               <AvatarFallback>{getUserInitials()}</AvatarFallback>
             </Avatar>
+            {totalUnread > 0 && <NotificationBadge count={totalUnread} />}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel>
             {user.user_metadata?.username || user.email || 'My Account'}
+            {totalUnread > 0 && (
+              <span className="ml-2 bg-accent text-white text-xs font-medium rounded-full px-2 py-0.5">
+                {totalUnread}
+              </span>
+            )}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link to="/threads" className="flex w-full items-center justify-between">
+              <div className="flex items-center">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                <span>Messages</span>
+              </div>
+              {totalUnread > 0 && (
+                <span className="bg-accent text-white text-xs font-medium rounded-full px-2 py-0.5">
+                  {totalUnread}
+                </span>
+              )}
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/preferences" className="flex w-full items-center">
               <Settings className="mr-2 h-4 w-4" />
