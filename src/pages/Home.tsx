@@ -14,12 +14,6 @@ const Home = () => {
         A safe place for parenting communication. Making co-parenting conversations kinder and more productive.
       </p>
       
-      <div className="flex flex-col sm:flex-row gap-4 mt-4">
-        <Button asChild size="lg" className="px-8">
-          <Link to="/demo">Try the Demo</Link>
-        </Button>
-      </div>
-      
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
         <FeatureCard 
           title="AI Message Review" 
@@ -46,4 +40,3 @@ const FeatureCard = ({ title, description }: { title: string; description: strin
 );
 
 export default Home;
-
