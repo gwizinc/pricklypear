@@ -5,7 +5,13 @@ import { Loader2 } from "lucide-react";
 import MessageBubble from "@/components/MessageBubble";
 import ThreadCloseRequest from "@/components/ThreadCloseRequest";
 import { saveMessage, getMessages, saveSystemMessage } from "@/services/messageService";
-import { getThread, updateThreadSummary, requestCloseThread, approveCloseThread, rejectCloseThread } from "@/services/threadService";
+import { 
+  getThread, 
+  updateThreadSummary, 
+  requestCloseThread, 
+  approveCloseThread, 
+  rejectCloseThread 
+} from "@/services/threadService";
 import { useToast } from "@/hooks/use-toast";
 import ThreadHeader from "@/components/thread/ThreadHeader";
 import ThreadClosedBanner from "@/components/thread/ThreadClosedBanner";
