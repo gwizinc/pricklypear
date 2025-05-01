@@ -44,7 +44,6 @@ export type Database = {
           kind_text: string
           original_text: string
           selected_text: string
-          sender: string
           sender_profile_id: string | null
           timestamp: string | null
         }
@@ -55,7 +54,6 @@ export type Database = {
           kind_text: string
           original_text: string
           selected_text: string
-          sender: string
           sender_profile_id?: string | null
           timestamp?: string | null
         }
@@ -66,7 +64,6 @@ export type Database = {
           kind_text?: string
           original_text?: string
           selected_text?: string
-          sender?: string
           sender_profile_id?: string | null
           timestamp?: string | null
         }

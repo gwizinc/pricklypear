@@ -19,7 +19,7 @@ export const saveMessage = async (
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
-      .eq('name', sender)  // Updated from 'username' to 'name'
+      .eq('name', sender)  // Using name to find the profile
       .single();
 
     if (profileError || !profileData) {
@@ -31,8 +31,7 @@ export const saveMessage = async (
     const { data, error } = await supabase
       .from("messages")
       .insert({
-        sender: sender, // Keep the sender name for backwards compatibility
-        sender_profile_id: profileData.id, // Add the profile ID for proper relationship
+        sender_profile_id: profileData.id, // Only use profile ID now
         original_text: text,
         kind_text: kind || text, // Default to text if kind is not provided
         selected_text: selected || text, // Default to text if selected is not provided
@@ -64,22 +63,64 @@ export const saveSystemMessage = async (
       return false;
     }
 
-    // Insert the system message directly without profile lookup
-    const { error } = await supabase
-      .from("messages")
-      .insert({
-        original_text: text,
-        kind_text: text, // Adding required field
-        selected_text: text, // Use the same text for selected text
-        sender: "system", // Set sender to "system" for system messages
-        conversation_id: threadId,
-        timestamp: new Date().toISOString(),
-        is_system: true // Mark this as a system message
-      });
+    // Get the system profile ID
+    const { data: systemProfileData, error: systemProfileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('name', 'system')
+      .single();
 
-    if (error) {
-      console.error("Error saving system message:", error);
-      return false;
+    if (systemProfileError || !systemProfileData) {
+      console.error("System profile not found", systemProfileError);
+      
+      // Create a system profile if it doesn't exist
+      const { data: newProfileData, error: newProfileError } = await supabase
+        .from('profiles')
+        .insert({
+          name: 'system'
+        })
+        .select();
+
+      if (newProfileError || !newProfileData) {
+        console.error("Error creating system profile:", newProfileError);
+        return false;
+      }
+      
+      // Use the newly created system profile
+      const { error } = await supabase
+        .from("messages")
+        .insert({
+          original_text: text,
+          kind_text: text,
+          selected_text: text,
+          sender_profile_id: newProfileData[0].id,
+          conversation_id: threadId,
+          timestamp: new Date().toISOString(),
+          is_system: true
+        });
+
+      if (error) {
+        console.error("Error saving system message:", error);
+        return false;
+      }
+    } else {
+      // Insert the system message with the existing system profile
+      const { error } = await supabase
+        .from("messages")
+        .insert({
+          original_text: text,
+          kind_text: text,
+          selected_text: text,
+          sender_profile_id: systemProfileData.id,
+          conversation_id: threadId,
+          timestamp: new Date().toISOString(),
+          is_system: true
+        });
+
+      if (error) {
+        console.error("Error saving system message:", error);
+        return false;
+      }
     }
 
     return true;
