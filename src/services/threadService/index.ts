@@ -3,6 +3,7 @@ export { createThread } from './createThread';
 export { getThreads } from './getThreads';
 export { getThread } from './getThread';
 export { updateThreadSummary } from './updateThreadSummary';
+export { generateThreadSummary } from './summarizeThread';
 export { 
   requestCloseThread, 
   approveCloseThread, 

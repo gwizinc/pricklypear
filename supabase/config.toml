@@ -3,3 +3,6 @@ project_id = "vgddrhyjttyrathqhefb"
 
 [functions.review-message]
 verify_jwt = false
+
+[functions.summarize-thread]
+verify_jwt = false

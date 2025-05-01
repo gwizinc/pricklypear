@@ -7,7 +7,8 @@ import {
   getThread,
   requestCloseThread, 
   approveCloseThread, 
-  rejectCloseThread 
+  rejectCloseThread,
+  generateThreadSummary
 } from "@/services/threadService";
 import { getMessages, saveMessage, saveSystemMessage } from "@/services/messageService";
 import { reviewMessage } from "@/utils/messageReview";
@@ -21,6 +22,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [isRequestingClose, setIsRequestingClose] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   
   // Message review states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -232,6 +234,44 @@ export const useThreadDetails = (threadId: string | undefined) => {
     }
   };
 
+  const handleGenerateSummary = async () => {
+    if (!threadId || !thread || messages.length === 0) return;
+    
+    setIsGeneratingSummary(true);
+    
+    try {
+      const summary = await generateThreadSummary(threadId, messages);
+      
+      if (summary) {
+        // Update local thread state with the new summary
+        setThread({
+          ...thread,
+          summary
+        });
+        
+        toast({
+          title: "Summary generated",
+          description: "Thread summary has been successfully generated and saved.",
+        });
+      } else {
+        toast({
+          title: "Warning",
+          description: "Could not generate a summary. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating summary:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate summary. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
+
   return {
     thread,
     messages,
@@ -239,6 +279,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     isLoading,
     isSending,
     isRequestingClose,
+    isGeneratingSummary,
     isReviewDialogOpen,
     originalMessage,
     kindMessage,
@@ -249,6 +290,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     setIsReviewDialogOpen,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose
+    handleRejectClose,
+    handleGenerateSummary
   };
 };
