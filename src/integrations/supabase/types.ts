@@ -14,7 +14,7 @@ export type Database = {
           connected_user_id: string
           created_at: string
           id: string
-          status: string
+          status: Database["public"]["Enums"]["connection_status"]
           updated_at: string
           user_id: string
         }
@@ -22,7 +22,7 @@ export type Database = {
           connected_user_id: string
           created_at?: string
           id?: string
-          status?: string
+          status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
           user_id: string
         }
@@ -30,7 +30,7 @@ export type Database = {
           connected_user_id?: string
           created_at?: string
           id?: string
-          status?: string
+          status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
           user_id?: string
         }
@@ -217,7 +217,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      connection_status: "pending" | "accepted" | "declined" | "disabled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -332,6 +332,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      connection_status: ["pending", "accepted", "declined", "disabled"],
+    },
   },
 } as const

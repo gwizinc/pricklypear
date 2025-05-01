@@ -15,12 +15,11 @@ export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
     
     const userId = userData.user.id;
     
-    // Get the user by email - we need to query the profiles table directly
-    // using the email to find a matching profile
+    // Get the user by email - we need to query the profiles table
     const { data: users, error: usersError } = await supabase
       .from("profiles")
-      .select("id, name")  // Updated from 'username' to 'name'
-      .eq("name", email)   // Updated from 'username' to 'name'
+      .select("id, name")
+      .eq("name", email)
       .maybeSingle();
       
     if (usersError || !users) {
@@ -88,7 +87,7 @@ export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
       connection: {
         id: connection.id,
         otherUserId: invitedUser.id,
-        username: invitedUser.name || "Unknown User",  // Using 'name' but keeping 'username' in the return type
+        username: invitedUser.name || "Unknown User",
         avatarUrl: undefined,
         status: connection.status as ConnectionStatus,
         createdAt: connection.created_at,

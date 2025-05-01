@@ -11,7 +11,7 @@ export {
   type ConnectionStatus,
   type Connection,
   type InviteResponse
-} from './connections';
+} from '@/types/connection';
 
 // This function is updated to work with the new profile-based sender structure
 export const searchUsers = async (query: string): Promise<{ id: string; username: string }[]> => {
