@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json();
+    const { message, tone = "friendly" } = await req.json();
     
     if (!message) {
       return new Response(
@@ -31,16 +31,38 @@ serve(async (req) => {
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
 
+    // Customize the system message based on the selected tone
+    let systemPrompt = "You are a helpful assistant that rephrases messages to be kinder and more constructive.";
+    
+    switch (tone) {
+      case "professional":
+        systemPrompt = "You are an assistant that rephrases messages to sound professional, clear, and business-like while maintaining the original meaning.";
+        break;
+      case "casual":
+        systemPrompt = "You are an assistant that rephrases messages to sound casual, relaxed, and conversational while maintaining the original meaning.";
+        break;
+      case "formal":
+        systemPrompt = "You are an assistant that rephrases messages to sound formal, structured, and precise while maintaining the original meaning.";
+        break;
+      case "encouraging":
+        systemPrompt = "You are an assistant that rephrases messages to sound positive, motivating, and supportive while maintaining the original meaning.";
+        break;
+      case "friendly":
+      default:
+        systemPrompt = "You are an assistant that rephrases messages to sound warm, friendly, and approachable while maintaining the original meaning.";
+        break;
+    }
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that rephrases messages to be kinder and more constructive. Keep the same meaning but make the tone more friendly. Keep responses very concise and similar in length to the original message."
+          content: systemPrompt + " Keep responses very concise and similar in length to the original message."
         },
         {
           role: "user",
-          content: `Rephrase this message to be kinder: "${message}"`
+          content: `Rephrase this message: "${message}"`
         }
       ],
       temperature: 0.7,

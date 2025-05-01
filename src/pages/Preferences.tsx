@@ -21,7 +21,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Sun, Moon, ScreenShare } from 'lucide-react';
+import { Sun, Moon, ScreenShare, MessageSquareText } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
@@ -37,6 +38,7 @@ const Preferences = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [messageTone, setMessageTone] = useState<string>("friendly");
 
   // Form with validation
   const form = useForm<FormValues>({
@@ -51,7 +53,7 @@ const Preferences = () => {
     setMounted(true);
   }, []);
 
-  // Fetch user profile data when component mounts
+  // Fetch user profile data and preferences when component mounts
   useEffect(() => {
     if (!user) {
       navigate('/auth');
@@ -65,7 +67,7 @@ const Preferences = () => {
         // Get user profile from the profiles table
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('username')
+          .select('username, message_tone')
           .eq('id', user.id)
           .single();
 
@@ -81,6 +83,11 @@ const Preferences = () => {
         form.reset({
           fullName: fullName,
         });
+
+        // Set message tone if it exists in profile
+        if (profileData?.message_tone) {
+          setMessageTone(profileData.message_tone);
+        }
       } catch (error) {
         console.error('Error loading user data:', error);
         toast({
@@ -133,6 +140,33 @@ const Preferences = () => {
     }
   };
 
+  const handleMessageToneChange = async (value: string) => {
+    if (!user) return;
+    
+    setMessageTone(value);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ message_tone: value })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Message tone updated',
+        description: `Your messages will now be rephrased with a ${value} tone.`,
+      });
+    } catch (error) {
+      console.error('Error updating message tone:', error);
+      toast({
+        title: 'Update failed',
+        description: 'There was a problem updating your message tone preference.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (!user) return null;
   
   return (
@@ -172,6 +206,48 @@ const Preferences = () => {
               </form>
             </Form>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Message Preferences</CardTitle>
+          <CardDescription>Customize how your messages are rephrased</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <MessageSquareText className="h-5 w-5" />
+                <h3 className="text-lg font-medium">Message Tone</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Choose how you want your messages to be rephrased when they're reviewed.
+              </p>
+              <Select value={messageTone} onValueChange={handleMessageToneChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a tone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="friendly">Friendly</SelectItem>
+                  <SelectItem value="professional">Professional</SelectItem>
+                  <SelectItem value="casual">Casual</SelectItem>
+                  <SelectItem value="formal">Formal</SelectItem>
+                  <SelectItem value="encouraging">Encouraging</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <div className="mt-2 p-3 bg-muted rounded-md text-sm">
+                <p className="italic">
+                  {messageTone === "friendly" && "Messages will be rephrased to sound warm and approachable."}
+                  {messageTone === "professional" && "Messages will be rephrased to sound polished and business-like."}
+                  {messageTone === "casual" && "Messages will be rephrased to sound relaxed and conversational."}
+                  {messageTone === "formal" && "Messages will be rephrased to sound structured and precise."}
+                  {messageTone === "encouraging" && "Messages will be rephrased to sound positive and supportive."}
+                </p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
