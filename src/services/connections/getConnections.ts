@@ -52,7 +52,7 @@ export const getConnections = async (): Promise<Connection[]> => {
         }
 
         if (!otherUserData) {
-          throw new Error("User was not able to be selected.");
+          throw new Error("RLS issue. User was not able to be selected.");
         }
 
         return {
