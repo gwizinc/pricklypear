@@ -23,7 +23,14 @@ const ThreadHeader = ({
   return (
     <div className="space-y-4 mb-6">
       <div className="flex justify-between">
-        <h1 className="text-2xl font-bold">{thread.title}</h1>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold">{thread.title}</h1>
+          {thread.summary ? (
+            <p className="text-muted-foreground text-sm">{thread.summary}</p>
+          ) : (
+            <p className="text-muted-foreground/70 text-sm italic">No summary provided</p>
+          )}
+        </div>
         
         <div className="flex items-center gap-2">
           <Button 
