@@ -1,13 +1,13 @@
-type BroadcastMessage = {
+type BroadcastMessage<T = unknown> = {
   type: string;
-  payload: any;
+  payload: T;
 };
 
-type MessageListener = (message: BroadcastMessage) => void;
+type MessageListener<T = unknown> = (message: BroadcastMessage<T>) => void;
 
 class RealtimeBroadcastManager {
   private channel: BroadcastChannel | null = null;
-  private listeners: Map<string, Set<MessageListener>> = new Map();
+  private listeners: Map<string, Set<MessageListener<unknown>>> = new Map();
   private storageListener: ((event: StorageEvent) => void) | null = null;
   private channelName: string;
   private fallbackToStorage: boolean;
@@ -46,13 +46,13 @@ class RealtimeBroadcastManager {
     this.notifyListeners(event.data);
   }
   
-  private notifyListeners(message: BroadcastMessage) {
+  private notifyListeners<T>(message: BroadcastMessage<T>) {
     const { type } = message;
     
     if (this.listeners.has(type)) {
       this.listeners.get(type)?.forEach(listener => {
         try {
-          listener(message);
+          listener(message as BroadcastMessage<unknown>);
         } catch (error) {
           console.error('Error in broadcast listener', error);
         }
@@ -63,7 +63,7 @@ class RealtimeBroadcastManager {
     if (this.listeners.has('all')) {
       this.listeners.get('all')?.forEach(listener => {
         try {
-          listener(message);
+          listener(message as BroadcastMessage<unknown>);
         } catch (error) {
           console.error('Error in broadcast listener', error);
         }
@@ -71,8 +71,8 @@ class RealtimeBroadcastManager {
     }
   }
   
-  broadcast(type: string, payload: any) {
-    const message: BroadcastMessage = { type, payload };
+  broadcast<T>(type: string, payload: T) {
+    const message: BroadcastMessage<T> = { type, payload };
     
     if (this.fallbackToStorage) {
       // Use localStorage for cross-tab communication
@@ -105,18 +105,18 @@ class RealtimeBroadcastManager {
     }
   }
   
-  subscribe(type: string, listener: MessageListener): () => void {
+  subscribe<T>(type: string, listener: MessageListener<T>): () => void {
     if (!this.listeners.has(type)) {
       this.listeners.set(type, new Set());
     }
     
-    this.listeners.get(type)?.add(listener);
+    this.listeners.get(type)?.add(listener as MessageListener<unknown>);
     
     // Return unsubscribe function
     return () => {
       const typeListeners = this.listeners.get(type);
       if (typeListeners) {
-        typeListeners.delete(listener);
+        typeListeners.delete(listener as MessageListener<unknown>);
         if (typeListeners.size === 0) {
           this.listeners.delete(type);
         }
@@ -141,13 +141,13 @@ class RealtimeBroadcastManager {
 export const realtimeBroadcast = new RealtimeBroadcastManager();
 
 // Helper functions for more convenient API
-export const broadcastRealtimeEvent = (type: string, payload: any) => {
+export const broadcastRealtimeEvent = <T>(type: string, payload: T) => {
   realtimeBroadcast.broadcast(type, payload);
 };
 
-export const subscribeToRealtimeBroadcast = (
+export const subscribeToRealtimeBroadcast = <T>(
   type: string, 
-  callback: MessageListener
+  callback: MessageListener<T>
 ): () => void => {
   return realtimeBroadcast.subscribe(type, callback);
 };

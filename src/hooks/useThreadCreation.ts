@@ -1,10 +1,11 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { createThread } from "@/services/threadService";
+import type { Thread } from "@/types/thread";
+import type { User } from "@/types/user";
 
-export const useThreadCreation = (onThreadCreated: (thread: any) => void, onClose: () => void) => {
+export const useThreadCreation = (onThreadCreated: (thread: Thread) => void, onClose: () => void) => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [selectedContact, setSelectedContact] = useState<string>("");
   const [selectedTopic, setSelectedTopic] = useState<'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other'>('other');
@@ -12,7 +13,7 @@ export const useThreadCreation = (onThreadCreated: (thread: any) => void, onClos
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleCreateThread = async (user: any) => {
+  const handleCreateThread = async (user: User | null) => {
     if (!user) {
       toast({
         title: "Authentication required",

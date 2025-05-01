@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MessageCirclePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,10 +12,12 @@ import {
 import { useConnections } from "@/hooks/useConnections";
 import { useThreadCreation } from "@/hooks/useThreadCreation";
 import CreateThreadForm from "./CreateThreadForm";
+import type { Thread } from "@/types/thread";
+import type { User } from "@/types/user";
 
 interface CreateThreadDialogProps {
-  onThreadCreated: (newThread: any) => void;
-  user: any;
+  onThreadCreated: (newThread: Thread) => void;
+  user: User | null;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
 }

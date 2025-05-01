@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { getConnections } from "@/services/connections";
 import type { Connection } from "@/types/connection";
+import type { User } from "@/types/user";
 
-export const useConnections = (user: any) => {
+export const useConnections = (user: User | null) => {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
