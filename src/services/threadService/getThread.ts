@@ -37,15 +37,19 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
     if (participantsError) {
       console.error("Error fetching thread participants:", participantsError);
     }
+
+    if (!participantsData.length) {
+      throw new Errro("RLS issue getting thread participants. Expecting at least 1");
+    }
     
     // Extract participant names, excluding the current user
     const participants = participantsData
-      ?.map(item => ({
+      .map(item => ({
         id: item.profiles?.id,
         name: item.profiles?.name
       }))
-      .filter(participant => participant.id && participant.name && participant.id !== user.id)
-      .map(participant => participant.name) || [];
+      .filter(participant => participant.id !== user.id)
+      .map(participant => participant.name);
 
     return {
       id: threadData.id,
