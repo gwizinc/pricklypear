@@ -73,7 +73,7 @@ const ThreadCard = ({ thread, unreadCount = 0 }: ThreadCardProps) => {
         <Button 
           asChild 
           variant="default" 
-          className="w-full bg-secondary hover:bg-secondary/90 text-primary font-semibold hover-rotate relative"
+          className="w-full bg-secondary hover:bg-secondary/90 text-primary font-semibold relative"
         >
           <Link to={`/threads/${thread.id}`}>
             View Conversation
