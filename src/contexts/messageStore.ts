@@ -1,4 +1,3 @@
-
 import { subscribeToRealtimeBroadcast } from '@/lib/realtimeBroadcast';
 import type { Message } from '@/types/message';
 import type { RealtimePostgresChangesPayload } from '@supabase/realtime-js';
@@ -6,6 +5,17 @@ import type { RealtimePostgresChangesPayload } from '@supabase/realtime-js';
 interface MessageState {
   messages: Record<string, Message[]>;
   subscribers: Map<string, Set<(messages: Message[]) => void>>;
+}
+
+interface MessageRow {
+  id: string;
+  conversation_id: string;
+  selected_text: string;
+  original_text: string;
+  kind_text: string;
+  sender_profile_id: string;
+  timestamp: string;
+  is_system: boolean;
 }
 
 /**
@@ -47,7 +57,7 @@ class MessageStore {
   /**
    * Apply delta from realtime changes
    */
-  applyDelta(payload: RealtimePostgresChangesPayload<any>): void {
+  applyDelta(payload: RealtimePostgresChangesPayload<MessageRow>): void {
     const { new: newRecord, old: oldRecord, eventType } = payload;
     
     if (!newRecord && !oldRecord) return;

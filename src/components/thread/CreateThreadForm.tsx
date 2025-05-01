@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -8,14 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { Connection } from "@/types/connection";
+import type { Thread } from "@/types/thread";
+
+type ThreadTopic = NonNullable<Thread['topic']>;
 
 interface CreateThreadFormProps {
   newThreadTitle: string;
   setNewThreadTitle: (title: string) => void;
   selectedContact: string;
   setSelectedContact: (contact: string) => void;
-  selectedTopic?: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other';
-  setSelectedTopic?: (topic: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other') => void;
+  selectedTopic?: ThreadTopic;
+  setSelectedTopic?: (topic: ThreadTopic) => void;
   connections: Connection[];
   isLoadingContacts: boolean;
   isCreating: boolean;
@@ -99,7 +101,7 @@ const CreateThreadForm = ({
           <Label className="text-sm font-medium">Thread Topic</Label>
           <RadioGroup 
             value={selectedTopic} 
-            onValueChange={(value) => setSelectedTopic(value as any)} 
+            onValueChange={(value: ThreadTopic) => setSelectedTopic!(value)} 
             className="grid grid-cols-2 gap-2"
           >
             {Object.entries(topicLabels).map(([value, label]) => (

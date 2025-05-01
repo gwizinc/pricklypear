@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Users, Loader2 } from "lucide-react";
 import { 
@@ -33,11 +32,7 @@ const Connections = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  useEffect(() => {
-    loadConnections();
-  }, [user]);
-
-  const loadConnections = async () => {
+  const loadConnections = useCallback(async () => {
     setIsLoading(true);
     try {
       const fetchedConnections = await getConnections();
@@ -52,7 +47,11 @@ const Connections = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadConnections();
+  }, [loadConnections]);
 
   const handleInvite = async (email: string) => {
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
