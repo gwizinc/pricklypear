@@ -99,7 +99,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       .from("messages")
       .select(`
         *,
-        profiles (name)
+        profiles:sender (name)
       `)
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
@@ -114,7 +114,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       // Handle system messages or messages with null profiles
       const senderName = msg.is_system 
         ? 'system' 
-        : (msg.profiles?.name || 'Unknown User'); // Safe access with optional chaining
+        : (msg.profiles?.name || 'Unknown User'); // Use optional chaining to safely access name
 
       return {
         id: msg.id,

@@ -41,6 +41,21 @@ export const deleteConnection = async (connectionId: string): Promise<boolean> =
       return false;
     }
 
+    // Get the user information to log who is deleting
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
+    console.log("User attempting to delete connection:", userId);
+    console.log("Connection details:", connectionData);
+    
+    // Check if the current user has permission to delete this connection
+    const canDelete = userId && (connectionData.user_id === userId || connectionData.connected_user_id === userId);
+    
+    if (!canDelete) {
+      console.error("User does not have permission to delete this connection");
+      return false;
+    }
+
     // Delete the connection
     const { error } = await supabase
       .from("connections")
