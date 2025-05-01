@@ -25,16 +25,15 @@ const ThreadView = () => {
     originalMessage,
     kindMessage,
     isReviewingMessage,
-    isRequestingClose,
     isGeneratingSummary,
     setNewMessage,
     handleSendMessage,
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
+    isRequestingClose,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose,
-    handleGenerateSummary
+    handleRejectClose
   } = useThreadDetails(threadId);
 
   const isThreadClosed = thread?.status === 'closed';
@@ -56,7 +55,6 @@ const ThreadView = () => {
             isThreadClosed={isThreadClosed}
             isRequestingClose={isRequestingClose}
             onRequestClose={handleRequestClose}
-            onGenerateSummary={handleGenerateSummary}
             isGeneratingSummary={isGeneratingSummary}
           />
           

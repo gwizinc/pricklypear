@@ -23,22 +23,21 @@ export const useThreadDetails = (threadId: string | undefined) => {
     originalMessage,
     kindMessage,
     isReviewingMessage,
+    isGeneratingSummary,
     setNewMessage,
     handleSendMessage,
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
     loadMessages,
     addSystemMessage
-  } = useThreadMessages(threadId);
+  } = useThreadMessages(threadId, thread, setThread);
 
   // Get thread action handlers
   const {
     isRequestingClose,
-    isGeneratingSummary,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose,
-    handleGenerateSummary
+    handleRejectClose
   } = useThreadActions(threadId, thread, messages, addSystemMessage, setThread);
 
   // Initialize thread and messages
@@ -69,6 +68,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     originalMessage,
     kindMessage,
     isReviewingMessage,
+    isGeneratingSummary,
     setNewMessage,
     handleSendMessage,
     handleSendReviewedMessage,
@@ -76,10 +76,8 @@ export const useThreadDetails = (threadId: string | undefined) => {
 
     // From useThreadActions
     isRequestingClose,
-    isGeneratingSummary,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose,
-    handleGenerateSummary
+    handleRejectClose
   };
 };

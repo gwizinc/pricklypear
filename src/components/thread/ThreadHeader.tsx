@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Lock, Users, FileText } from "lucide-react";
+import { Loader2, Lock, Users } from "lucide-react";
 import type { Thread } from "@/types/thread";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -10,7 +10,6 @@ interface ThreadHeaderProps {
   isThreadClosed: boolean;
   isRequestingClose: boolean;
   onRequestClose: () => void;
-  onGenerateSummary: () => void;
   isGeneratingSummary: boolean;
 }
 
@@ -19,7 +18,6 @@ const ThreadHeader = ({
   isThreadClosed,
   isRequestingClose,
   onRequestClose,
-  onGenerateSummary,
   isGeneratingSummary,
 }: ThreadHeaderProps) => {
   return (
@@ -32,22 +30,15 @@ const ThreadHeader = ({
           ) : (
             <p className="text-muted-foreground/70 text-sm italic">No summary provided</p>
           )}
+          {isGeneratingSummary && (
+            <p className="text-xs text-muted-foreground flex items-center gap-2">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Generating summary...
+            </p>
+          )}
         </div>
         
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={onGenerateSummary}
-            disabled={isGeneratingSummary}
-          >
-            {isGeneratingSummary ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <FileText className="h-4 w-4 mr-2" />
-            )}
-            Generate Summary
-          </Button>
-
           {!isThreadClosed && !thread.closeRequestedBy && (
             <Button 
               variant="outline" 

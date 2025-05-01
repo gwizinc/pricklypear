@@ -4,12 +4,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMessages, saveMessage, saveSystemMessage } from "@/services/messageService";
 import { reviewMessage } from "@/utils/messageReview";
+import { generateThreadSummary } from "@/services/threadService";
 import type { Message } from "@/types/message";
+import type { Thread } from "@/types/thread";
 
-export const useThreadMessages = (threadId: string | undefined) => {
+export const useThreadMessages = (threadId: string | undefined, thread: Thread | null, setThread: (thread: Thread | null) => void) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   
   // Message review states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -48,6 +51,33 @@ export const useThreadMessages = (threadId: string | undefined) => {
     }
   };
 
+  const handleGenerateSummary = async () => {
+    if (!threadId || !thread || messages.length === 0) return;
+    
+    setIsGeneratingSummary(true);
+    
+    try {
+      const summary = await generateThreadSummary(threadId, messages);
+      
+      if (summary) {
+        // Update local thread state with the new summary
+        setThread({
+          ...thread,
+          summary
+        });
+        
+        toast({
+          title: "Summary generated",
+          description: "Thread summary has been successfully generated and saved.",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating summary:", error);
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
+
   const handleSendReviewedMessage = async (selectedMessage: string) => {
     if (!selectedMessage.trim() || !user || !threadId) return;
     
@@ -79,6 +109,11 @@ export const useThreadMessages = (threadId: string | undefined) => {
       
       setMessages(prev => [...prev, newMsg]);
       setNewMessage("");
+      
+      // Generate a new summary after sending a message
+      if (thread) {
+        handleGenerateSummary();
+      }
     } else {
       toast({
         title: "Error",
@@ -113,6 +148,7 @@ export const useThreadMessages = (threadId: string | undefined) => {
     originalMessage,
     kindMessage,
     isReviewingMessage,
+    isGeneratingSummary,
     setNewMessage,
     handleSendMessage,
     handleSendReviewedMessage,
