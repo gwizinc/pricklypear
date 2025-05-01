@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,6 +5,8 @@ import { getMessages, saveMessage, saveSystemMessage, getUnreadMessageCount } fr
 import { reviewMessage } from "@/utils/messageReview";
 import { generateThreadSummary } from "@/services/threadService";
 import { messageStore } from "@/contexts/messageStore";
+import { supabaseClient } from "@/lib/supabaseClient";
+import { subscribeToUnreadReceipts } from "@/lib/realtime";
 import type { Message } from "@/types/message";
 import type { Thread } from "@/types/thread";
 
@@ -26,9 +27,9 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   
   const { toast } = useToast();
   const { user } = useAuth();
-
-  // Use a ref to track initialization
-  const initializedRef = useRef(false);
+  
+  // Add reference to track last message timestamp
+  const lastTimestampRef = useRef<string>('');
 
   // Load unread count for the thread
   useEffect(() => {
@@ -61,6 +62,54 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     return unsubscribe;
   }, [threadId]);
 
+  // New effect to subscribe to unread receipts for real-time updates
+  useEffect(() => {
+    if (!threadId || !user) return;
+    
+    const unsub = subscribeToUnreadReceipts(user.id, async (payload) => {
+      if (payload.eventType !== 'INSERT') return;
+      
+      const rec = payload.new;
+      const threadIdFromEvent = (rec as any)?.thread_id ?? null;
+      if (threadIdFromEvent !== threadId) return;
+      
+      // Fetch latest messages since the last timestamp
+      const { data, error } = await supabaseClient
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', threadId)
+        .gt('timestamp', lastTimestampRef.current)
+        .order('timestamp', { ascending: true });
+      
+      if (error) {
+        console.error("Error fetching new messages:", error);
+        return;
+      }
+      
+      if (data && data.length) {
+        const existing = messageStore.getMessages(threadId);
+        const mapped = data.map((msg) => ({
+          id: msg.id,
+          text: msg.selected_text,
+          sender: msg.sender_profile_id,
+          timestamp: new Date(msg.timestamp || ''),
+          original_text: msg.original_text,
+          kind_text: msg.kind_text,
+          threadId: threadId,
+          isSystem: Boolean(msg.is_system),
+        }));
+        
+        messageStore.setMessages(threadId, [...existing, ...mapped]);
+        
+        if (mapped.length) {
+          lastTimestampRef.current = mapped[mapped.length - 1].timestamp?.toISOString?.() ?? lastTimestampRef.current;
+        }
+      }
+    });
+    
+    return unsub;
+  }, [threadId, user]);
+
   const loadMessages = useCallback(async () => {
     if (!threadId || hasLoaded) return [];
     
@@ -73,6 +122,15 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       
       // Update the message store with the loaded messages
       messageStore.setMessages(threadId, messagesData);
+      
+      // Update last timestamp reference if messages exist
+      if (messagesData.length > 0) {
+        const sortedMessages = [...messagesData].sort((a, b) => 
+          a.timestamp.getTime() - b.timestamp.getTime()
+        );
+        const lastMessage = sortedMessages[sortedMessages.length - 1];
+        lastTimestampRef.current = lastMessage.timestamp?.toISOString?.() ?? '';
+      }
       
       // Mark as loaded to prevent redundant loading
       setHasLoaded(true);
