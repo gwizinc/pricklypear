@@ -40,8 +40,7 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="mt-3">
-            <p className="text-sm font-medium">Summary:</p>
+          <div className="mt-1">
             <p className="text-sm text-muted-foreground mt-1">
               {thread.summary ? thread.summary : "No summary generated yet."}
             </p>
