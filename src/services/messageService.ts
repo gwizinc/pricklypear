@@ -99,7 +99,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       .from("messages")
       .select(`
         *,
-        sender:profiles(name)
+        profiles!messages_sender_fkey (name)
       `)
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
@@ -115,7 +115,12 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       id: msg.id,
       text: msg.selected_text || '',
       // Handle system messages vs user messages
-      sender: msg.is_system ? 'system' : (msg.sender?.name || ''),
+      sender: msg.is_system ? 'system' : (
+        // Safely access the profile name if it exists
+        msg.profiles && typeof msg.profiles === 'object' && msg.profiles !== null 
+          ? (msg.profiles.name || '') 
+          : ''
+      ),
       timestamp: new Date(msg.timestamp || ''),
       original_text: msg.original_text || '',
       kind_text: msg.kind_text || '',
