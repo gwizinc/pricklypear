@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 
@@ -94,12 +95,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       return [];
     }
 
+    // Getting messages - fix the query to properly handle profile relationships
     const { data: messagesData, error: messagesError } = await supabase
       .from("messages")
-      .select(`
-        *,
-        profiles!sender(name)
-      `)
+      .select("*, sender_profile:profiles(name)")
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
 
@@ -110,10 +109,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
     // Transform database records into Message objects
     return (messagesData || []).map(msg => {
-      // Handle system messages or messages with null profiles
+      // Safely handle the sender name, accounting for system messages and sender_profile being null
       const senderName = msg.is_system 
         ? 'system' 
-        : (msg.profiles?.name || 'Unknown User'); // Use optional chaining to safely access name
+        : (msg.sender_profile?.name || 'Unknown User');
 
       return {
         id: msg.id,
