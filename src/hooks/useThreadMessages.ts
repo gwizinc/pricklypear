@@ -34,7 +34,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       
       loadUnreadCount();
     }
-  }, [threadId, messages]);
+  }, [threadId]); // Changed from [threadId, messages] to [threadId]
 
   // Subscribe to message store for this thread
   useEffect(() => {

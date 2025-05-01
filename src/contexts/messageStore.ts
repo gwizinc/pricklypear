@@ -1,5 +1,6 @@
 import { subscribeToRealtimeBroadcast } from '@/lib/realtimeBroadcast';
 import type { Message } from '@/types/message';
+import type { RealtimePostgresChangesPayload } from '@supabase/realtime-js';
 
 interface MessageState {
   messages: Record<string, Message[]>;
@@ -45,7 +46,7 @@ class MessageStore {
   /**
    * Apply delta from realtime changes
    */
-  applyDelta(payload: any): void {
+  applyDelta(payload: RealtimePostgresChangesPayload<Message>): void {
     const { new: newRecord, old: oldRecord, eventType } = payload;
     
     if (!newRecord && !oldRecord) return;
@@ -60,11 +61,23 @@ class MessageStore {
     
     // Process the delta based on event type
     if (eventType === 'INSERT') {
-      // Add new message to the thread
-      this.state.messages[threadId] = [
-        ...this.state.messages[threadId],
-        newRecord as Message,
-      ];
+      // Check for duplicates before adding
+      const isDuplicate = this.state.messages[threadId].some(msg => msg.id === newRecord.id);
+      
+      if (!isDuplicate) {
+        // Add new message to the thread
+        this.state.messages[threadId] = [
+          ...this.state.messages[threadId],
+          newRecord as Message,
+        ];
+        
+        // Sort messages chronologically by timestamp
+        this.state.messages[threadId].sort((a, b) => {
+          const aTime = new Date(a.timestamp).getTime();
+          const bTime = new Date(b.timestamp).getTime();
+          return aTime - bTime;
+        });
+      }
     } else if (eventType === 'UPDATE') {
       // Update existing message
       this.state.messages[threadId] = this.state.messages[threadId].map(msg => 

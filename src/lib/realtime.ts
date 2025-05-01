@@ -2,7 +2,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabaseClient, activeChannels } from '@/lib/supabaseClient';
 import { broadcastRealtimeEvent } from '@/lib/realtimeBroadcast';
 
-type ReconnectedHandler = (channel: RealtimeChannel) => Promise<void>;
+export type ReconnectedHandler = (channel: RealtimeChannel) => Promise<void>;
 
 export interface SubscriptionOptions {
   event?: string;
@@ -11,6 +11,9 @@ export interface SubscriptionOptions {
   crossTabBroadcast?: boolean;
 }
 
+// Map to track subscriber reference counts for each channel
+const channelSubscriberCounts = new Map<string, number>();
+
 /**
  * Helper function to subscribe to Supabase Realtime channels
  * 
@@ -18,6 +21,7 @@ export interface SubscriptionOptions {
  * @param tableName The database table to subscribe to
  * @param callback The callback to run when data changes
  * @param options Subscription options
+ * @param reconnectedHandler Optional handler for reconnection events
  * @returns A function to unsubscribe
  */
 export function subscribeToRealtimeChanges(
@@ -36,6 +40,10 @@ export function subscribeToRealtimeChanges(
 
   // Create channel identifier
   const channelKey = `${channelName}:${tableName}:${event}:${filter}`;
+  
+  // Increment or initialize subscriber count
+  const currentCount = channelSubscriberCounts.get(channelKey) || 0;
+  channelSubscriberCounts.set(channelKey, currentCount + 1);
   
   // Check if channel already exists
   let channel = activeChannels.get(channelKey);
@@ -81,11 +89,21 @@ export function subscribeToRealtimeChanges(
   
   // Return an unsubscribe function
   return () => {
-    // Only unsubscribe if this is the last reference
-    const channel = activeChannels.get(channelKey);
-    if (channel) {
-      channel.unsubscribe();
-      activeChannels.delete(channelKey);
+    const currentCount = channelSubscriberCounts.get(channelKey) || 0;
+    
+    if (currentCount <= 1) {
+      // Last subscriber is unsubscribing
+      channelSubscriberCounts.delete(channelKey);
+      
+      // Only unsubscribe if this is the last reference
+      const channel = activeChannels.get(channelKey);
+      if (channel) {
+        channel.unsubscribe();
+        activeChannels.delete(channelKey);
+      }
+    } else {
+      // Decrement the subscriber count
+      channelSubscriberCounts.set(channelKey, currentCount - 1);
     }
   };
 }
@@ -95,7 +113,8 @@ export function subscribeToRealtimeChanges(
  */
 export function subscribeToThread(
   threadId: string,
-  callback: (payload: any) => void
+  callback: (payload: any) => void,
+  reconnectedHandler?: ReconnectedHandler
 ): () => void {
   return subscribeToRealtimeChanges(
     `thread-${threadId}`,
@@ -104,6 +123,7 @@ export function subscribeToThread(
     {
       filter: `threadId=eq.${threadId}`,
       crossTabBroadcast: true,
-    }
+    },
+    reconnectedHandler
   );
 }
