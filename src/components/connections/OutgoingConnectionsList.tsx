@@ -6,12 +6,10 @@ import ConnectionCard from "./ConnectionCard";
 
 interface OutgoingConnectionsListProps {
   connections: Connection[];
-  onDelete: (connectionId: string) => void;
 }
 
 const OutgoingConnectionsList: React.FC<OutgoingConnectionsListProps> = ({
   connections,
-  onDelete,
 }) => {
   if (connections.length === 0) return null;
 
@@ -29,7 +27,6 @@ const OutgoingConnectionsList: React.FC<OutgoingConnectionsListProps> = ({
           <ConnectionCard
             key={connection.id}
             connection={connection}
-            onDelete={onDelete}
             variant="pending-outgoing"
           />
         ))}

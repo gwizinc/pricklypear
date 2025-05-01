@@ -7,13 +7,11 @@ import ConnectionCard from "./ConnectionCard";
 interface DisabledConnectionsListProps {
   connections: Connection[];
   onUpdateStatus: (connectionId: string, status: ConnectionStatus) => void;
-  onDelete: (connectionId: string) => void;
 }
 
 const DisabledConnectionsList: React.FC<DisabledConnectionsListProps> = ({
   connections,
   onUpdateStatus,
-  onDelete,
 }) => {
   if (connections.length === 0) return null;
 
@@ -32,7 +30,6 @@ const DisabledConnectionsList: React.FC<DisabledConnectionsListProps> = ({
             key={connection.id}
             connection={connection}
             onUpdateStatus={onUpdateStatus}
-            onDelete={onDelete}
             variant="disabled"
           />
         ))}

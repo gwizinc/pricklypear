@@ -12,7 +12,6 @@ import {
   ConnectionStatus, 
   getConnections, 
   updateConnectionStatus,
-  deleteConnection,
   disableConnection,
   inviteByEmail
 } from "@/services/connectionService";
@@ -133,25 +132,6 @@ const Connections = () => {
     }
   };
 
-  const handleDeleteConnection = async (connectionId: string) => {
-    try {
-      await deleteConnection(connectionId);
-      loadConnections();
-      
-      toast({
-        title: "Connection removed",
-        description: "The connection has been removed",
-      });
-    } catch (error) {
-      console.error("Error deleting connection:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove connection",
-        variant: "destructive",
-      });
-    }
-  };
-
   // Filter connections by status and relation to current user
   const pendingIncomingConnections = connections.filter(
     c => c.status === 'pending' && !c.isUserSender
@@ -204,19 +184,16 @@ const Connections = () => {
       <AcceptedConnectionsList 
         connections={acceptedConnections}
         onDisable={handleDisableConnection}
-        onDelete={handleDeleteConnection}
         onOpenInviteDialog={() => setIsDialogOpen(true)}
       />
       
       <OutgoingConnectionsList 
         connections={pendingOutgoingConnections}
-        onDelete={handleDeleteConnection}
       />
       
       <DisabledConnectionsList 
         connections={disabledConnections}
         onUpdateStatus={handleUpdateStatus}
-        onDelete={handleDeleteConnection}
       />
     </div>
   );

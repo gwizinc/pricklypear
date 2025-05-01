@@ -9,14 +9,12 @@ import ConnectionCard from "./ConnectionCard";
 interface AcceptedConnectionsListProps {
   connections: Connection[];
   onDisable: (connectionId: string) => void;
-  onDelete: (connectionId: string) => void;
   onOpenInviteDialog: () => void;
 }
 
 const AcceptedConnectionsList: React.FC<AcceptedConnectionsListProps> = ({
   connections,
   onDisable,
-  onDelete,
   onOpenInviteDialog,
 }) => {
   return (
@@ -35,7 +33,6 @@ const AcceptedConnectionsList: React.FC<AcceptedConnectionsListProps> = ({
               key={connection.id}
               connection={connection}
               onDisable={onDisable}
-              onDelete={onDelete}
               variant="accepted"
             />
           ))}

@@ -17,7 +17,6 @@ import {
 import { 
   CheckCircle2, 
   XCircle, 
-  Trash2, 
   UserCheck,
   EyeOff
 } from "lucide-react";
@@ -27,7 +26,6 @@ import DisableConnectionDialog from "./DisableConnectionDialog";
 interface ConnectionCardProps {
   connection: Connection;
   onUpdateStatus?: (connectionId: string, status: "accepted" | "declined" | "disabled" | "pending") => void;
-  onDelete?: (connectionId: string) => void;
   onDisable?: (connectionId: string) => void;
   variant: "pending-incoming" | "pending-outgoing" | "accepted" | "disabled";
 }
@@ -35,7 +33,6 @@ interface ConnectionCardProps {
 const ConnectionCard: React.FC<ConnectionCardProps> = ({
   connection,
   onUpdateStatus,
-  onDelete,
   onDisable,
   variant,
 }) => {
@@ -102,7 +99,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onDelete?.(connection.id)}
+            onClick={() => onUpdateStatus?.(connection.id, 'declined')}
           >
             <XCircle className="h-4 w-4 mr-1" />
             Cancel
@@ -110,45 +107,25 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
         );
       case "accepted":
         return (
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDisableDialogOpen(true)}
-            >
-              <EyeOff className="h-4 w-4 mr-1" />
-              Disable
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete?.(connection.id)}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Remove
-            </Button>
-          </>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsDisableDialogOpen(true)}
+          >
+            <EyeOff className="h-4 w-4 mr-1" />
+            Disable
+          </Button>
         );
       case "disabled":
         return (
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onUpdateStatus?.(connection.id, 'accepted')}
-            >
-              <UserCheck className="h-4 w-4 mr-1" />
-              Enable
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete?.(connection.id)}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Remove
-            </Button>
-          </>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onUpdateStatus?.(connection.id, 'accepted')}
+          >
+            <UserCheck className="h-4 w-4 mr-1" />
+            Enable
+          </Button>
         );
       default:
         return null;

@@ -8,7 +8,6 @@ import { ConnectionStatus, Connection, InviteResponse } from '@/types/connection
 import { 
   getConnections, 
   updateConnectionStatus, 
-  deleteConnection, 
   disableConnection, 
   inviteByEmail 
 } from './connections';
@@ -17,7 +16,6 @@ import {
 export { 
   getConnections, 
   updateConnectionStatus, 
-  deleteConnection, 
   disableConnection, 
   inviteByEmail, 
   type ConnectionStatus,
