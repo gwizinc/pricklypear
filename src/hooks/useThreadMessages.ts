@@ -9,6 +9,12 @@ import { supabaseClient } from "@/lib/supabaseClient";
 import { subscribeToUnreadReceipts } from "@/lib/realtime";
 import type { Message } from "@/types/message";
 import type { Thread } from "@/types/thread";
+import type { Database } from "@/integrations/supabase/types";
+
+// Type alias that extends the message_read_receipts row with thread_id
+type MessageReadReceiptWithThread = 
+  Database['public']['Tables']['message_read_receipts']['Row'] & 
+  { thread_id?: string | null };
 
 export const useThreadMessages = (threadId: string | undefined, thread: Thread | null, setThread: (thread: Thread | null) => void) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -70,7 +76,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       if (payload.eventType !== 'INSERT') return;
       
       const rec = payload.new;
-      const threadIdFromEvent = (rec as any)?.thread_id ?? null;
+      const threadIdFromEvent = (rec as MessageReadReceiptWithThread)?.thread_id ?? null;
       if (threadIdFromEvent !== threadId) return;
       
       // Fetch latest messages since the last timestamp

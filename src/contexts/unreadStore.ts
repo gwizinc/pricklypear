@@ -3,6 +3,11 @@ import { getAllUnreadCounts } from '@/services/messageService';
 import { subscribeToUnreadReceipts } from '@/lib/realtime';
 import type { Database } from '@/integrations/supabase/types';
 
+// Type alias that extends the message_read_receipts row with thread_id
+type MessageReadReceiptWithThread = 
+  Database['public']['Tables']['message_read_receipts']['Row'] & 
+  { thread_id?: string | null };
+
 type UnreadCountsCallback = (counts: Record<string, number>) => void;
 
 class UnreadStore {
@@ -48,8 +53,8 @@ class UnreadStore {
     // Determine which record to use based on the event type
     const record = eventType === 'DELETE' ? payload.old : payload.new;
     
-    // Extract thread_id from the record
-    const threadId = (record as any)?.thread_id;
+    // Extract thread_id from the record using the strongly-typed alias instead of any
+    const threadId = (record as MessageReadReceiptWithThread)?.thread_id;
     if (!threadId) return;
     
     // Ensure the thread exists in our counts
