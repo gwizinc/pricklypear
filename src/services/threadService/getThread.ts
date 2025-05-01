@@ -38,6 +38,8 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
       console.error("Error fetching thread participants:", participantsError);
     }
 
+    console.log('participantsData', participantsData)
+
     if (participantsData.length === 0) {
       throw new Errro("RLS issue getting thread participants. Expecting at least 1");
     }
