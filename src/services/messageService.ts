@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 
@@ -110,26 +109,22 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
     }
 
     // Transform database records into Message objects
-    // Use explicit type assertions to avoid deep type instantiation issues
     return (messages || []).map(msg => ({
       id: msg.id,
       text: msg.selected_text || '',
       // Handle system messages vs user messages
       sender: msg.is_system ? 'system' : (
-        // Safely access the profile name if it exists
-        // First check if profiles exists and is not null
+        // Safely access the profile name if it exists by first checking if profiles exists
         msg.profiles ? 
-          // Then check if it's an object with a name property
-          (typeof msg.profiles === 'object' && msg.profiles !== null && 'name' in msg.profiles
-            ? (msg.profiles?.name || '') 
-            : '') 
-          : ''
+          // Then check if profiles has a name property and it's not null
+          (msg.profiles.name || 'Profile with no name') 
+          : 'Unknown Profile'
       ),
       timestamp: new Date(msg.timestamp || ''),
       original_text: msg.original_text || '',
       kind_text: msg.kind_text || '',
       threadId: msg.conversation_id || '',
-      isSystem: Boolean(msg.is_system) // Explicitly convert to boolean
+      isSystem: Boolean(msg.is_system)
     }));
   } catch (error) {
     console.error("Exception fetching messages:", error);

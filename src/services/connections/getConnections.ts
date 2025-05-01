@@ -39,7 +39,7 @@ export const getConnections = async (): Promise<Connection[]> => {
         return {
           id: connection.id,
           otherUserId,
-          username: otherUserData?.name || "Unknown User",
+          username: otherUserData?.name || "User Name Not Found",
           avatarUrl: undefined,
           status: connection.status as ConnectionStatus,
           createdAt: connection.created_at,
