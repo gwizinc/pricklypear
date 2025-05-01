@@ -28,18 +28,22 @@ export const getConnections = async (): Promise<Connection[]> => {
           : connection.user_id;
 
         // Get the other user's details
-        const { data: otherUserData } = await supabase
+        const { data: otherUserData, error: profileError } = await supabase
           .from("profiles")
-          .select("name")  // Updated from 'username' to 'name'
+          .select("name")
           .eq("id", otherUserId)
           .single();
+
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+        }
 
         return {
           id: connection.id,
           otherUserId,
-          username: otherUserData?.name || "Unknown User",  // Using 'name' but keeping 'username' in the return type
-          avatarUrl: undefined, // profile doesn't have avatar_url field based on error
-          status: connection.status as ConnectionStatus, // Cast the status to ConnectionStatus
+          username: otherUserData?.name || "Unknown User",
+          avatarUrl: undefined,
+          status: connection.status as ConnectionStatus,
           createdAt: connection.created_at,
           updatedAt: connection.updated_at,
           isUserSender,
