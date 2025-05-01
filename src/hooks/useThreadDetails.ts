@@ -1,10 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
-  getThread, 
-  updateThreadSummary, 
+  getThread,
   requestCloseThread, 
   approveCloseThread, 
   rejectCloseThread 
@@ -20,11 +20,9 @@ export const useThreadDetails = (threadId: string | undefined) => {
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
-  const [summary, setSummary] = useState("");
   const [isRequestingClose, setIsRequestingClose] = useState(false);
   
-  // New state for message review
+  // Message review states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [originalMessage, setOriginalMessage] = useState("");
   const [kindMessage, setKindMessage] = useState("");
@@ -55,7 +53,6 @@ export const useThreadDetails = (threadId: string | undefined) => {
       }
       
       setThread(threadData);
-      setSummary(threadData.summary || "");
       
       const messagesData = await getMessages(threadId);
       setMessages(messagesData);
@@ -130,34 +127,6 @@ export const useThreadDetails = (threadId: string | undefined) => {
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
     handleInitiateMessageReview();
-  };
-
-  const handleSaveSummary = async () => {
-    if (!threadId || !summary.trim()) return;
-    
-    const success = await updateThreadSummary(threadId, summary);
-    
-    if (success) {
-      // Update local thread state
-      if (thread) {
-        setThread({
-          ...thread,
-          summary
-        });
-      }
-      
-      setIsSummaryDialogOpen(false);
-      toast({
-        title: "Summary updated",
-        description: "Thread summary has been saved successfully.",
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Failed to update summary. Please try again.",
-        variant: "destructive",
-      });
-    }
   };
 
   const handleRequestClose = async () => {
@@ -269,20 +238,15 @@ export const useThreadDetails = (threadId: string | undefined) => {
     newMessage,
     isLoading,
     isSending,
-    isSummaryDialogOpen,
-    summary,
     isRequestingClose,
     isReviewDialogOpen,
     originalMessage,
     kindMessage,
     isReviewingMessage,
     setNewMessage,
-    setIsSummaryDialogOpen,
-    setSummary,
     handleSendMessage,
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
-    handleSaveSummary,
     handleRequestClose,
     handleApproveClose,
     handleRejectClose

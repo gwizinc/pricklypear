@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useThreadDetails } from "@/hooks/useThreadDetails";
 import ThreadHeader from "@/components/thread/ThreadHeader";
-import ThreadSummaryDialog from "@/components/thread/ThreadSummaryDialog";
 import ThreadMessages from "@/components/thread/ThreadMessages";
 import ThreadMessageComposer from "@/components/thread/ThreadMessageComposer";
 import ThreadCloseRequestManager from "@/components/thread/ThreadCloseRequestManager";
@@ -22,20 +21,15 @@ const ThreadView = () => {
     newMessage,
     isLoading,
     isSending,
-    isSummaryDialogOpen,
-    summary,
-    isRequestingClose,
     isReviewDialogOpen,
     originalMessage,
     kindMessage,
     isReviewingMessage,
+    isRequestingClose,
     setNewMessage,
-    setIsSummaryDialogOpen,
-    setSummary,
     handleSendMessage,
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
-    handleSaveSummary,
     handleRequestClose,
     handleApproveClose,
     handleRejectClose
@@ -59,7 +53,6 @@ const ThreadView = () => {
             thread={thread}
             isThreadClosed={isThreadClosed}
             isRequestingClose={isRequestingClose}
-            onOpenSummaryDialog={() => setIsSummaryDialogOpen(true)}
             onRequestClose={handleRequestClose}
           />
           
@@ -84,14 +77,6 @@ const ThreadView = () => {
           />
         </div>
       )}
-
-      <ThreadSummaryDialog
-        open={isSummaryDialogOpen}
-        onOpenChange={setIsSummaryDialogOpen}
-        summary={summary}
-        setSummary={setSummary}
-        onSaveSummary={handleSaveSummary}
-      />
       
       <MessageReviewDialog
         open={isReviewDialogOpen}

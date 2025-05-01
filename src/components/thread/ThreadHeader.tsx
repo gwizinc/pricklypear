@@ -9,7 +9,6 @@ interface ThreadHeaderProps {
   thread: Thread;
   isThreadClosed: boolean;
   isRequestingClose: boolean;
-  onOpenSummaryDialog: () => void;
   onRequestClose: () => void;
 }
 
@@ -17,7 +16,6 @@ const ThreadHeader = ({
   thread,
   isThreadClosed,
   isRequestingClose,
-  onOpenSummaryDialog,
   onRequestClose,
 }: ThreadHeaderProps) => {
   return (
@@ -33,14 +31,6 @@ const ThreadHeader = ({
         </div>
         
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={onOpenSummaryDialog}
-            disabled={isThreadClosed}
-          >
-            {thread.summary ? "Edit Summary" : "Add Summary"}
-          </Button>
-          
           {!isThreadClosed && !thread.closeRequestedBy && (
             <Button 
               variant="outline" 
