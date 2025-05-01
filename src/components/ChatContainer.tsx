@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ChatPanel from "./ChatPanel";
@@ -43,14 +42,14 @@ const ChatContainer = ({
       if (!ephemeralMode) {
         const { data: user1Data } = await supabase
           .from('profiles')
-          .select('username')
-          .eq('username', user1)
+          .select('name')
+          .eq('name', user1)
           .maybeSingle();
           
         const { data: user2Data } = await supabase
           .from('profiles')
-          .select('username')
-          .eq('username', user2)
+          .select('name')
+          .eq('name', user2)
           .maybeSingle();
         
         if (!user1Data) {
@@ -135,6 +134,7 @@ const ChatContainer = ({
     // (but not in ephemeral mode)
   };
 
+  // Use a simple array for display messages to avoid excessive type nesting
   const displayMessages = ephemeralMode ? ephemeralMessages : messages;
 
   if (isLoading) {

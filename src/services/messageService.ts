@@ -33,8 +33,8 @@ export const saveMessage = async (
       .insert({
         sender: profileData.id,
         original_text: text,
-        kind_text: kind,
-        selected_text: selected,
+        kind_text: kind || text, // Default to text if kind is not provided
+        selected_text: selected || text, // Default to text if selected is not provided
         conversation_id: threadId,
         timestamp: new Date().toISOString()
       })
@@ -68,7 +68,9 @@ export const saveSystemMessage = async (
       .from("messages")
       .insert({
         original_text: text,
+        kind_text: text, // Adding required field
         selected_text: text, // Use the same text for selected text
+        sender: 'system', // Adding required field
         conversation_id: threadId,
         timestamp: new Date().toISOString(),
         is_system: true // Mark this as a system message
@@ -114,7 +116,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       original_text: msg.original_text || '',
       kind_text: msg.kind_text || '',
       threadId: msg.conversation_id || '',
-      isSystem: Boolean(msg.is_system)
+      isSystem: Boolean(msg.is_system) // Explicitly convert to boolean
     }));
   } catch (error) {
     console.error("Exception fetching messages:", error);
