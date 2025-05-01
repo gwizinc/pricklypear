@@ -95,10 +95,13 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       return [];
     }
 
-    // Getting messages - fix the query to properly handle profile relationships
+    // Update query to use a more explicit join syntax that TypeScript can understand better
     const { data: messagesData, error: messagesError } = await supabase
       .from("messages")
-      .select("*, sender_profile:profiles(name)")
+      .select(`
+        *,
+        profiles(id, name)
+      `)
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
 
@@ -109,10 +112,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
     // Transform database records into Message objects
     return (messagesData || []).map(msg => {
-      // Safely handle the sender name, accounting for system messages and sender_profile being null
+      // Safely handle the sender name for system messages and when profile data is available
       const senderName = msg.is_system 
         ? 'system' 
-        : (msg.sender_profile?.name || 'Unknown User');
+        : (msg.profiles?.name || 'Unknown User');
 
       return {
         id: msg.id,
