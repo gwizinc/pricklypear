@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -155,8 +154,10 @@ const ChatPanel = ({
           {conversationMessages.map((message) => (
             <MessageBubble
               key={message.id}
-              message={message}
-              isCurrentUser={message.sender === currentUser}
+              message={{
+                ...message,
+                isCurrentUser: message.sender === currentUser
+              }}
             />
           ))}
           <div ref={messagesEndRef} />
