@@ -40,9 +40,6 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Created {thread.createdAt.toLocaleDateString()}
-          </p>
           <div className="mt-3">
             <p className="text-sm font-medium">Summary:</p>
             <p className="text-sm text-muted-foreground mt-1">
@@ -59,12 +56,15 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
           )}
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex-col items-stretch gap-3">
         <Button asChild variant="outline" className="w-full">
           <Link to={`/threads/${thread.id}`}>
             View Conversation
           </Link>
         </Button>
+        <p className="text-sm text-muted-foreground text-center">
+          Created {thread.createdAt.toLocaleDateString()}
+        </p>
       </CardFooter>
     </Card>
   );
