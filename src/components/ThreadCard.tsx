@@ -32,6 +32,14 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
               {thread.summary ? thread.summary : "No summary generated yet."}
             </p>
           </div>
+          {thread.participants && thread.participants.length > 0 && (
+            <div className="mt-2">
+              <p className="text-sm font-medium">Participants:</p>
+              <p className="text-sm text-muted-foreground">
+                {thread.participants.join(', ')}
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter>

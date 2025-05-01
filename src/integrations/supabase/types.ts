@@ -93,13 +93,55 @@ export type Database = {
         }
         Relationships: []
       }
+      thread_participants: {
+        Row: {
+          created_at: string | null
+          id: string
+          profile_id: string | null
+          thread_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          thread_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          thread_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thread_participants_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "message_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "thread_participants_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thread_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       threads: {
         Row: {
           close_requested_by: string | null
           created_at: string | null
           id: string
           owner_id: string | null
-          participants: string[]
           status: string
           summary: string | null
           title: string
@@ -109,7 +151,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           owner_id?: string | null
-          participants?: string[]
           status?: string
           summary?: string | null
           title: string
@@ -119,7 +160,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           owner_id?: string | null
-          participants?: string[]
           status?: string
           summary?: string | null
           title?: string
