@@ -54,35 +54,41 @@ export function subscribeToRealtimeChanges(
     channel = supabaseClient.channel(channelKey);
     
     // Configure channel with postgres_changes listener
-    channel.on(
-      'postgres_changes',
-      {
-        event,
-        schema: 'public',
-        table: tableName,
-        filter,
-      },
-      (payload) => {
-        // Handle the payload
-        callback(payload);
-        
-        // Broadcast to other tabs if requested
-        if (crossTabBroadcast) {
-          broadcastRealtimeEvent('supabase:change', {
-            channelKey,
-            payload,
-          });
+    // Fix: The on() method was being called with incorrect types
+    // We need to properly separate the postgres_changes listener from the system event listener
+    channel
+      .on(
+        'postgres_changes',
+        {
+          event,
+          schema: 'public',
+          table: tableName,
+          filter,
+        },
+        (payload) => {
+          // Handle the payload
+          callback(payload);
+          
+          // Broadcast to other tabs if requested
+          if (crossTabBroadcast) {
+            broadcastRealtimeEvent('supabase:change', {
+              channelKey,
+              payload,
+            });
+          }
         }
-      }
-    );
-    
-    // Configure system event listener for reconnection
-    channel.on('system', { event: 'reconnected' }, async () => {
-      // Handle reconnection - perform backfill if requested
-      if (backfillOnReconnect && reconnectedHandler) {
-        await reconnectedHandler(channel!);
-      }
-    });
+      )
+      // Configure system event listener for reconnection (as a separate call)
+      .on(
+        'system',
+        { event: 'reconnected' },
+        async () => {
+          // Handle reconnection - perform backfill if requested
+          if (backfillOnReconnect && reconnectedHandler) {
+            await reconnectedHandler(channel!);
+          }
+        }
+      );
     
     // Start the subscription
     channel.subscribe((status) => {
