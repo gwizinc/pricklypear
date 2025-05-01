@@ -144,7 +144,7 @@ export function subscribeToUnreadReceipts(
     callback,
     {
       event: 'UPDATE',
-      filter: `profile_id=eq.${currentUserId}&read_at=null`,
+      filter: `profile_id=eq.${currentUserId}&read_at=is.not.null`,
       crossTabBroadcast: true,
     }
   );
