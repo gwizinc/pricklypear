@@ -121,7 +121,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
         msg.profiles ? 
           // Then check if it's an object with a name property
           (typeof msg.profiles === 'object' && msg.profiles !== null && 'name' in msg.profiles
-            ? (msg.profiles.name || '') 
+            ? (msg.profiles?.name || '') 
             : '') 
           : ''
       ),
