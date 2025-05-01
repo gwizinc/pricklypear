@@ -21,13 +21,13 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  console.log('messages', messages)
-
   // Add isCurrentUser property to each message before rendering
   const displayMessages = messages.map(message => ({
     ...message,
     isCurrentUser: message.user_id === currentUser.id
   }));
+  
+  console.log('messages', messages, displayMessages)
 
   return (
     <div className="flex-grow overflow-y-auto px-2 py-4 border rounded-md mb-4">
