@@ -41,16 +41,16 @@ const ThreadView = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="container px-0">
+    <div className="container py-8">
       {thread && (
-        <div className="flex flex-col h-[calc(100vh-6rem)]">
+        <div className="flex flex-col h-[calc(100vh-12rem)]">
           <ThreadHeader 
             thread={thread}
             isThreadClosed={isThreadClosed}

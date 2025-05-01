@@ -22,7 +22,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
   return (
     <div
       className={cn(
-        "flex flex-col max-w-[80%] mb-2 animate-message-appear px-2",
+        "flex flex-col max-w-[80%] mb-2 animate-message-appear",
         isSystemMessage ? "self-center items-center w-full" : 
         message.isCurrentUser ? "self-end items-end" : "self-start items-start"
       )}
@@ -38,7 +38,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
       <div className="flex items-start gap-1">
         <div
           className={cn(
-            "px-3 py-2 rounded-2xl shadow-sm",
+            "px-4 py-2 rounded-2xl shadow-sm",
             isSystemMessage 
               ? "bg-muted text-muted-foreground w-full text-center"
               : message.isCurrentUser
