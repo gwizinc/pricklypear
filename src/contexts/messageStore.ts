@@ -1,11 +1,14 @@
-
 import { subscribeToRealtimeBroadcast } from '@/lib/realtimeBroadcast';
-import type { Message } from '@/types/message';
+import type { Message, ThreadId } from '@/types/message';
 import type { RealtimePostgresChangesPayload } from '@supabase/realtime-js';
 
+// Define new types for better type safety
+export type ThreadedMessages = Record<ThreadId, Message[]>;
+export type MessageDelta = RealtimePostgresChangesPayload<Message>;
+
 interface MessageState {
-  messages: Record<string, Message[]>;
-  subscribers: Map<string, Set<(messages: Message[]) => void>>;
+  messages: ThreadedMessages;
+  subscribers: Map<ThreadId, Set<(messages: Message[]) => void>>;
 }
 
 /**
@@ -32,14 +35,14 @@ class MessageStore {
   /**
    * Get messages for a specific thread
    */
-  getMessages(threadId: string): Message[] {
+  getMessages(threadId: ThreadId): Message[] {
     return this.state.messages[threadId] || [];
   }
   
   /**
    * Set messages for a specific thread
    */
-  setMessages(threadId: string, messages: Message[]): void {
+  setMessages(threadId: ThreadId, messages: Message[]): void {
     this.state.messages[threadId] = [...messages];
     this.notifySubscribers(threadId);
   }
@@ -47,13 +50,13 @@ class MessageStore {
   /**
    * Apply delta from realtime changes
    */
-  applyDelta(payload: RealtimePostgresChangesPayload<Message>): void {
+  applyDelta(payload: MessageDelta): void {
     const { new: newRecord, old: oldRecord, eventType } = payload;
     
     if (!newRecord && !oldRecord) return;
     
-    // Need to explicitly check and cast threadId to handle TypeScript error
-    const threadId = (newRecord?.threadId || oldRecord?.threadId) as string | undefined;
+    // Extract threadId from either new or old record
+    const threadId = newRecord?.threadId || oldRecord?.threadId;
     if (!threadId) return;
     
     // Initialize thread messages array if it doesn't exist
@@ -70,7 +73,7 @@ class MessageStore {
         // Add new message to the thread
         this.state.messages[threadId] = [
           ...this.state.messages[threadId],
-          newRecord as Message,
+          newRecord,
         ];
         
         // Sort messages chronologically by timestamp
@@ -99,7 +102,7 @@ class MessageStore {
   /**
    * Notify all subscribers for a specific thread
    */
-  private notifySubscribers(threadId: string): void {
+  private notifySubscribers(threadId: ThreadId): void {
     if (this.state.subscribers.has(threadId)) {
       const messages = this.getMessages(threadId);
       this.state.subscribers.get(threadId)?.forEach(callback => {
@@ -115,7 +118,7 @@ class MessageStore {
   /**
    * Subscribe to changes for a specific thread
    */
-  subscribe(threadId: string, callback: (messages: Message[]) => void): () => void {
+  subscribe(threadId: ThreadId, callback: (messages: Message[]) => void): () => void {
     if (!this.state.subscribers.has(threadId)) {
       this.state.subscribers.set(threadId, new Set());
     }

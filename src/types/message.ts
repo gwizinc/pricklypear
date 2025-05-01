@@ -1,3 +1,4 @@
+export type ThreadId = string;
 
 export type Message = {
   id: string;
@@ -8,7 +9,7 @@ export type Message = {
   // Fields for AI processing
   original_text?: string;
   kind_text?: string;
-  threadId?: string;
+  threadId?: ThreadId;
   
   // For system messages (close requests etc.)
   isSystem?: boolean;
