@@ -52,7 +52,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     };
     
     initialize();
-  }, [threadId]);
+  }, [threadId, loadThread, loadMessages, setIsLoading]);
 
   // Return all the hooks' values and methods
   return {
@@ -73,6 +73,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     handleSendMessage,
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
+    loadMessages, // Expose loadMessages function
 
     // From useThreadActions
     isRequestingClose,

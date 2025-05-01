@@ -1,3 +1,4 @@
+
 import { subscribeToRealtimeBroadcast } from '@/lib/realtimeBroadcast';
 import type { Message } from '@/types/message';
 import type { RealtimePostgresChangesPayload } from '@supabase/realtime-js';
@@ -51,7 +52,8 @@ class MessageStore {
     
     if (!newRecord && !oldRecord) return;
     
-    const threadId = newRecord?.threadId || oldRecord?.threadId;
+    // Need to explicitly check and cast threadId to handle TypeScript error
+    const threadId = (newRecord?.threadId || oldRecord?.threadId) as string | undefined;
     if (!threadId) return;
     
     // Initialize thread messages array if it doesn't exist
@@ -62,9 +64,9 @@ class MessageStore {
     // Process the delta based on event type
     if (eventType === 'INSERT') {
       // Check for duplicates before adding
-      const isDuplicate = this.state.messages[threadId].some(msg => msg.id === newRecord.id);
+      const isDuplicate = this.state.messages[threadId].some(msg => msg.id === newRecord!.id);
       
-      if (!isDuplicate) {
+      if (!isDuplicate && newRecord) {
         // Add new message to the thread
         this.state.messages[threadId] = [
           ...this.state.messages[threadId],
@@ -78,12 +80,12 @@ class MessageStore {
           return aTime - bTime;
         });
       }
-    } else if (eventType === 'UPDATE') {
+    } else if (eventType === 'UPDATE' && newRecord) {
       // Update existing message
       this.state.messages[threadId] = this.state.messages[threadId].map(msg => 
         msg.id === newRecord.id ? { ...msg, ...newRecord } : msg
       );
-    } else if (eventType === 'DELETE') {
+    } else if (eventType === 'DELETE' && oldRecord) {
       // Remove deleted message
       this.state.messages[threadId] = this.state.messages[threadId].filter(
         msg => msg.id !== oldRecord.id

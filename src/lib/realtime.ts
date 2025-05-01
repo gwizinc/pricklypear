@@ -1,3 +1,4 @@
+
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabaseClient, activeChannels } from '@/lib/supabaseClient';
 import { broadcastRealtimeEvent } from '@/lib/realtimeBroadcast';
@@ -50,35 +51,38 @@ export function subscribeToRealtimeChanges(
   
   if (!channel) {
     // Create and subscribe to the channel
-    channel = supabaseClient
-      .channel(channelKey)
-      .on(
-        'postgres_changes',
-        {
-          event,
-          schema: 'public',
-          table: tableName,
-          filter,
-        },
-        (payload) => {
-          // Handle the payload
-          callback(payload);
-          
-          // Broadcast to other tabs if requested
-          if (crossTabBroadcast) {
-            broadcastRealtimeEvent('supabase:change', {
-              channelKey,
-              payload,
-            });
-          }
+    channel = supabaseClient.channel(channelKey);
+    
+    // Add postgres_changes listener
+    channel = channel.on(
+      'postgres_changes',
+      {
+        event,
+        schema: 'public',
+        table: tableName,
+        filter,
+      },
+      (payload) => {
+        // Handle the payload
+        callback(payload);
+        
+        // Broadcast to other tabs if requested
+        if (crossTabBroadcast) {
+          broadcastRealtimeEvent('supabase:change', {
+            channelKey,
+            payload,
+          });
         }
-      )
-      .on('system', { event: 'reconnected' }, async () => {
-        // Handle reconnection - perform backfill if requested
-        if (backfillOnReconnect && reconnectedHandler) {
-          await reconnectedHandler(channel!);
-        }
-      });
+      }
+    );
+    
+    // Add system event listener
+    channel = channel.on('system', { event: 'reconnected' }, async () => {
+      // Handle reconnection - perform backfill if requested
+      if (backfillOnReconnect && reconnectedHandler) {
+        await reconnectedHandler(channel!);
+      }
+    });
       
     // Start the subscription
     channel.subscribe();
