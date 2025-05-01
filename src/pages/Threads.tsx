@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -54,6 +53,10 @@ const Threads = () => {
 
     fetchThreads();
   }, [user]);
+
+  // Filter threads by status
+  const openThreads = threads.filter(thread => thread.status === 'open');
+  const closedThreads = threads.filter(thread => thread.status === 'closed');
 
   const loadConnections = async () => {
     if (!user) return;
@@ -278,7 +281,6 @@ const Threads = () => {
                         size="sm" 
                         asChild 
                         className="mt-1"
-                        onClick={() => setIsDialogOpen(false)}
                       >
                         <Link to="/connections">Go to Connections</Link>
                       </Button>
