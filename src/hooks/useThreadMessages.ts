@@ -125,6 +125,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       
       // Generate a new summary after sending a message
       if (thread) {
+        // Always generate summary after sending a message
         handleGenerateSummary();
       }
     } else {
