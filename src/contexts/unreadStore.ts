@@ -53,7 +53,7 @@ class UnreadStore {
     if (!threadId) return;
     
     // Ensure the thread exists in our counts
-    if (!this.counts[threadId]) {
+    if (!Object.prototype.hasOwnProperty.call(this.counts, threadId)) {
       this.counts[threadId] = 0;
     }
     
@@ -71,9 +71,6 @@ class UnreadStore {
             this.counts[threadId] += 1;
           }
         }
-        break;
-      case 'DELETE':
-        this.counts[threadId] -= 1;
         break;
     }
     
@@ -110,9 +107,9 @@ class UnreadStore {
   }
 
   /**
-   * Get messages for a specific thread
+   * Get all unread counts
    */
-  getMessages(threadId: string): Record<string, number> {
+  getCounts(): Record<string, number> {
     return { ...this.counts };
   }
 

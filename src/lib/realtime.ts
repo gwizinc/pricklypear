@@ -127,14 +127,30 @@ export function subscribeToUnreadReceipts(
     payload: RealtimePostgresChangesPayload<Database['public']['Tables']['message_read_receipts']>
   ) => void,
 ): () => void {
-  return subscribeToRealtimeChanges(
-    'unread-receipts',
+  const unsubInsert = subscribeToRealtimeChanges(
+    'unread-receipts-insert',
     'message_read_receipts',
     callback,
     {
-      event: '*',
+      event: 'INSERT',
       filter: `profile_id=eq.${currentUserId}&read_at=null`,
       crossTabBroadcast: true,
     }
   );
+
+  const unsubUpdate = subscribeToRealtimeChanges(
+    'unread-receipts-update',
+    'message_read_receipts',
+    callback,
+    {
+      event: 'UPDATE',
+      filter: `profile_id=eq.${currentUserId}&read_at=null`,
+      crossTabBroadcast: true,
+    }
+  );
+
+  return () => {
+    unsubInsert();
+    unsubUpdate();
+  };
 }

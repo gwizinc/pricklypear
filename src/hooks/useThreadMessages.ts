@@ -66,7 +66,10 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   useEffect(() => {
     if (!threadId || !user) return;
     
-    const unsub = subscribeToUnreadReceipts(user.id, async ({ new: rec }) => {
+    const unsub = subscribeToUnreadReceipts(user.id, async (payload) => {
+      if (payload.eventType !== 'INSERT') return;
+      
+      const rec = payload.new;
       const threadIdFromEvent = (rec as any)?.thread_id ?? null;
       if (threadIdFromEvent !== threadId) return;
       
@@ -78,7 +81,12 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
         .gt('timestamp', lastTimestampRef.current)
         .order('timestamp', { ascending: true });
       
-      if (!error && data && data.length) {
+      if (error) {
+        console.error("Error fetching new messages:", error);
+        return;
+      }
+      
+      if (data && data.length) {
         const existing = messageStore.getMessages(threadId);
         const mapped = data.map((msg) => ({
           id: msg.id,
