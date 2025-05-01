@@ -111,10 +111,15 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
     // Transform database records into Message objects
     return (messages || []).map(msg => {
+      // Handle system messages or messages with null profiles
+      const senderName = msg.is_system 
+        ? 'system' 
+        : (msg.profiles?.name || 'Unknown User'); // Safe access with optional chaining
+
       return {
         id: msg.id,
         text: msg.selected_text || '',
-        sender: msg.is_system ? 'system' : msg.profiles!.name!,
+        sender: senderName,
         timestamp: new Date(msg.timestamp || ''),
         original_text: msg.original_text || '',
         kind_text: msg.kind_text || '',

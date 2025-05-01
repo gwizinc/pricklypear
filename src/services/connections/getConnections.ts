@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Connection, ConnectionStatus } from "@/types/connection";
 
-// Get all connections for the current user
+// Get all connections for the current user (both as sender and receiver)
 export const getConnections = async (): Promise<Connection[]> => {
   try {
     const { data: userData } = await supabase.auth.getUser();
@@ -10,20 +10,35 @@ export const getConnections = async (): Promise<Connection[]> => {
 
     const userId = userData.user.id;
 
-    // Get connections where the user is the sender only (user_id equals current user)
-    const { data: connections, error } = await supabase
+    // Get connections where the user is the sender (user_id equals current user)
+    const { data: sentConnections, error: sentError } = await supabase
       .from("connections")
       .select("*")
       .eq("user_id", userId);
 
-    if (error) throw error;
+    if (sentError) throw sentError;
+
+    // Get connections where the user is the receiver (connected_user_id equals current user)
+    const { data: receivedConnections, error: receivedError } = await supabase
+      .from("connections")
+      .select("*")
+      .eq("connected_user_id", userId);
+
+    if (receivedError) throw receivedError;
+
+    // Combined connections
+    const allConnections = [...(sentConnections || []), ...(receivedConnections || [])];
 
     // Format the connections to include necessary information
     const formattedConnections = await Promise.all(
-      (connections || []).map(async (connection) => {
-        // Since we're only getting connections where the user is the sender,
-        // the other user is always the connected_user_id
-        const otherUserId = connection.connected_user_id;
+      allConnections.map(async (connection) => {
+        // Determine if the current user is the sender
+        const isUserSender = connection.user_id === userId;
+        
+        // Get ID of the other user in the connection
+        const otherUserId = isUserSender 
+          ? connection.connected_user_id 
+          : connection.user_id;
 
         // Get the other user's details
         const { data: otherUserData, error: profileError } = await supabase
@@ -36,17 +51,15 @@ export const getConnections = async (): Promise<Connection[]> => {
           console.error("Error fetching profile:", profileError);
         }
 
-        // Since name is now required, we can be more confident it exists
-        // But still provide a fallback just in case
         return {
           id: connection.id,
           otherUserId,
-          username: otherUserData?.name || "User", // Simplified fallback since names are required
+          username: otherUserData?.name || "User", // Fallback name if profile not found
           avatarUrl: undefined,
           status: connection.status as ConnectionStatus,
           createdAt: connection.created_at,
           updatedAt: connection.updated_at,
-          isUserSender: true, // Always true since we're only getting connections where the user is the sender
+          isUserSender, // Now correctly indicates if the user is the sender or receiver
         };
       })
     );

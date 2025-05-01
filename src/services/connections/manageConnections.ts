@@ -24,12 +24,35 @@ export const updateConnectionStatus = async (
 // Delete a connection
 export const deleteConnection = async (connectionId: string): Promise<boolean> => {
   try {
+    // First get the connection details to check if it exists
+    const { data: connectionData, error: fetchError } = await supabase
+      .from("connections")
+      .select("*")
+      .eq("id", connectionId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching connection:", fetchError);
+      return false;
+    }
+
+    if (!connectionData) {
+      console.error("Connection not found");
+      return false;
+    }
+
+    // Delete the connection
     const { error } = await supabase
       .from("connections")
       .delete()
       .eq("id", connectionId);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error deleting connection:", error);
+      throw error;
+    }
+    
+    console.log("Connection successfully deleted:", connectionId);
     return true;
   } catch (error) {
     console.error("Error deleting connection:", error);
