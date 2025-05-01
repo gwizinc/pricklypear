@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,18 +14,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { MessageCirclePlus, Loader2, LogIn } from "lucide-react";
 import type { Thread } from "@/types/thread";
 import { useToast } from "@/hooks/use-toast";
 import { createThread, getThreads } from "@/services/threadService";
 import { useAuth } from "@/contexts/AuthContext";
+import { getConnections } from "@/services/connections";
+import type { Connection } from "@/types/connection";
 
 const Threads = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [newThreadTitle, setNewThreadTitle] = useState("");
+  const [selectedContact, setSelectedContact] = useState<string>("");
+  const [connections, setConnections] = useState<Connection[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [isLoadingContacts, setIsLoadingContacts] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -42,8 +55,28 @@ const Threads = () => {
     fetchThreads();
   }, [user]);
 
-  const openThreads = threads.filter(thread => thread.status === 'open');
-  const closedThreads = threads.filter(thread => thread.status === 'closed');
+  const loadConnections = async () => {
+    if (!user) return;
+    
+    setIsLoadingContacts(true);
+    try {
+      const acceptedConnections = await getConnections();
+      setConnections(acceptedConnections.filter(conn => conn.status === 'accepted'));
+    } catch (error) {
+      console.error("Error loading connections:", error);
+    } finally {
+      setIsLoadingContacts(false);
+    }
+  };
+
+  const handleDialogOpen = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (open) {
+      loadConnections();
+      setNewThreadTitle("");
+      setSelectedContact("");
+    }
+  };
 
   const handleCreateThread = async () => {
     if (!user) {
@@ -56,13 +89,29 @@ const Threads = () => {
       return;
     }
     
-    if (!newThreadTitle.trim()) return;
+    if (!newThreadTitle.trim()) {
+      toast({
+        title: "Title required",
+        description: "Please enter a title for the thread",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!selectedContact) {
+      toast({
+        title: "Contact required",
+        description: "Please select a contact for the thread",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsCreating(true);
     
     const newThread = await createThread(
       newThreadTitle,
-      ["Alice", "Bob"] // Default participants for now
+      [selectedContact]
     );
     
     setIsCreating(false);
@@ -70,6 +119,7 @@ const Threads = () => {
     if (newThread) {
       setThreads(prevThreads => [newThread, ...prevThreads]);
       setNewThreadTitle("");
+      setSelectedContact("");
       setIsDialogOpen(false);
       
       toast({
@@ -186,7 +236,7 @@ const Threads = () => {
         <h1 className="text-3xl font-bold">Threads</h1>
         
         {user && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={handleDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <MessageCirclePlus className="mr-2 h-4 w-4" />
@@ -197,22 +247,66 @@ const Threads = () => {
               <DialogHeader>
                 <DialogTitle>Create New Thread</DialogTitle>
                 <DialogDescription>
-                  Give your conversation thread a name to help you identify it later.
+                  Give your conversation thread a name and select a contact to chat with.
                 </DialogDescription>
               </DialogHeader>
-              <Input
-                placeholder="Thread title"
-                value={newThreadTitle}
-                onChange={(e) => setNewThreadTitle(e.target.value)}
-                className="mt-2"
-              />
+              
+              <div className="space-y-4 mt-2">
+                <Input
+                  placeholder="Thread title"
+                  value={newThreadTitle}
+                  onChange={(e) => setNewThreadTitle(e.target.value)}
+                />
+                
+                <div>
+                  <label className="text-sm font-medium mb-1 block">
+                    Select Contact
+                  </label>
+                  
+                  {isLoadingContacts ? (
+                    <div className="flex items-center justify-center py-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-primary mr-2" />
+                      <span className="text-sm">Loading contacts...</span>
+                    </div>
+                  ) : connections.length === 0 ? (
+                    <div className="text-center py-2 border border-dashed rounded-md">
+                      <p className="text-sm text-muted-foreground">
+                        No contacts available. Add contacts first.
+                      </p>
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        asChild 
+                        className="mt-1"
+                        onClick={() => setIsDialogOpen(false)}
+                      >
+                        <Link to="/connections">Go to Connections</Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <Select value={selectedContact} onValueChange={setSelectedContact}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a contact" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {connections.map((connection) => (
+                          <SelectItem key={connection.otherUserId} value={connection.username}>
+                            {connection.username}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              </div>
+              
               <DialogFooter className="mt-4">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isCreating}>
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleCreateThread} 
-                  disabled={!newThreadTitle.trim() || isCreating}
+                  disabled={!newThreadTitle.trim() || !selectedContact || isCreating}
                 >
                   {isCreating ? (
                     <>
