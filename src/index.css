@@ -1,30 +1,33 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 240 20% 98%;
+    --foreground: 220 20% 30%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 20% 30%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 20% 30%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 220 40% 19%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 183 70% 50%;
+    --secondary-foreground: 220 40% 19%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 0 100% 70%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -33,7 +36,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
   }
 
   .dark {
@@ -73,7 +76,31 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-bgLight text-textBody font-sans;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-rounded font-bold;
+  }
+  
+  h1 {
+    @apply text-4xl font-extrabold tracking-tight;
+  }
+  
+  button, a.button {
+    @apply font-sans font-semibold uppercase tracking-wide;
+  }
+  
+  .glass-nav {
+    @apply backdrop-blur-lg backdrop-saturate-[180%];
+  }
+  
+  .hover-tilt {
+    @apply transition-transform hover:-translate-y-1 hover:shadow-md;
+  }
+  
+  .hover-rotate {
+    @apply transition-transform hover:-translate-y-[2px] hover:rotate-[-1deg];
   }
 }
 

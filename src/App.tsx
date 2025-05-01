@@ -16,11 +16,14 @@ import NotFound from "./pages/NotFound";
 import Preferences from "./pages/Preferences";
 import Documents from "./pages/Documents";
 
+// Import CSS but don't include App.css anymore
+import "./index.css";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
