@@ -17,7 +17,7 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
     }
 
     // Get participants for this thread
-    const { data: participantsData } = await supabase
+    const { data: participantsData, error: participantsError } = await supabase
       .from('thread_participants')
       .select(`
         profiles:profile_id (
@@ -25,6 +25,10 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
         )
       `)
       .eq('thread_id', threadId);
+    
+    if (participantsError) {
+      console.error("Error fetching thread participants:", participantsError);
+    }
     
     // Extract participant names
     const participants = participantsData?.map(item => item.profiles?.name).filter(Boolean) || [];

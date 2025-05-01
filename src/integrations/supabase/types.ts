@@ -34,7 +34,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "connections_connected_user_id_fkey"
+            columns: ["connected_user_id"]
+            isOneToOne: false
+            referencedRelation: "message_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "connections_connected_user_id_fkey"
+            columns: ["connected_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "message_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "connections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -214,6 +243,14 @@ export type Database = {
       get_profile_id_by_name: {
         Args: { profile_name: string }
         Returns: string
+      }
+      is_thread_participant: {
+        Args: { thread_id: string; user_id: string }
+        Returns: boolean
+      }
+      is_thread_recent: {
+        Args: { thread_created_at: string }
+        Returns: boolean
       }
     }
     Enums: {
