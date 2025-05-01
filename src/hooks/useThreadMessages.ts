@@ -1,8 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getMessages, saveMessage, saveSystemMessage } from "@/services/messageService";
+import { getMessages, saveMessage, saveSystemMessage, getUnreadMessageCount } from "@/services/messageService";
 import { reviewMessage } from "@/utils/messageReview";
 import { generateThreadSummary } from "@/services/threadService";
 import type { Message } from "@/types/message";
@@ -13,6 +13,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   
   // Message review states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -22,6 +23,18 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Load unread count for the thread
+  useEffect(() => {
+    if (threadId) {
+      const loadUnreadCount = async () => {
+        const count = await getUnreadMessageCount(threadId);
+        setUnreadCount(count);
+      };
+      
+      loadUnreadCount();
+    }
+  }, [threadId, messages]);
 
   const loadMessages = async () => {
     if (!threadId) return [];
@@ -149,6 +162,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     kindMessage,
     isReviewingMessage,
     isGeneratingSummary,
+    unreadCount,
     setNewMessage,
     handleSendMessage,
     handleSendReviewedMessage,

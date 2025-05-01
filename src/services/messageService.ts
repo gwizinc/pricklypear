@@ -23,7 +23,7 @@ export const saveMessage = async (
     }
     
     // Insert the message using the current user's ID
-    const { error } = await supabase
+    const { data: messageData, error } = await supabase
       .from("messages")
       .insert({
         sender_profile_id: user.id, // Use authenticated user ID directly
@@ -32,11 +32,18 @@ export const saveMessage = async (
         selected_text: selected || text,
         conversation_id: threadId,
         timestamp: new Date().toISOString()
-      });
+      })
+      .select('id')
+      .single();
 
     if (error) {
       console.error("Error saving message:", error);
       return false;
+    }
+
+    // Create read receipts for the new message
+    if (messageData?.id) {
+      await createReadReceiptsForNewMessage(messageData.id, threadId, user.id);
     }
 
     return true;
@@ -85,7 +92,7 @@ export const saveSystemMessage = async (
       }
       
       // Use the newly created system profile
-      const { error } = await supabase
+      const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
           original_text: text,
@@ -95,15 +102,38 @@ export const saveSystemMessage = async (
           conversation_id: threadId,
           timestamp: new Date().toISOString(),
           is_system: true
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) {
         console.error("Error saving system message:", error);
         return false;
       }
+
+      // Create read receipts for all thread participants for this system message
+      if (messageData?.id) {
+        // Get all participants in the thread
+        const { data: participants } = await supabase
+          .from('thread_participants')
+          .select('profile_id')
+          .eq('thread_id', threadId);
+        
+        if (participants && participants.length > 0) {
+          const readReceipts = participants.map(({ profile_id }) => ({
+            message_id: messageData.id,
+            profile_id,
+            read_at: null // System messages start as unread
+          }));
+
+          await supabase
+            .from("message_read_receipts")
+            .insert(readReceipts);
+        }
+      }
     } else {
       // Insert the system message with the existing system profile
-      const { error } = await supabase
+      const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
           original_text: text,
@@ -113,11 +143,34 @@ export const saveSystemMessage = async (
           conversation_id: threadId,
           timestamp: new Date().toISOString(),
           is_system: true
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) {
         console.error("Error saving system message:", error);
         return false;
+      }
+
+      // Create read receipts for all thread participants for this system message
+      if (messageData?.id) {
+        // Get all participants in the thread
+        const { data: participants } = await supabase
+          .from('thread_participants')
+          .select('profile_id')
+          .eq('thread_id', threadId);
+        
+        if (participants && participants.length > 0) {
+          const readReceipts = participants.map(({ profile_id }) => ({
+            message_id: messageData.id,
+            profile_id,
+            read_at: null // System messages start as unread
+          }));
+
+          await supabase
+            .from("message_read_receipts")
+            .insert(readReceipts);
+        }
       }
     }
 
@@ -175,5 +228,159 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
   } catch (error) {
     console.error("Exception fetching messages:", error);
     return [];
+  }
+};
+
+export const markMessagesAsRead = async (messageIds: string[]): Promise<boolean> => {
+  try {
+    if (!messageIds.length) return true;
+
+    // Get the current authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error("No authenticated user found", userError);
+      return false;
+    }
+
+    // For each message ID, insert or update a read receipt
+    const readReceipts = messageIds.map(messageId => ({
+      message_id: messageId,
+      profile_id: user.id,
+      read_at: new Date().toISOString()
+    }));
+
+    // Use upsert to handle the case where a receipt already exists
+    const { error } = await supabase
+      .from("message_read_receipts")
+      .upsert(readReceipts, {
+        onConflict: 'message_id,profile_id', 
+        ignoreDuplicates: false // Update if exists
+      });
+
+    if (error) {
+      console.error("Error marking messages as read:", error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Exception marking messages as read:", error);
+    return false;
+  }
+};
+
+// When saving a message, create read receipts for all thread participants
+const createReadReceiptsForNewMessage = async (
+  messageId: string, 
+  threadId: string, 
+  senderProfileId: string
+): Promise<void> => {
+  try {
+    // Get all participants in the thread except the sender
+    const { data: participants, error: participantsError } = await supabase
+      .from('thread_participants')
+      .select('profile_id')
+      .eq('thread_id', threadId)
+      .neq('profile_id', senderProfileId);
+    
+    if (participantsError || !participants) {
+      console.error("Error fetching thread participants:", participantsError);
+      return;
+    }
+
+    // Create read receipt records for all other participants (unread)
+    const readReceipts = participants.map(({ profile_id }) => ({
+      message_id: messageId,
+      profile_id,
+      read_at: null // null means unread
+    }));
+
+    // Also create a read receipt for the sender (already read)
+    readReceipts.push({
+      message_id: messageId,
+      profile_id: senderProfileId,
+      read_at: new Date().toISOString() // sender has read their own message
+    });
+
+    if (readReceipts.length > 0) {
+      const { error } = await supabase
+        .from("message_read_receipts")
+        .insert(readReceipts);
+      
+      if (error) {
+        console.error("Error creating read receipts:", error);
+      }
+    }
+  } catch (error) {
+    console.error("Exception creating read receipts:", error);
+  }
+};
+
+// New function to get unread message counts for threads
+export const getUnreadMessageCount = async (threadId: string): Promise<number> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return 0;
+    
+    // Count messages where there's no read receipt or read_at is null
+    const { count, error } = await supabase
+      .from('messages')
+      .select('id', { count: 'exact' })
+      .eq('conversation_id', threadId)
+      .neq('sender_profile_id', user.id)
+      .not('is_system', 'eq', true)
+      .not('id', 'in', supabase
+        .from('message_read_receipts')
+        .select('message_id')
+        .eq('profile_id', user.id)
+        .not('read_at', 'is', null)
+      );
+
+    if (error) {
+      console.error("Error getting unread count:", error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error("Exception getting unread count:", error);
+    return 0;
+  }
+};
+
+// Function to get unread counts for all threads
+export const getAllUnreadCounts = async (): Promise<Record<string, number>> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return {};
+    
+    // Get all threads the user participates in
+    const { data: threadParticipations, error: threadError } = await supabase
+      .from('thread_participants')
+      .select('thread_id')
+      .eq('profile_id', user.id);
+    
+    if (threadError || !threadParticipations) {
+      console.error("Error fetching threads:", threadError);
+      return {};
+    }
+    
+    const unreadCounts: Record<string, number> = {};
+    
+    // Get unread counts for each thread (could be optimized with a single query in the future)
+    await Promise.all(
+      threadParticipations.map(async ({ thread_id }) => {
+        const count = await getUnreadMessageCount(thread_id);
+        unreadCounts[thread_id] = count;
+      })
+    );
+    
+    return unreadCounts;
+  } catch (error) {
+    console.error("Exception fetching all unread counts:", error);
+    return {};
   }
 };

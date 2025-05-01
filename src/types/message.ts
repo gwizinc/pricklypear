@@ -15,4 +15,8 @@ export type Message = {
   
   // Flag to identify current user's messages
   isCurrentUser?: boolean;
+  
+  // Read status information
+  isRead?: boolean;
+  readAt?: Date | null;
 };

@@ -65,6 +65,59 @@ export type Database = {
           },
         ]
       }
+      message_read_receipts: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          profile_id: string
+          read_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          profile_id: string
+          read_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          profile_id?: string
+          read_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_read_receipts_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "message_profiles"
+            referencedColumns: ["message_id"]
+          },
+          {
+            foreignKeyName: "message_read_receipts_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_read_receipts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "message_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "message_read_receipts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           conversation_id: string | null
