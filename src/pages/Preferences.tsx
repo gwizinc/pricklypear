@@ -69,7 +69,7 @@ const Preferences = () => {
           .from('profiles')
           .select('username, message_tone')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
@@ -77,7 +77,8 @@ const Preferences = () => {
         }
 
         // Get the user's metadata for the full name
-        const fullName = user.user_metadata?.full_name || profileData?.username || '';
+        const fullName = user.user_metadata?.full_name || 
+                         (profileData ? profileData.username : '') || '';
         
         // Update form with fetched data
         form.reset({
@@ -85,7 +86,7 @@ const Preferences = () => {
         });
 
         // Set message tone if it exists in profile
-        if (profileData?.message_tone) {
+        if (profileData && profileData.message_tone) {
           setMessageTone(profileData.message_tone);
         }
       } catch (error) {

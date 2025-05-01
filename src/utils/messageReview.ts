@@ -10,13 +10,13 @@ export async function reviewMessage(message: string): Promise<string> {
     let tone = "friendly"; // Default tone
     
     if (userId) {
-      const { data: profileData } = await supabase
+      const { data: profileData, error } = await supabase
         .from('profiles')
         .select('message_tone')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
-      if (profileData?.message_tone) {
+      if (profileData?.message_tone && !error) {
         tone = profileData.message_tone;
       }
     }
