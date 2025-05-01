@@ -66,7 +66,7 @@ const Navigation = () => {
 
   // Only show these nav items when user is logged in
   const navItems = user ? [
-    { path: '/threads', label: 'Threads', icon: <MessageSquare className="h-4 w-4 mr-2" />, badgeCount: totalUnread },
+    { path: '/threads', label: 'Threads', icon: <MessageSquare className="h-4 w-4 mr-2" /> },
     { path: '/connections', label: 'Connections', icon: <Users className="h-4 w-4 mr-2" /> },
     { path: '/documents', label: 'Documents', icon: <FileText className="h-4 w-4 mr-2" /> },
   ] : [];
@@ -85,9 +85,6 @@ const Navigation = () => {
           >
             {item.icon}
             {item.label}
-            {item.badgeCount && item.badgeCount > 0 && (
-              <NotificationBadge count={item.badgeCount} className="top-0 right-0 transform translate-x-1/2 -translate-y-1/2" />
-            )}
           </Button>
         </Link>
       ))}
