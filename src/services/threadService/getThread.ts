@@ -4,6 +4,14 @@ import { Thread } from "@/types/thread";
 
 export const getThread = async (threadId: string): Promise<Thread | null> => {
   try {
+    // Get the current authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.error("No authenticated user found");
+      return null;
+    }
+    
     // Get the thread
     const { data: threadData, error: threadError } = await supabase
       .from('threads')
@@ -30,8 +38,14 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
       console.error("Error fetching thread participants:", participantsError);
     }
     
-    // Extract participant names
-    const participants = participantsData?.map(item => item.profiles?.name).filter(Boolean) || [];
+    // Extract participant names, excluding the current user
+    const participants = participantsData
+      ?.map(item => ({
+        id: item.profiles?.id,
+        name: item.profiles?.name
+      }))
+      .filter(participant => participant.id && participant.name && participant.id !== user.id)
+      .map(participant => participant.name) || [];
 
     return {
       id: threadData.id,

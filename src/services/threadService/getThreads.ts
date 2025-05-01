@@ -34,8 +34,14 @@ export const getThreads = async (): Promise<Thread[]> => {
         `)
         .eq('thread_id', thread.id);
       
-      // Extract participant names
-      const participants = participantsData?.map(item => item.profiles?.name) || [];
+      // Extract participant names, excluding current user
+      const participants = participantsData
+        ?.map(item => ({
+          id: item.profiles?.id,
+          name: item.profiles?.name
+        }))
+        .filter(participant => participant.id && participant.name && participant.id !== user.id)
+        .map(participant => participant.name) || [];
       
       return {
         id: thread.id,
