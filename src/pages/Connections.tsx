@@ -33,7 +33,8 @@ import {
   CheckCircle2, 
   XCircle, 
   Trash2, 
-  UserCheck
+  UserCheck,
+  EyeOff
 } from "lucide-react";
 import { 
   Connection,
@@ -41,6 +42,7 @@ import {
   getConnections, 
   updateConnectionStatus,
   deleteConnection,
+  disableConnection,
   inviteByEmail
 } from "@/services/connectionService";
 import { useToast } from "@/hooks/use-toast";
@@ -136,6 +138,25 @@ const Connections = () => {
     }
   };
 
+  const handleDisableConnection = async (connectionId: string) => {
+    try {
+      await disableConnection(connectionId);
+      loadConnections();
+      
+      toast({
+        title: "Connection disabled",
+        description: "This connection has been disabled",
+      });
+    } catch (error) {
+      console.error("Error disabling connection:", error);
+      toast({
+        title: "Error",
+        description: "Failed to disable connection",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDeleteConnection = async (connectionId: string) => {
     try {
       await deleteConnection(connectionId);
@@ -165,6 +186,8 @@ const Connections = () => {
   );
   
   const acceptedConnections = connections.filter(c => c.status === 'accepted');
+  
+  const disabledConnections = connections.filter(c => c.status === 'disabled');
 
   if (isLoading) {
     return (
@@ -302,7 +325,15 @@ const Connections = () => {
                   </TooltipProvider>
                 </CardTitle>
               </CardHeader>
-              <CardFooter className="flex justify-end">
+              <CardFooter className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDisableConnection(connection.id)}
+                >
+                  <EyeOff className="h-4 w-4 mr-1" />
+                  Disable
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -358,6 +389,49 @@ const Connections = () => {
                   >
                     <XCircle className="h-4 w-4 mr-1" />
                     Cancel
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
+      
+      {/* Disabled Connections */}
+      {disabledConnections.length > 0 && (
+        <>
+          <h2 className="text-xl font-semibold my-4 flex items-center">
+            Disabled Connections
+            <Badge variant="outline" className="ml-2">
+              {disabledConnections.length}
+            </Badge>
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {disabledConnections.map((connection) => (
+              <Card key={connection.id} className="opacity-60">
+                <CardHeader>
+                  <CardTitle className="flex justify-between items-center">
+                    <span>{connection.username}</span>
+                    <Badge variant="outline">Disabled</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardFooter className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleUpdateStatus(connection.id, 'accepted')}
+                  >
+                    <UserCheck className="h-4 w-4 mr-1" />
+                    Enable
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteConnection(connection.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Remove
                   </Button>
                 </CardFooter>
               </Card>

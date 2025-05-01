@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 
@@ -95,22 +94,22 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       return [];
     }
 
-    const { data: messages, error } = await supabase
+    const { data: messagesData, error: messagesError } = await supabase
       .from("messages")
       .select(`
         *,
-        profiles:sender (name)
+        profiles!sender(name)
       `)
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
 
-    if (error) {
-      console.error("Error fetching messages:", error);
+    if (messagesError) {
+      console.error("Error fetching messages:", messagesError);
       return [];
     }
 
     // Transform database records into Message objects
-    return (messages || []).map(msg => {
+    return (messagesData || []).map(msg => {
       // Handle system messages or messages with null profiles
       const senderName = msg.is_system 
         ? 'system' 

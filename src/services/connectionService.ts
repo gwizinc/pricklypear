@@ -6,6 +6,7 @@ export {
   getConnections,
   updateConnectionStatus,
   deleteConnection,
+  disableConnection,
   inviteByEmail,
   type ConnectionStatus,
   type Connection,

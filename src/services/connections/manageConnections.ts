@@ -21,6 +21,11 @@ export const updateConnectionStatus = async (
   }
 };
 
+// Disable a connection (instead of deleting)
+export const disableConnection = async (connectionId: string): Promise<boolean> => {
+  return updateConnectionStatus(connectionId, 'disabled');
+};
+
 // Delete a connection
 export const deleteConnection = async (connectionId: string): Promise<boolean> => {
   try {
