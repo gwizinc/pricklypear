@@ -5,7 +5,7 @@ import { Plus, Loader2 } from "lucide-react";
 import ThreadCard from "@/components/ThreadCard";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import type { Thread } from "@/types/thread";
-import type { User } from "@/types/user";
+import type { User } from "@supabase/supabase-js";
 
 interface ThreadsListProps {
   threads: Thread[];
