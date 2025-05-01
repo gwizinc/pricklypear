@@ -12,4 +12,7 @@ export type Message = {
   
   // For system messages (close requests etc.)
   isSystem?: boolean;
+  
+  // Flag to identify current user's messages
+  isCurrentUser?: boolean;
 };

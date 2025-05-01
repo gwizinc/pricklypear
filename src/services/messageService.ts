@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 
@@ -148,8 +147,14 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       return [];
     }
 
+    // Get the current user's ID to consistently match messages
+    const { data: { user } } = await supabase.auth.getUser();
+    
     // Transform database records into Message objects
     return (messagesData || []).map(msg => {
+      // Determine if this message is from the current user
+      const isCurrentUserMessage = msg.profile_id === user?.id;
+      
       // Safely handle the sender name for system messages and when profile data is available
       const senderName = msg.is_system 
         ? 'system' 
@@ -163,7 +168,8 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
         original_text: msg.original_text || '',
         kind_text: msg.kind_text || '',
         threadId: msg.conversation_id || '',
-        isSystem: Boolean(msg.is_system)
+        isSystem: Boolean(msg.is_system),
+        isCurrentUser: isCurrentUserMessage
       };
     });
   } catch (error) {
