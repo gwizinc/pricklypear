@@ -55,8 +55,15 @@ class MessageStore {
     
     if (!newRecord && !oldRecord) return;
     
-    // Extract threadId from either new or old record
-    const threadId = newRecord?.threadId || oldRecord?.threadId;
+    // Extract threadId using 'in' guard for proper type safety
+    let threadId: ThreadId | undefined;
+
+    if (newRecord && 'threadId' in newRecord) {
+      threadId = newRecord.threadId;
+    } else if (oldRecord && 'threadId' in oldRecord) {
+      threadId = oldRecord.threadId;
+    }
+    
     if (!threadId) return;
     
     // Initialize thread messages array if it doesn't exist
