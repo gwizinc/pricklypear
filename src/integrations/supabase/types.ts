@@ -45,6 +45,7 @@ export type Database = {
           original_text: string
           selected_text: string
           sender: string
+          sender_profile_id: string | null
           timestamp: string | null
         }
         Insert: {
@@ -55,6 +56,7 @@ export type Database = {
           original_text: string
           selected_text: string
           sender: string
+          sender_profile_id?: string | null
           timestamp?: string | null
         }
         Update: {
@@ -65,6 +67,7 @@ export type Database = {
           original_text?: string
           selected_text?: string
           sender?: string
+          sender_profile_id?: string | null
           timestamp?: string | null
         }
         Relationships: []
@@ -125,10 +128,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      message_profiles: {
+        Row: {
+          conversation_id: string | null
+          is_system: boolean | null
+          kind_text: string | null
+          message_id: string | null
+          original_text: string | null
+          profile_id: string | null
+          profile_name: string | null
+          selected_text: string | null
+          timestamp: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_profile_id_by_name: {
+        Args: { profile_name: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

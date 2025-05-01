@@ -31,7 +31,8 @@ export const saveMessage = async (
     const { data, error } = await supabase
       .from("messages")
       .insert({
-        sender: profileData.id,
+        sender: sender, // Keep the sender name for backwards compatibility
+        sender_profile_id: profileData.id, // Add the profile ID for proper relationship
         original_text: text,
         kind_text: kind || text, // Default to text if kind is not provided
         selected_text: selected || text, // Default to text if selected is not provided
@@ -70,7 +71,7 @@ export const saveSystemMessage = async (
         original_text: text,
         kind_text: text, // Adding required field
         selected_text: text, // Use the same text for selected text
-        sender: null, // Setting sender to null for system messages
+        sender: "system", // Set sender to "system" for system messages
         conversation_id: threadId,
         timestamp: new Date().toISOString(),
         is_system: true // Mark this as a system message
@@ -95,13 +96,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       return [];
     }
 
-    // Update query to use a more explicit join syntax that TypeScript can understand better
+    // Use the view created in SQL migration for a simpler query
     const { data: messagesData, error: messagesError } = await supabase
-      .from("messages")
-      .select(`
-        *,
-        profiles(id, name)
-      `)
+      .from("message_profiles")
+      .select("*")
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
 
@@ -115,10 +113,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       // Safely handle the sender name for system messages and when profile data is available
       const senderName = msg.is_system 
         ? 'system' 
-        : (msg.profiles?.name || 'Unknown User');
+        : (msg.profile_name || 'Unknown User');
 
       return {
-        id: msg.id,
+        id: msg.message_id,
         text: msg.selected_text || '',
         sender: senderName,
         timestamp: new Date(msg.timestamp || ''),
