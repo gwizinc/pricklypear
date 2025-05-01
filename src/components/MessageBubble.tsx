@@ -41,7 +41,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
             "px-4 py-2 rounded-2xl shadow-sm",
             isSystemMessage 
               ? "bg-muted text-muted-foreground w-full text-center"
-              : isCurrentUser
+              : message.isCurrentUser
                 ? "bg-chat-sender1 text-white rounded-tr-none"
                 : "bg-chat-gray rounded-tl-none"
           )}
@@ -49,7 +49,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
           {showOriginal && hasOriginalText ? message.original_text : message.text}
         </div>
         
-        {isCurrentUser && hasOriginalText && !isSystemMessage && (
+        {message.isCurrentUser && hasOriginalText && !isSystemMessage && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
