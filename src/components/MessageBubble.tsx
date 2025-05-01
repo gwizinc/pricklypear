@@ -8,10 +8,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface MessageBubbleProps {
   message: Message;
-  isCurrentUser: boolean;
 }
 
-const MessageBubble = ({ message, isCurrentUser }: MessageBubbleProps) => {
+const MessageBubble = ({ message }: MessageBubbleProps) => {
   const [showOriginal, setShowOriginal] = useState(false);
   const hasOriginalText = message.original_text && message.original_text !== message.text;
   const isSystemMessage = message.isSystem;
@@ -25,7 +24,7 @@ const MessageBubble = ({ message, isCurrentUser }: MessageBubbleProps) => {
       className={cn(
         "flex flex-col max-w-[80%] mb-2 animate-message-appear",
         isSystemMessage ? "self-center items-center w-full" : 
-        isCurrentUser ? "self-end items-end" : "self-start items-start"
+        message.isCurrentUser ? "self-end items-end" : "self-start items-start"
       )}
     >
       {!isSystemMessage && (

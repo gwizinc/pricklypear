@@ -29,8 +29,7 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }
         messages.map((message) => (
           <MessageBubble 
             key={message.id} 
-            message={message} 
-            isCurrentUser={message.sender_profile_id === user.id}
+            message={message}
           />
         ))
       ) : (
