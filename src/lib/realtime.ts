@@ -1,12 +1,12 @@
-
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabaseClient, activeChannels } from '@/lib/supabaseClient';
 import { broadcastRealtimeEvent } from '@/lib/realtimeBroadcast';
+import type { Database } from '@/integrations/supabase/types';
 
 export type ReconnectedHandler = (channel: RealtimeChannel) => Promise<void>;
 
 export interface SubscriptionOptions {
-  event?: string;
+  event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
   filter?: string;
   backfillOnReconnect?: boolean;
   crossTabBroadcast?: boolean;
@@ -27,8 +27,8 @@ const channelSubscriberCounts = new Map<string, number>();
  */
 export function subscribeToRealtimeChanges(
   channelName: string,
-  tableName: string,
-  callback: (payload: any) => void,
+  tableName: keyof Database['public']['Tables'],
+  callback: (payload: RealtimePostgresChangesPayload<Database['public']['Tables'][typeof tableName]>) => void,
   options: SubscriptionOptions = {},
   reconnectedHandler?: ReconnectedHandler
 ): () => void {
@@ -50,42 +50,47 @@ export function subscribeToRealtimeChanges(
   let channel = activeChannels.get(channelKey);
   
   if (!channel) {
-    // Create and subscribe to the channel
+    // Create a new channel
     channel = supabaseClient.channel(channelKey);
     
-    // Add postgres_changes listener
-    channel = channel.on(
-      'postgres_changes',
-      {
-        event,
-        schema: 'public',
-        table: tableName,
-        filter,
-      },
-      (payload) => {
-        // Handle the payload
-        callback(payload);
-        
-        // Broadcast to other tabs if requested
-        if (crossTabBroadcast) {
-          broadcastRealtimeEvent('supabase:change', {
-            channelKey,
-            payload,
-          });
+    // Configure channel with postgres_changes listener
+    channel
+      .on(
+        'postgres_changes' as 'system',
+        {
+          event: options.event || '*',
+          schema: 'public',
+          table: tableName,
+          filter: options.filter || undefined,
+        },
+        (payload: RealtimePostgresChangesPayload<Database['public']['Tables'][typeof tableName]>) => {
+          callback(payload);
+          
+          // Broadcast to other tabs if requested
+          if (crossTabBroadcast) {
+            broadcastRealtimeEvent('supabase:change', {
+              channelKey,
+              payload,
+            });
+          }
         }
-      }
-    );
+      )
+      // Configure system event listener for reconnection (as a separate call)
+      .on(
+        'system',
+        { event: 'reconnected' },
+        async () => {
+          // Handle reconnection - perform backfill if requested
+          if (backfillOnReconnect && reconnectedHandler) {
+            await reconnectedHandler(channel!);
+          }
+        }
+      );
     
-    // Add system event listener
-    channel = channel.on('system', { event: 'reconnected' }, async () => {
-      // Handle reconnection - perform backfill if requested
-      if (backfillOnReconnect && reconnectedHandler) {
-        await reconnectedHandler(channel!);
-      }
-    });
-      
     // Start the subscription
-    channel.subscribe();
+    channel.subscribe((status) => {
+      console.log(`Channel ${channelKey} status: ${status}`);
+    });
     
     // Register in the active channels registry
     activeChannels.set(channelKey, channel);
@@ -102,6 +107,7 @@ export function subscribeToRealtimeChanges(
       // Only unsubscribe if this is the last reference
       const channel = activeChannels.get(channelKey);
       if (channel) {
+        console.log(`Unsubscribing from channel ${channelKey}`);
         channel.unsubscribe();
         activeChannels.delete(channelKey);
       }
@@ -117,7 +123,7 @@ export function subscribeToRealtimeChanges(
  */
 export function subscribeToThread(
   threadId: string,
-  callback: (payload: any) => void,
+  callback: (payload: RealtimePostgresChangesPayload<Database['public']['Tables']['threads']>) => void,
   reconnectedHandler?: ReconnectedHandler
 ): () => void {
   return subscribeToRealtimeChanges(
@@ -125,7 +131,7 @@ export function subscribeToThread(
     'messages',
     callback,
     {
-      filter: `threadId=eq.${threadId}`,
+      filter: `conversation_id=eq.${threadId}`,
       crossTabBroadcast: true,
     },
     reconnectedHandler

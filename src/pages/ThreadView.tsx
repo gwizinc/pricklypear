@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+
+import React from "react";
 import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useThreadDetails } from "@/hooks/useThreadDetails";
@@ -8,8 +9,6 @@ import ThreadMessageComposer from "@/components/thread/ThreadMessageComposer";
 import ThreadCloseRequestManager from "@/components/thread/ThreadCloseRequestManager";
 import MessageReviewDialog from "@/components/MessageReviewDialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { subscribeToThread } from "@/lib/realtime";
-import { messageStore } from "@/contexts/messageStore";
 
 const ThreadView = () => {
   const { threadId } = useParams<{ threadId: string }>();
@@ -34,28 +33,11 @@ const ThreadView = () => {
     isRequestingClose,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose,
-    loadMessages
+    handleRejectClose
   } = useThreadDetails(threadId);
 
-  // Set up realtime subscription for thread messages
-  useEffect(() => {
-    if (!threadId) return;
-    
-    // Initial load of messages
-    loadMessages();
-    
-    // Subscribe to realtime updates for this thread
-    const unsubscribe = subscribeToThread(threadId, (payload) => {
-      // Apply the changes to the message store
-      messageStore.applyDelta(payload);
-    });
-    
-    return () => {
-      // Clean up subscription when component unmounts
-      unsubscribe();
-    };
-  }, [threadId, loadMessages]);
+  // Note: Realtime subscription has been moved to useThreadMessages hook
+  // This prevents duplicate subscriptions and ensures better state coordination
 
   const isThreadClosed = thread?.status === 'closed';
 

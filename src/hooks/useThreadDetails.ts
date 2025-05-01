@@ -1,16 +1,19 @@
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useThreadState } from "./useThreadState";
 import { useThreadMessages } from "./useThreadMessages";
 import { useThreadActions } from "./useThreadActions";
 
 export const useThreadDetails = (threadId: string | undefined) => {
+  const [initialized, setInitialized] = useState(false);
+  const initializingRef = useRef(false);
+
   // Get thread state management
   const { 
     thread, 
     setThread, 
-    isLoading, 
-    setIsLoading, 
+    isLoading: isThreadLoading, 
+    setIsLoading: setIsThreadLoading, 
     loadThread 
   } = useThreadState(threadId);
 
@@ -24,6 +27,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     kindMessage,
     isReviewingMessage,
     isGeneratingSummary,
+    isLoading: isMessagesLoading,
     setNewMessage,
     handleSendMessage,
     handleSendReviewedMessage,
@@ -40,19 +44,40 @@ export const useThreadDetails = (threadId: string | undefined) => {
     handleRejectClose
   } = useThreadActions(threadId, thread, messages, addSystemMessage, setThread);
 
-  // Initialize thread and messages
+  // Initialize thread and messages - only once
   useEffect(() => {
     const initialize = async () => {
-      setIsLoading(true);
-      const threadData = await loadThread();
-      if (threadData) {
-        await loadMessages();
+      // Prevent multiple simultaneous initialization attempts
+      if (initialized || !threadId || initializingRef.current) return;
+      
+      initializingRef.current = true;
+      console.log("Initializing thread details");
+      setIsThreadLoading(true);
+      
+      try {
+        // First load the thread data
+        const threadData = await loadThread();
+        console.log("Thread data loaded:", threadData?.id);
+        
+        // Then, if thread data was loaded successfully, load messages
+        if (threadData) {
+          await loadMessages();
+        }
+        
+        setInitialized(true);
+      } catch (error) {
+        console.error("Error initializing thread details:", error);
+      } finally {
+        setIsThreadLoading(false);
+        initializingRef.current = false;
       }
-      setIsLoading(false);
     };
     
     initialize();
-  }, [threadId, loadThread, loadMessages, setIsLoading]);
+  }, [threadId, loadThread, loadMessages, setIsThreadLoading, initialized]);
+
+  // Combine loading states from thread and messages
+  const isLoading = isThreadLoading || isMessagesLoading;
 
   // Return all the hooks' values and methods
   return {

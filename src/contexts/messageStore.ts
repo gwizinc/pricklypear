@@ -47,13 +47,19 @@ class MessageStore {
   /**
    * Apply delta from realtime changes
    */
-  applyDelta(payload: RealtimePostgresChangesPayload<Message>): void {
+  applyDelta(payload: RealtimePostgresChangesPayload<any>): void {
     const { new: newRecord, old: oldRecord, eventType } = payload;
     
     if (!newRecord && !oldRecord) return;
     
-    // Need to explicitly check and cast threadId to handle TypeScript error
-    const threadId = (newRecord?.threadId || oldRecord?.threadId) as string | undefined;
+    // Access conversation_id instead of threadId from Supabase payload
+    // Fix type error by checking if the property exists first
+    const threadId = (newRecord && 'conversation_id' in newRecord) 
+      ? newRecord.conversation_id as string 
+      : (oldRecord && 'conversation_id' in oldRecord) 
+        ? oldRecord.conversation_id as string
+        : undefined;
+        
     if (!threadId) return;
     
     // Initialize thread messages array if it doesn't exist
@@ -64,13 +70,25 @@ class MessageStore {
     // Process the delta based on event type
     if (eventType === 'INSERT') {
       // Check for duplicates before adding
-      const isDuplicate = this.state.messages[threadId].some(msg => msg.id === newRecord!.id);
+      const isDuplicate = this.state.messages[threadId].some(msg => msg.id === newRecord?.id);
       
       if (!isDuplicate && newRecord) {
+        // Map database record to Message type
+        const message: Message = {
+          id: newRecord.id,
+          text: newRecord.selected_text,
+          sender: newRecord.sender_profile_id,
+          timestamp: new Date(newRecord.timestamp),
+          original_text: newRecord.original_text,
+          kind_text: newRecord.kind_text,
+          isSystem: newRecord.is_system,
+          threadId: threadId,
+        };
+        
         // Add new message to the thread
         this.state.messages[threadId] = [
           ...this.state.messages[threadId],
-          newRecord as Message,
+          message,
         ];
         
         // Sort messages chronologically by timestamp
@@ -83,7 +101,13 @@ class MessageStore {
     } else if (eventType === 'UPDATE' && newRecord) {
       // Update existing message
       this.state.messages[threadId] = this.state.messages[threadId].map(msg => 
-        msg.id === newRecord.id ? { ...msg, ...newRecord } : msg
+        msg.id === newRecord.id ? { 
+          ...msg, 
+          text: newRecord.selected_text,
+          original_text: newRecord.original_text,
+          kind_text: newRecord.kind_text,
+          isSystem: newRecord.is_system,
+        } : msg
       );
     } else if (eventType === 'DELETE' && oldRecord) {
       // Remove deleted message
