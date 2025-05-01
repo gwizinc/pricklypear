@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -22,6 +22,7 @@ import {
   EyeOff
 } from "lucide-react";
 import { Connection } from "@/services/connectionService";
+import DisableConnectionDialog from "./DisableConnectionDialog";
 
 interface ConnectionCardProps {
   connection: Connection;
@@ -38,6 +39,13 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
   onDisable,
   variant,
 }) => {
+  const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
+
+  const handleDisableConfirmed = () => {
+    onDisable?.(connection.id);
+    setIsDisableDialogOpen(false);
+  };
+
   const renderBadge = () => {
     switch (variant) {
       case "pending-incoming":
@@ -106,7 +114,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onDisable?.(connection.id)}
+              onClick={() => setIsDisableDialogOpen(true)}
             >
               <EyeOff className="h-4 w-4 mr-1" />
               Disable
@@ -148,17 +156,26 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
   };
 
   return (
-    <Card className={variant === "disabled" ? "opacity-60" : ""}>
-      <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <span>{connection.username}</span>
-          {renderBadge()}
-        </CardTitle>
-      </CardHeader>
-      <CardFooter className="flex justify-end gap-2">
-        {renderActions()}
-      </CardFooter>
-    </Card>
+    <>
+      <Card className={variant === "disabled" ? "opacity-60" : ""}>
+        <CardHeader>
+          <CardTitle className="flex justify-between items-center">
+            <span>{connection.username}</span>
+            {renderBadge()}
+          </CardTitle>
+        </CardHeader>
+        <CardFooter className="flex justify-end gap-2">
+          {renderActions()}
+        </CardFooter>
+      </Card>
+
+      <DisableConnectionDialog
+        open={isDisableDialogOpen}
+        onOpenChange={setIsDisableDialogOpen}
+        onConfirm={handleDisableConfirmed}
+        connectionName={connection.username}
+      />
+    </>
   );
 };
 
