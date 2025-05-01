@@ -74,7 +74,7 @@ export const useThreadMessages = (threadId: string | undefined) => {
         original_text: originalMessage,
         kind_text: kindMessage,
         threadId: threadId,
-        isCurrentUser: true
+        isCurrentUser: true // Explicitly set isCurrentUser to true
       };
       
       setMessages(prev => [...prev, newMsg]);
