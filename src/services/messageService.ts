@@ -70,7 +70,7 @@ export const saveSystemMessage = async (
         original_text: text,
         kind_text: text, // Adding required field
         selected_text: text, // Use the same text for selected text
-        sender: 'system', // Adding required field
+        sender: null, // Setting sender to null for system messages
         conversation_id: threadId,
         timestamp: new Date().toISOString(),
         is_system: true // Mark this as a system message
@@ -97,7 +97,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
     const { data: messages, error } = await supabase
       .from("messages")
-      .select("*")
+      .select(`
+        *,
+        sender:profiles(name)
+      `)
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
 
@@ -111,7 +114,8 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
     return (messages || []).map(msg => ({
       id: msg.id,
       text: msg.selected_text || '',
-      sender: msg.sender || '',
+      // Handle system messages vs user messages
+      sender: msg.is_system ? 'system' : (msg.sender?.name || ''),
       timestamp: new Date(msg.timestamp || ''),
       original_text: msg.original_text || '',
       kind_text: msg.kind_text || '',

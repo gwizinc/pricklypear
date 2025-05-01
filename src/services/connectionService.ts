@@ -12,7 +12,7 @@ export {
   type InviteResponse
 } from './connections';
 
-// This function is no longer used but kept for reference
+// This function is updated to work with the new profile-based sender structure
 export const searchUsers = async (query: string): Promise<{ id: string; username: string }[]> => {
   const { data: currentUser } = await supabase.auth.getUser();
   
