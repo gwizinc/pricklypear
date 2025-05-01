@@ -2,7 +2,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { Separator } from '@/components/ui/separator';
 import { 
   MessageSquare, 
@@ -61,11 +60,11 @@ const Navigation = () => {
     return '?';
   };
 
-  const navItems = [
-    // Home button removed from here
+  // Only show these nav items when user is logged in
+  const navItems = user ? [
     { path: '/threads', label: 'Threads', icon: <MessageSquare className="h-4 w-4 mr-2" /> },
     { path: '/connections', label: 'Connections', icon: <Users className="h-4 w-4 mr-2" /> },
-  ];
+  ] : [];
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -154,7 +153,6 @@ const Navigation = () => {
           </nav>
           
           <div className="flex flex-1 items-center justify-end space-x-2">
-            {!user && <ThemeToggle />}
             {renderUserMenu()}
           </div>
         </div>
@@ -170,8 +168,7 @@ const Navigation = () => {
 
         {/* Mobile Right Actions */}
         <div className="flex items-center md:hidden">
-          {!user && <ThemeToggle />}
-          {user && renderUserMenu()}
+          {renderUserMenu()}
         </div>
       </div>
 
