@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
-import { v4 as uuidv4 } from "uuid";
 
 export const saveMessage = async (
   sender: string, 
@@ -20,7 +19,7 @@ export const saveMessage = async (
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
-      .eq('username', sender)
+      .eq('name', sender)  // Updated from 'username' to 'name'
       .single();
 
     if (profileError || !profileData) {
@@ -37,7 +36,6 @@ export const saveMessage = async (
         kind_text: kind,
         selected_text: selected,
         conversation_id: threadId,
-        // Convert Date to ISO string to match the expected string type
         timestamp: new Date().toISOString()
       })
       .select();
@@ -76,11 +74,11 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       id: msg.id,
       text: msg.selected_text,
       sender: msg.sender,
-      timestamp: new Date(msg.timestamp),
+      timestamp: new Date(msg.timestamp || ''),
       original_text: msg.original_text,
       kind_text: msg.kind_text,
-      threadId: msg.conversation_id,
-      isSystem: msg.is_system
+      threadId: msg.conversation_id || '',
+      isSystem: msg.is_system || false
     }));
   } catch (error) {
     console.error("Exception fetching messages:", error);

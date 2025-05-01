@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Re-export all connection-related functions and types from the new structure
@@ -20,8 +21,8 @@ export const searchUsers = async (query: string): Promise<{ id: string; username
   // Search for users by username
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, username")
-    .ilike("username", `%${query}%`)
+    .select("id, name")
+    .ilike("name", `%${query}%`)
     .neq("id", currentUser.user.id)
     .limit(10);
   
@@ -30,5 +31,9 @@ export const searchUsers = async (query: string): Promise<{ id: string; username
     return [];
   }
   
-  return data || [];
+  // Map the 'name' field to 'username' in the returned data to maintain API compatibility
+  return (data || []).map(item => ({
+    id: item.id,
+    username: item.name || ''
+  }));
 };

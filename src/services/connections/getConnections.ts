@@ -30,14 +30,14 @@ export const getConnections = async (): Promise<Connection[]> => {
         // Get the other user's details
         const { data: otherUserData } = await supabase
           .from("profiles")
-          .select("name")
+          .select("name")  // Updated from 'username' to 'name'
           .eq("id", otherUserId)
           .single();
 
         return {
           id: connection.id,
           otherUserId,
-          username: otherUserData?.name || "Unknown User",
+          username: otherUserData?.name || "Unknown User",  // Using 'name' but keeping 'username' in the return type
           avatarUrl: undefined, // profile doesn't have avatar_url field based on error
           status: connection.status as ConnectionStatus, // Cast the status to ConnectionStatus
           createdAt: connection.created_at,
