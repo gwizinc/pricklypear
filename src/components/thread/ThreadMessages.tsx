@@ -24,7 +24,7 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }
   // Add isCurrentUser property to each message before rendering
   const displayMessages = messages.map(message => ({
     ...message,
-    isCurrentUser: message.sender === currentUser
+    isCurrentUser: message.user_id === currentUser.id
   }));
 
   return (
