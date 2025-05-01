@@ -19,8 +19,8 @@ export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
     // using the email to find a matching profile
     const { data: users, error: usersError } = await supabase
       .from("profiles")
-      .select("id, username")
-      .eq("username", email) // Assuming email might be stored in username for simplicity
+      .select("id, name")
+      .eq("name", email) // Assuming email might be stored in name for simplicity
       .maybeSingle();
       
     if (usersError || !users) {
@@ -84,11 +84,11 @@ export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
     
     return { 
       success: true,
-      message: `Connection request sent to ${invitedUser.username}`,
+      message: `Connection request sent to ${invitedUser.name}`,
       connection: {
         id: connection.id,
         otherUserId: invitedUser.id,
-        username: invitedUser.username || "Unknown User",
+        username: invitedUser.name || "Unknown User",
         avatarUrl: undefined,
         status: connection.status as ConnectionStatus,
         createdAt: connection.created_at,

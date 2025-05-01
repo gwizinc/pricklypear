@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         password,
         options: {
           data: {
-            username: fullName,
+            username: fullName, // Keep this as username in user metadata for backward compatibility
           },
         },
       });

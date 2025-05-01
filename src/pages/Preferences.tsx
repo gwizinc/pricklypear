@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,7 +66,7 @@ const Preferences = () => {
         // Get user profile from the profiles table
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('username, message_tone')
+          .select('name, message_tone')
           .eq('id', user.id)
           .maybeSingle();
 
@@ -78,7 +77,7 @@ const Preferences = () => {
 
         // Get the user's metadata for the full name
         const fullName = user.user_metadata?.full_name || 
-                         (profileData ? profileData.username : '') || '';
+                         (profileData ? profileData.name : '') || '';
         
         // Update form with fetched data
         form.reset({
@@ -117,10 +116,10 @@ const Preferences = () => {
 
       if (metadataError) throw metadataError;
 
-      // Also update the profile username for consistency
+      // Also update the profile name for consistency
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ username: data.fullName })
+        .update({ name: data.fullName })
         .eq('id', user.id);
 
       if (profileError) throw profileError;

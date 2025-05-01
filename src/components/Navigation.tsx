@@ -45,14 +45,14 @@ const Navigation = () => {
   const getUserInitials = () => {
     if (!user) return '?';
     
-    // Try to get username from metadata if available
-    const username = user.user_metadata?.username || user.email;
+    // Try to get name from metadata if available
+    const displayName = user.user_metadata?.username || user.email;
     
-    if (!username) return '?';
+    if (!displayName) return '?';
     
     if (user.user_metadata?.username) {
-      // If we have a username, get first letter
-      return username.charAt(0).toUpperCase();
+      // If we have a name, get first letter
+      return displayName.charAt(0).toUpperCase();
     } else if (user.email) {
       // If we have an email, get first letter
       return user.email.charAt(0).toUpperCase();

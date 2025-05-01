@@ -74,19 +74,19 @@ export type Database = {
           created_at: string
           id: string
           message_tone: string | null
-          username: string | null
+          name: string | null
         }
         Insert: {
           created_at?: string
           id: string
           message_tone?: string | null
-          username?: string | null
+          name?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           message_tone?: string | null
-          username?: string | null
+          name?: string | null
         }
         Relationships: []
       }
