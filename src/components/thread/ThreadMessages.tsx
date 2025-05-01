@@ -21,6 +21,8 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  console.log(messages)
+
   return (
     <div className="flex-grow overflow-y-auto px-2 py-4 border rounded-md mb-4">
       {messages.length > 0 ? (
