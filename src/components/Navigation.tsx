@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Separator } from '@/components/ui/separator';
 import { 
-  Home, 
   MessageSquare, 
   LogIn, 
   LogOut, 
@@ -62,7 +62,7 @@ const Navigation = () => {
   };
 
   const navItems = [
-    { path: '/', label: 'Home', icon: <Home className="h-4 w-4 mr-2" /> },
+    // Home button removed from here
     { path: '/threads', label: 'Threads', icon: <MessageSquare className="h-4 w-4 mr-2" /> },
     { path: '/connections', label: 'Connections', icon: <Users className="h-4 w-4 mr-2" /> },
   ];
