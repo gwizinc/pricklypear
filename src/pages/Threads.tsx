@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from "react";
-import { MessageCirclePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getThreads } from "@/services/threadService";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Thread } from "@/types/thread";
 import ThreadsList from "@/components/ThreadsList";
-import CreateThreadDialog from "@/components/CreateThreadDialog";
+import CreateThreadDialog from "@/components/thread/CreateThreadDialog";
 
 const Threads = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
