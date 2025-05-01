@@ -8,6 +8,7 @@ import ThreadSummaryDialog from "@/components/thread/ThreadSummaryDialog";
 import ThreadMessages from "@/components/thread/ThreadMessages";
 import ThreadMessageComposer from "@/components/thread/ThreadMessageComposer";
 import ThreadCloseRequestManager from "@/components/thread/ThreadCloseRequestManager";
+import MessageReviewDialog from "@/components/MessageReviewDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
 const ThreadView = () => {
@@ -24,10 +25,16 @@ const ThreadView = () => {
     isSummaryDialogOpen,
     summary,
     isRequestingClose,
+    isReviewDialogOpen,
+    originalMessage,
+    kindMessage,
+    isReviewingMessage,
     setNewMessage,
     setIsSummaryDialogOpen,
     setSummary,
     handleSendMessage,
+    handleSendReviewedMessage,
+    setIsReviewDialogOpen,
     handleSaveSummary,
     handleRequestClose,
     handleApproveClose,
@@ -71,7 +78,7 @@ const ThreadView = () => {
           <ThreadMessageComposer
             newMessage={newMessage}
             setNewMessage={setNewMessage}
-            isSending={isSending}
+            isSending={isSending || isReviewingMessage}
             isThreadClosed={isThreadClosed}
             onSendMessage={handleSendMessage}
           />
@@ -84,6 +91,15 @@ const ThreadView = () => {
         summary={summary}
         setSummary={setSummary}
         onSaveSummary={handleSaveSummary}
+      />
+      
+      <MessageReviewDialog
+        open={isReviewDialogOpen}
+        onOpenChange={setIsReviewDialogOpen}
+        originalMessage={originalMessage}
+        kindMessage={kindMessage}
+        onAccept={handleSendReviewedMessage}
+        isLoading={isReviewingMessage}
       />
     </div>
   );

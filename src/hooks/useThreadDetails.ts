@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +10,7 @@ import {
   rejectCloseThread 
 } from "@/services/threadService";
 import { getMessages, saveMessage, saveSystemMessage } from "@/services/messageService";
+import { reviewMessage } from "@/utils/messageReview";
 import type { Thread } from "@/types/thread";
 import type { Message } from "@/types/message";
 
@@ -23,6 +23,12 @@ export const useThreadDetails = (threadId: string | undefined) => {
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [summary, setSummary] = useState("");
   const [isRequestingClose, setIsRequestingClose] = useState(false);
+  
+  // New state for message review
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [originalMessage, setOriginalMessage] = useState("");
+  const [kindMessage, setKindMessage] = useState("");
+  const [isReviewingMessage, setIsReviewingMessage] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -60,30 +66,52 @@ export const useThreadDetails = (threadId: string | undefined) => {
     loadThread();
   }, [threadId, navigate, toast]);
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !thread || !user) return;
+  const handleInitiateMessageReview = async () => {
+    if (!newMessage.trim() || !user) return;
+    
+    setOriginalMessage(newMessage);
+    setIsReviewingMessage(true);
+    
+    try {
+      // Call the message review API
+      const kindText = await reviewMessage(newMessage);
+      setKindMessage(kindText);
+    } catch (error) {
+      console.error("Error reviewing message:", error);
+      // If review fails, use the original message
+      setKindMessage(newMessage);
+    } finally {
+      setIsReviewingMessage(false);
+      setIsReviewDialogOpen(true);
+    }
+  };
+
+  const handleSendReviewedMessage = async (selectedMessage: string) => {
+    if (!selectedMessage.trim() || !thread || !user || !threadId) return;
     
     setIsSending(true);
     
     const currentUser = user.email?.split('@')[0] || '';
     
-    // Save message directly without AI processing for now
+    // Save the final message with original and kind versions
     const success = await saveMessage(
       currentUser,
-      newMessage,
-      threadId!,
-      newMessage, // Using the same text for selected_text
-      newMessage  // Using the same text for kind_text
+      originalMessage,
+      threadId,
+      selectedMessage, // Using the reviewed/selected text
+      kindMessage  // The kind version from AI
     );
     
     if (success) {
       // Add to local messages list immediately
       const newMsg: Message = {
         id: crypto.randomUUID(), // Generate a temporary ID
-        text: newMessage,
+        text: selectedMessage,
         sender: currentUser,
         timestamp: new Date(),
-        threadId: threadId!
+        original_text: originalMessage,
+        kind_text: kindMessage,
+        threadId: threadId
       };
       
       setMessages(prev => [...prev, newMsg]);
@@ -97,6 +125,11 @@ export const useThreadDetails = (threadId: string | undefined) => {
     }
     
     setIsSending(false);
+  };
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+    handleInitiateMessageReview();
   };
 
   const handleSaveSummary = async () => {
@@ -239,10 +272,16 @@ export const useThreadDetails = (threadId: string | undefined) => {
     isSummaryDialogOpen,
     summary,
     isRequestingClose,
+    isReviewDialogOpen,
+    originalMessage,
+    kindMessage,
+    isReviewingMessage,
     setNewMessage,
     setIsSummaryDialogOpen,
     setSummary,
     handleSendMessage,
+    handleSendReviewedMessage,
+    setIsReviewDialogOpen,
     handleSaveSummary,
     handleRequestClose,
     handleApproveClose,
