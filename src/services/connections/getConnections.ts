@@ -51,10 +51,14 @@ export const getConnections = async (): Promise<Connection[]> => {
           console.error("Error fetching profile:", profileError);
         }
 
+        if (!otherUserData) {
+          throw new Error("User was not able to be selected.");
+        }
+
         return {
           id: connection.id,
           otherUserId,
-          username: otherUserData?.name || "User", // Fallback name if profile not found
+          username: otherUserData.name,
           avatarUrl: undefined,
           status: connection.status as ConnectionStatus,
           createdAt: connection.created_at,
