@@ -59,7 +59,7 @@ const ThreadHeader = ({
         {thread.participants && thread.participants.length > 0 ? (
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Other participants:</span>
+            <span className="text-sm font-medium">Participants:</span>
             <div className="flex -space-x-2 mr-2">
               {thread.participants.slice(0, 3).map((participant, i) => (
                 <Avatar key={i} className="h-6 w-6 border-2 border-background">
