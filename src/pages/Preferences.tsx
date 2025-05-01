@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -225,15 +226,15 @@ const Preferences = () => {
                 Choose how you want your messages to be rephrased when they're reviewed.
               </p>
               <Select value={messageTone} onValueChange={handleMessageToneChange}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full normal-case">
                   <SelectValue placeholder="Select a tone" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="friendly">Friendly</SelectItem>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="casual">Casual</SelectItem>
-                  <SelectItem value="formal">Formal</SelectItem>
-                  <SelectItem value="encouraging">Encouraging</SelectItem>
+                  <SelectItem value="friendly" className="normal-case">Friendly</SelectItem>
+                  <SelectItem value="professional" className="normal-case">Professional</SelectItem>
+                  <SelectItem value="casual" className="normal-case">Casual</SelectItem>
+                  <SelectItem value="formal" className="normal-case">Formal</SelectItem>
+                  <SelectItem value="encouraging" className="normal-case">Encouraging</SelectItem>
                 </SelectContent>
               </Select>
               

@@ -80,12 +80,12 @@ const CreateThreadForm = ({
           </div>
         ) : (
           <Select value={selectedContact} onValueChange={setSelectedContact}>
-            <SelectTrigger>
+            <SelectTrigger className="normal-case">
               <SelectValue placeholder="Select a contact" />
             </SelectTrigger>
             <SelectContent>
               {connections.map((connection) => (
-                <SelectItem key={connection.otherUserId} value={connection.username}>
+                <SelectItem key={connection.otherUserId} value={connection.username} className="normal-case">
                   {connection.username}
                 </SelectItem>
               ))}
