@@ -4,7 +4,7 @@ import type { RealtimePostgresChangesPayload } from '@supabase/realtime-js';
 
 // Define new types for better type safety
 export type ThreadedMessages = Record<ThreadId, Message[]>;
-export type MessageDelta = RealtimePostgresChangesPayload<Message> & { threadId: ThreadId };
+export type MessageDelta = RealtimePostgresChangesPayload<Message & { threadId: ThreadId }>;
 
 interface MessageState {
   messages: ThreadedMessages;
