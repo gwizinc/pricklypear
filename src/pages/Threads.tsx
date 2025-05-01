@@ -1,5 +1,5 @@
+
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { getThreads } from "@/services/threadService";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Thread } from "@/types/thread";
