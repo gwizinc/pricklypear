@@ -26,7 +26,7 @@ const ThreadCloseRequest = ({
   const [isLoading, setIsLoading] = React.useState(false);
   
   // Don't show actions to the user who requested the closure
-  const showActions = requestedByUser.name !== currentUser.name;
+  const showActions = requestedByUser.id !== currentUser.id;
 
   const handleApprove = async () => {
     setIsLoading(true);
