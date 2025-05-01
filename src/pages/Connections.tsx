@@ -1,41 +1,12 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { UserPlus, Users, Loader2 } from "lucide-react";
 import { 
-  Card, 
-  CardHeader, 
-  CardContent, 
-  CardFooter, 
-  CardTitle 
-} from "@/components/ui/card";
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogTrigger,
+  Dialog,
 } from "@/components/ui/dialog";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { 
-  UserPlus, 
-  Users, 
-  Loader2, 
-  Mail, 
-  CheckCircle2, 
-  XCircle, 
-  Trash2, 
-  UserCheck,
-  EyeOff
-} from "lucide-react";
+
 import { 
   Connection,
   ConnectionStatus, 
@@ -48,10 +19,16 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Import refactored components
+import PendingConnectionsList from "@/components/connections/PendingConnectionsList";
+import OutgoingConnectionsList from "@/components/connections/OutgoingConnectionsList";
+import AcceptedConnectionsList from "@/components/connections/AcceptedConnectionsList";
+import DisabledConnectionsList from "@/components/connections/DisabledConnectionsList";
+import InviteConnectionDialog from "@/components/connections/InviteConnectionDialog";
+
 const Connections = () => {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [email, setEmail] = useState("");
   const [isInviting, setIsInviting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -78,7 +55,7 @@ const Connections = () => {
     }
   };
 
-  const handleInvite = async () => {
+  const handleInvite = async (email: string) => {
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({
         title: "Invalid email",
@@ -93,7 +70,6 @@ const Connections = () => {
       const response = await inviteByEmail(email);
       
       if (response.success) {
-        setEmail("");
         setIsDialogOpen(false);
         loadConnections();
         
@@ -211,234 +187,37 @@ const Connections = () => {
               Add Connection
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Invite via Email</DialogTitle>
-            </DialogHeader>
-            
-            <div className="flex items-center gap-2 mt-2">
-              <Input
-                placeholder="Enter email address"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !isInviting) {
-                    handleInvite();
-                  }
-                }}
-              />
-              <Button 
-                onClick={handleInvite}
-                disabled={!email.trim() || isInviting}
-              >
-                {isInviting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Mail className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            
-            <div className="mt-4 text-center text-sm text-muted-foreground">
-              Enter your friend's email address to send them a connection invitation.
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
+          <InviteConnectionDialog 
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            onInvite={handleInvite}
+            isInviting={isInviting}
+          />
         </Dialog>
       </div>
       
-      {/* Pending Incoming Connection Requests */}
-      {pendingIncomingConnections.length > 0 && (
-        <>
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            Connection Requests
-            <Badge variant="outline" className="ml-2">
-              {pendingIncomingConnections.length}
-            </Badge>
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {pendingIncomingConnections.map((connection) => (
-              <Card key={connection.id}>
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    <span>{connection.username}</span>
-                    <Badge>Pending</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardFooter className="flex gap-2 justify-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleUpdateStatus(connection.id, 'declined')}
-                  >
-                    <XCircle className="h-4 w-4 mr-1" />
-                    Decline
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleUpdateStatus(connection.id, 'accepted')}
-                  >
-                    <CheckCircle2 className="h-4 w-4 mr-1" />
-                    Accept
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
+      <PendingConnectionsList 
+        connections={pendingIncomingConnections}
+        onUpdateStatus={handleUpdateStatus}
+      />
       
-      {/* Accepted Connections */}
-      <h2 className="text-xl font-semibold mb-4 flex items-center">
-        Your Connections
-        <Badge variant="outline" className="ml-2">
-          {acceptedConnections.length}
-        </Badge>
-      </h2>
+      <AcceptedConnectionsList 
+        connections={acceptedConnections}
+        onDisable={handleDisableConnection}
+        onDelete={handleDeleteConnection}
+        onOpenInviteDialog={() => setIsDialogOpen(true)}
+      />
       
-      {acceptedConnections.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {acceptedConnections.map((connection) => (
-            <Card key={connection.id}>
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>{connection.username}</span>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Badge variant="secondary" className="cursor-default">
-                          <UserCheck className="h-3 w-3 mr-1" />
-                          Connected
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Connected since {new Date(connection.updatedAt).toLocaleDateString()}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </CardTitle>
-              </CardHeader>
-              <CardFooter className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDisableConnection(connection.id)}
-                >
-                  <EyeOff className="h-4 w-4 mr-1" />
-                  Disable
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDeleteConnection(connection.id)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Remove
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-8 border border-dashed rounded-lg">
-          <p className="text-muted-foreground">
-            You don't have any connections yet
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => setIsDialogOpen(true)}
-            className="mt-4"
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Connection
-          </Button>
-        </div>
-      )}
+      <OutgoingConnectionsList 
+        connections={pendingOutgoingConnections}
+        onDelete={handleDeleteConnection}
+      />
       
-      {/* Pending Outgoing Connection Requests */}
-      {pendingOutgoingConnections.length > 0 && (
-        <>
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            Sent Requests
-            <Badge variant="outline" className="ml-2">
-              {pendingOutgoingConnections.length}
-            </Badge>
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pendingOutgoingConnections.map((connection) => (
-              <Card key={connection.id}>
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    <span>{connection.username}</span>
-                    <Badge variant="secondary">Waiting</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardFooter className="flex justify-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteConnection(connection.id)}
-                  >
-                    <XCircle className="h-4 w-4 mr-1" />
-                    Cancel
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
-      
-      {/* Disabled Connections */}
-      {disabledConnections.length > 0 && (
-        <>
-          <h2 className="text-xl font-semibold my-4 flex items-center">
-            Disabled Connections
-            <Badge variant="outline" className="ml-2">
-              {disabledConnections.length}
-            </Badge>
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {disabledConnections.map((connection) => (
-              <Card key={connection.id} className="opacity-60">
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    <span>{connection.username}</span>
-                    <Badge variant="outline">Disabled</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardFooter className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleUpdateStatus(connection.id, 'accepted')}
-                  >
-                    <UserCheck className="h-4 w-4 mr-1" />
-                    Enable
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteConnection(connection.id)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Remove
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
+      <DisabledConnectionsList 
+        connections={disabledConnections}
+        onUpdateStatus={handleUpdateStatus}
+        onDelete={handleDeleteConnection}
+      />
     </div>
   );
 };
