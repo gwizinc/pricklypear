@@ -52,6 +52,40 @@ export const saveMessage = async (
   }
 };
 
+// Add the saveSystemMessage function to create system messages
+export const saveSystemMessage = async (
+  text: string,
+  threadId: string
+): Promise<boolean> => {
+  try {
+    if (!text || !threadId) {
+      console.error("Missing required fields for system message", { text, threadId });
+      return false;
+    }
+
+    // Insert the system message directly without profile lookup
+    const { error } = await supabase
+      .from("messages")
+      .insert({
+        original_text: text,
+        selected_text: text, // Use the same text for selected text
+        conversation_id: threadId,
+        timestamp: new Date().toISOString(),
+        is_system: true // Mark this as a system message
+      });
+
+    if (error) {
+      console.error("Error saving system message:", error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Exception saving system message:", error);
+    return false;
+  }
+};
+
 export const getMessages = async (threadId: string): Promise<Message[]> => {
   try {
     if (!threadId) {

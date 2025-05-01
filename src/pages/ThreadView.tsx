@@ -78,22 +78,22 @@ const ThreadView = () => {
     const currentUser = user.email?.split('@')[0] || '';
     
     // Save message directly without AI processing for now
-    const messageId = await saveMessage(
+    const success = await saveMessage(
       currentUser,
       newMessage,
-      newMessage, // Using the same text for all fields for simplicity
-      newMessage,
-      threadId!
+      threadId!,
+      newMessage, // Using the same text for selected_text
+      newMessage  // Using the same text for kind_text
     );
     
-    if (messageId) {
+    if (success) {
       // Add to local messages list immediately
       const newMsg: Message = {
-        id: messageId,
+        id: crypto.randomUUID(), // Generate a temporary ID
         text: newMessage,
         sender: currentUser,
         timestamp: new Date(),
-        threadId: threadId
+        threadId: threadId!
       };
       
       setMessages(prev => [...prev, newMsg]);
