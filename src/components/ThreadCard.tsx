@@ -45,7 +45,7 @@ const ThreadCard = ({ thread, unreadCount = 0 }: ThreadCardProps) => {
             </Badge>
             <Badge 
               variant={thread.status === 'open' ? 'default' : 'secondary'}
-              className={thread.status === 'open' ? 'bg-secondary text-primary' : ''}
+              className={`${thread.status === 'open' ? 'bg-secondary text-primary' : ''} pointer-events-none`}
             >
               {thread.status === 'open' ? 'Open' : 'Closed'}
             </Badge>
