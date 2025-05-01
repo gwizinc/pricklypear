@@ -36,10 +36,12 @@ export const getConnections = async (): Promise<Connection[]> => {
           console.error("Error fetching profile:", profileError);
         }
 
+        // Since name is now required, we can be more confident it exists
+        // But still provide a fallback just in case
         return {
           id: connection.id,
           otherUserId,
-          username: otherUserData?.name || "User Name Not Found",
+          username: otherUserData?.name || "User", // Simplified fallback since names are required
           avatarUrl: undefined,
           status: connection.status as ConnectionStatus,
           createdAt: connection.created_at,

@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 
@@ -98,7 +99,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       .from("messages")
       .select(`
         *,
-        profiles!messages_sender_fkey (name)
+        profiles (name)
       `)
       .eq("conversation_id", threadId)
       .order("timestamp", { ascending: true });
@@ -114,11 +115,9 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       text: msg.selected_text || '',
       // Handle system messages vs user messages
       sender: msg.is_system ? 'system' : (
-        // Safely access the profile name if it exists by first checking if profiles exists
-        msg.profiles ? 
-          // Then check if profiles has a name property and it's not null
-          (msg.profiles.name || 'Profile with no name') 
-          : 'Unknown Profile'
+        // For user messages, get the name from the profile
+        msg.profiles && 'name' in msg.profiles ? 
+          msg.profiles.name : 'Unknown Profile'
       ),
       timestamp: new Date(msg.timestamp || ''),
       original_text: msg.original_text || '',
