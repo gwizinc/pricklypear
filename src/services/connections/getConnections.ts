@@ -10,22 +10,20 @@ export const getConnections = async (): Promise<Connection[]> => {
 
     const userId = userData.user.id;
 
-    // Get connections where the user is either the sender or receiver
+    // Get connections where the user is the sender only (user_id equals current user)
     const { data: connections, error } = await supabase
       .from("connections")
       .select("*")
-      .or(`user_id.eq.${userId},connected_user_id.eq.${userId}`);
+      .eq("user_id", userId);
 
     if (error) throw error;
 
     // Format the connections to include necessary information
     const formattedConnections = await Promise.all(
       (connections || []).map(async (connection) => {
-        // Determine if the current user is the sender or receiver
-        const isUserSender = connection.user_id === userId;
-        const otherUserId = isUserSender
-          ? connection.connected_user_id
-          : connection.user_id;
+        // Since we're only getting connections where the user is the sender,
+        // the other user is always the connected_user_id
+        const otherUserId = connection.connected_user_id;
 
         // Get the other user's details
         const { data: otherUserData, error: profileError } = await supabase
@@ -46,7 +44,7 @@ export const getConnections = async (): Promise<Connection[]> => {
           status: connection.status as ConnectionStatus,
           createdAt: connection.created_at,
           updatedAt: connection.updated_at,
-          isUserSender,
+          isUserSender: true, // Always true since we're only getting connections where the user is the sender
         };
       })
     );

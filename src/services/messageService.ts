@@ -119,8 +119,8 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
         // Safely access the profile name if it exists
         // First check if profiles exists and is not null
         msg.profiles ? 
-          // Then check if it's an object
-          (typeof msg.profiles === 'object' && msg.profiles !== null 
+          // Then check if it's an object with a name property
+          (typeof msg.profiles === 'object' && msg.profiles !== null && 'name' in msg.profiles
             ? (msg.profiles.name || '') 
             : '') 
           : ''
