@@ -117,8 +117,12 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       // Handle system messages vs user messages
       sender: msg.is_system ? 'system' : (
         // Safely access the profile name if it exists
-        msg.profiles && typeof msg.profiles === 'object' && msg.profiles !== null 
-          ? (msg.profiles.name || '') 
+        // First check if profiles exists and is not null
+        msg.profiles ? 
+          // Then check if it's an object
+          (typeof msg.profiles === 'object' && msg.profiles !== null 
+            ? (msg.profiles.name || '') 
+            : '') 
           : ''
       ),
       timestamp: new Date(msg.timestamp || ''),
