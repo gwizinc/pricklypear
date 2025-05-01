@@ -7,6 +7,7 @@ import { createThread } from "@/services/threadService";
 export const useThreadCreation = (onThreadCreated: (thread: any) => void, onClose: () => void) => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [selectedContact, setSelectedContact] = useState<string>("");
+  const [selectedTopic, setSelectedTopic] = useState<'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other'>('other');
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -44,7 +45,8 @@ export const useThreadCreation = (onThreadCreated: (thread: any) => void, onClos
     
     const newThread = await createThread(
       newThreadTitle,
-      [selectedContact]
+      [selectedContact],
+      selectedTopic
     );
     
     setIsCreating(false);
@@ -53,6 +55,7 @@ export const useThreadCreation = (onThreadCreated: (thread: any) => void, onClos
       onThreadCreated(newThread);
       setNewThreadTitle("");
       setSelectedContact("");
+      setSelectedTopic("other");
       onClose();
       
       toast({
@@ -73,6 +76,8 @@ export const useThreadCreation = (onThreadCreated: (thread: any) => void, onClos
     setNewThreadTitle,
     selectedContact,
     setSelectedContact,
+    selectedTopic,
+    setSelectedTopic,
     isCreating,
     handleCreateThread
   };

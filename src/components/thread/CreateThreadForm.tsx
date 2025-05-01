@@ -5,6 +5,8 @@ import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import type { Connection } from "@/types/connection";
 
 interface CreateThreadFormProps {
@@ -12,6 +14,8 @@ interface CreateThreadFormProps {
   setNewThreadTitle: (title: string) => void;
   selectedContact: string;
   setSelectedContact: (contact: string) => void;
+  selectedTopic?: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other';
+  setSelectedTopic?: (topic: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other') => void;
   connections: Connection[];
   isLoadingContacts: boolean;
   isCreating: boolean;
@@ -24,12 +28,24 @@ const CreateThreadForm = ({
   setNewThreadTitle,
   selectedContact,
   setSelectedContact,
+  selectedTopic = 'other',
+  setSelectedTopic,
   connections,
   isLoadingContacts,
   isCreating,
   onSubmit,
   onCancel
 }: CreateThreadFormProps) => {
+  const topicLabels = {
+    'travel': 'Travel',
+    'parenting_time': 'Parenting Time',
+    'health': 'Health',
+    'education': 'Education',
+    'activity': 'Activity',
+    'legal': 'Legal',
+    'other': 'Other'
+  };
+
   return (
     <div className="space-y-4 mt-2">
       <Input
@@ -77,6 +93,26 @@ const CreateThreadForm = ({
           </Select>
         )}
       </div>
+
+      {setSelectedTopic && (
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">Thread Topic</Label>
+          <RadioGroup 
+            value={selectedTopic} 
+            onValueChange={(value) => setSelectedTopic(value as any)} 
+            className="grid grid-cols-2 gap-2"
+          >
+            {Object.entries(topicLabels).map(([value, label]) => (
+              <div key={value} className="flex items-center space-x-2">
+                <RadioGroupItem value={value} id={`topic-${value}`} />
+                <Label htmlFor={`topic-${value}`} className="text-sm">
+                  {label}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        </div>
+      )}
 
       <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4">
         <Button variant="outline" onClick={onCancel} disabled={isCreating}>

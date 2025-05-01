@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Thread } from "@/types/thread";
 import { v4 as uuidv4 } from "uuid";
 
-export const createThread = async (title: string, participantNames: string[]): Promise<Thread | null> => {
+export const createThread = async (
+  title: string, 
+  participantNames: string[], 
+  topic: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other' = 'other'
+): Promise<Thread | null> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -22,7 +26,8 @@ export const createThread = async (title: string, participantNames: string[]): P
         created_at: new Date().toISOString(),
         owner_id: user.id,
         status: 'open',
-        summary: null
+        summary: null,
+        topic
       })
       .select()
       .single();
@@ -82,7 +87,8 @@ export const createThread = async (title: string, participantNames: string[]): P
       participants: participantNames, // Return the names for UI display
       status: threadData.status,
       summary: threadData.summary,
-      owner_id: threadData.owner_id
+      owner_id: threadData.owner_id,
+      topic: threadData.topic
     };
   } catch (error) {
     console.error("Exception creating thread:", error);

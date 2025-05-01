@@ -11,6 +11,20 @@ interface ThreadCardProps {
 }
 
 const ThreadCard = ({ thread }: ThreadCardProps) => {
+  const topicLabels: Record<string, string> = {
+    'travel': '✈️ Travel',
+    'parenting_time': '👨‍👩‍👧 Parenting Time',
+    'health': '🏥 Health',
+    'education': '🎓 Education',
+    'activity': '🏃 Activity',
+    'legal': '⚖️ Legal',
+    'other': '📝 Other'
+  };
+
+  const topicLabel = thread.topic && topicLabels[thread.topic] 
+    ? topicLabels[thread.topic]
+    : topicLabels.other;
+
   return (
     <Card>
       <CardHeader>
@@ -26,6 +40,9 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
           <p className="text-sm text-muted-foreground">
             Created {thread.createdAt.toLocaleDateString()}
           </p>
+          <div className="flex items-center mt-1.5 space-x-1.5">
+            <Badge variant="outline">{topicLabel}</Badge>
+          </div>
           <div className="mt-3">
             <p className="text-sm font-medium">Summary:</p>
             <p className="text-sm text-muted-foreground mt-1">

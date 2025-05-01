@@ -8,4 +8,5 @@ export type Thread = {
   status: string;
   summary?: string | null;
   closeRequestedBy?: string | null; // Now a UUID reference to profiles.id
+  topic?: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other' | null;
 };

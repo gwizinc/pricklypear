@@ -246,6 +246,7 @@ export type Database = {
           status: string
           summary: string | null
           title: string
+          topic: Database["public"]["Enums"]["thread_topic"] | null
         }
         Insert: {
           close_requested_by?: string | null
@@ -255,6 +256,7 @@ export type Database = {
           status?: string
           summary?: string | null
           title: string
+          topic?: Database["public"]["Enums"]["thread_topic"] | null
         }
         Update: {
           close_requested_by?: string | null
@@ -264,6 +266,7 @@ export type Database = {
           status?: string
           summary?: string | null
           title?: string
+          topic?: Database["public"]["Enums"]["thread_topic"] | null
         }
         Relationships: [
           {
@@ -323,6 +326,14 @@ export type Database = {
     }
     Enums: {
       connection_status: "pending" | "accepted" | "declined" | "disabled"
+      thread_topic:
+        | "travel"
+        | "parenting_time"
+        | "health"
+        | "education"
+        | "activity"
+        | "legal"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -439,6 +450,15 @@ export const Constants = {
   public: {
     Enums: {
       connection_status: ["pending", "accepted", "declined", "disabled"],
+      thread_topic: [
+        "travel",
+        "parenting_time",
+        "health",
+        "education",
+        "activity",
+        "legal",
+        "other",
+      ],
     },
   },
 } as const

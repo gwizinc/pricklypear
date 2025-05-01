@@ -40,7 +40,9 @@ const CreateThreadDialog = ({
     newThreadTitle, 
     setNewThreadTitle, 
     selectedContact, 
-    setSelectedContact, 
+    setSelectedContact,
+    selectedTopic,
+    setSelectedTopic,
     isCreating, 
     handleCreateThread 
   } = useThreadCreation(
@@ -54,6 +56,7 @@ const CreateThreadDialog = ({
       loadConnections();
       setNewThreadTitle("");
       setSelectedContact("");
+      setSelectedTopic("other");
     }
   };
 
@@ -69,7 +72,7 @@ const CreateThreadDialog = ({
         <DialogHeader>
           <DialogTitle>Create New Thread</DialogTitle>
           <DialogDescription>
-            Give your conversation thread a name and select a contact to chat with.
+            Give your conversation thread a name, select a topic, and choose a contact to chat with.
           </DialogDescription>
         </DialogHeader>
         
@@ -78,6 +81,8 @@ const CreateThreadDialog = ({
           setNewThreadTitle={setNewThreadTitle}
           selectedContact={selectedContact}
           setSelectedContact={setSelectedContact}
+          selectedTopic={selectedTopic}
+          setSelectedTopic={setSelectedTopic}
           connections={connections}
           isLoadingContacts={isLoadingContacts}
           isCreating={isCreating}
