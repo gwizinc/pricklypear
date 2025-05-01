@@ -1,10 +1,10 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMessages, saveMessage, saveSystemMessage, getUnreadMessageCount } from "@/services/messageService";
 import { reviewMessage } from "@/utils/messageReview";
 import { generateThreadSummary } from "@/services/threadService";
+import { messageStore } from "@/contexts/messageStore";
 import type { Message } from "@/types/message";
 import type { Thread } from "@/types/thread";
 
@@ -34,15 +34,30 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       
       loadUnreadCount();
     }
-  }, [threadId, messages]);
+  }, [threadId]); // Changed from [threadId, messages] to [threadId]
 
-  const loadMessages = async () => {
+  // Subscribe to message store for this thread
+  useEffect(() => {
+    if (!threadId) return;
+    
+    // Subscribe to message store updates
+    const unsubscribe = messageStore.subscribe(threadId, (updatedMessages) => {
+      setMessages(updatedMessages);
+    });
+    
+    return unsubscribe;
+  }, [threadId]);
+
+  const loadMessages = useCallback(async () => {
     if (!threadId) return [];
     
     const messagesData = await getMessages(threadId);
-    setMessages(messagesData);
+    
+    // Update the message store with the loaded messages
+    messageStore.setMessages(threadId, messagesData);
+    
     return messagesData;
-  };
+  }, [threadId]);
 
   const handleInitiateMessageReview = async () => {
     if (!newMessage.trim() || !user) return;
@@ -120,7 +135,10 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
         isCurrentUser: true // Explicitly set isCurrentUser to true
       };
       
-      setMessages(prev => [...prev, newMsg]);
+      // Load the latest messages after sending
+      // The realtime subscription will update the UI when the new message arrives
+      await loadMessages();
+      
       setNewMessage("");
       
       // Generate a new summary after sending a message
