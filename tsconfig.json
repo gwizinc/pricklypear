@@ -4,7 +4,6 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  "include": ["src/types"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -15,8 +14,6 @@
     "skipLibCheck": true,
     "allowJs": true,
     "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "noEmit": true,
-    "composite": false
+    "strictNullChecks": false
   }
 }
