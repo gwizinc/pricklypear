@@ -4,18 +4,18 @@ import { Message } from "@/types/message";
 
 export const saveMessage = async (
   sender: string, 
-  original: string, 
-  kind: string, 
-  selected: string,
-  threadId: string
-): Promise<string | null> => {
+  text: string, 
+  threadId: string, 
+  selected?: string, 
+  kind?: string
+): Promise<boolean> => {
   try {
-    if (!threadId) {
-      console.error("Thread ID is required");
-      return null;
+    if (!sender || !text || !threadId) {
+      console.error("Missing required fields", { sender, text, threadId });
+      return false;
     }
 
-    // Check if sender exists in the database
+    // Get the profile ID for the sender
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -23,16 +23,16 @@ export const saveMessage = async (
       .single();
 
     if (profileError || !profileData) {
-      console.error("Sender does not exist in the database:", profileError || "No profile found");
-      return null;
+      console.error("Error getting profile for sender", profileError);
+      return false;
     }
 
-    // Proceed with saving the message since the user exists
+    // Insert the message
     const { data, error } = await supabase
-      .from('messages')
+      .from("messages")
       .insert({
-        sender,
-        original_text: original,
+        sender: profileData.id,
+        original_text: text,
         kind_text: kind,
         selected_text: selected,
         conversation_id: threadId,
@@ -40,84 +40,50 @@ export const saveMessage = async (
       })
       .select();
 
-    if (error) {
+    if (error || !data) {
       console.error("Error saving message:", error);
-      return null;
+      return false;
     }
 
-    return data?.[0]?.id || null;
+    return true;
   } catch (error) {
     console.error("Exception saving message:", error);
-    return null;
+    return false;
   }
 };
 
 export const getMessages = async (threadId: string): Promise<Message[]> => {
   try {
     if (!threadId) {
-      console.error("Thread ID is required");
+      console.error("ThreadId is required");
       return [];
     }
 
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', threadId)
-      .order('timestamp', { ascending: true });
+    const { data: messages, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("conversation_id", threadId)
+      .order("timestamp", { ascending: true });
 
     if (error) {
       console.error("Error fetching messages:", error);
       return [];
     }
 
-    return (data || []).map(msg => ({
+    // Transform database records into Message objects
+    // Use explicit type assertions to avoid deep type instantiation issues
+    return (messages || []).map(msg => ({
       id: msg.id,
-      text: msg.selected_text,
-      sender: msg.sender,
+      text: msg.selected_text || '',
+      sender: msg.sender || '',
       timestamp: new Date(msg.timestamp || ''),
-      original_text: msg.original_text,
-      kind_text: msg.kind_text,
+      original_text: msg.original_text || '',
+      kind_text: msg.kind_text || '',
       threadId: msg.conversation_id || '',
-      isSystem: msg.is_system || false
+      isSystem: Boolean(msg.is_system)
     }));
   } catch (error) {
     console.error("Exception fetching messages:", error);
     return [];
-  }
-};
-
-export const saveSystemMessage = async (
-  text: string,
-  threadId: string
-): Promise<string | null> => {
-  try {
-    if (!threadId) {
-      console.error("Thread ID is required");
-      return null;
-    }
-
-    // System messages don't need actual users
-    const { data, error } = await supabase
-      .from('messages')
-      .insert({
-        sender: 'system',
-        original_text: text,
-        kind_text: text,
-        selected_text: text,
-        conversation_id: threadId,
-        timestamp: new Date().toISOString(),
-        is_system: true
-      })
-      .select();
-
-    if (error) {
-      console.error("Error saving system message:", error);
-      return null;
-    }
-
-    return data?.[0]?.id || null;
-  } catch (error) {
-    console.error("Exception saving system message:", error);
-    return null;
   }
 };
