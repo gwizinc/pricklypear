@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,8 @@ import {
   Menu,
   X,
   UserRound,
-  Settings
+  Settings,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -64,6 +64,7 @@ const Navigation = () => {
   const navItems = user ? [
     { path: '/threads', label: 'Threads', icon: <MessageSquare className="h-4 w-4 mr-2" /> },
     { path: '/connections', label: 'Connections', icon: <Users className="h-4 w-4 mr-2" /> },
+    { path: '/documents', label: 'Documents', icon: <FileText className="h-4 w-4 mr-2" /> },
   ] : [];
 
   const isActive = (path: string) => {
