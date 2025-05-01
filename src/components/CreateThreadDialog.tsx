@@ -28,9 +28,16 @@ import {
 interface CreateThreadDialogProps {
   onThreadCreated: (newThread: any) => void;
   user: any;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const CreateThreadDialog = ({ onThreadCreated, user }: CreateThreadDialogProps) => {
+const CreateThreadDialog = ({ 
+  onThreadCreated, 
+  user, 
+  isOpen: externalIsOpen, 
+  onOpenChange: externalOnOpenChange 
+}: CreateThreadDialogProps) => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [selectedContact, setSelectedContact] = useState<string>("");
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -39,6 +46,10 @@ const CreateThreadDialog = ({ onThreadCreated, user }: CreateThreadDialogProps) 
   const [isLoadingContacts, setIsLoadingContacts] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Use controlled state if external state is provided
+  const dialogOpen = externalIsOpen !== undefined ? externalIsOpen : isDialogOpen;
+  const setDialogOpen = externalOnOpenChange || setIsDialogOpen;
 
   const loadConnections = async () => {
     if (!user) return;
@@ -55,7 +66,7 @@ const CreateThreadDialog = ({ onThreadCreated, user }: CreateThreadDialogProps) 
   };
 
   const handleDialogOpen = (open: boolean) => {
-    setIsDialogOpen(open);
+    setDialogOpen(open);
     if (open) {
       loadConnections();
       setNewThreadTitle("");
@@ -105,7 +116,7 @@ const CreateThreadDialog = ({ onThreadCreated, user }: CreateThreadDialogProps) 
       onThreadCreated(newThread);
       setNewThreadTitle("");
       setSelectedContact("");
-      setIsDialogOpen(false);
+      handleDialogOpen(false);
       
       toast({
         title: "Thread created",
@@ -121,7 +132,7 @@ const CreateThreadDialog = ({ onThreadCreated, user }: CreateThreadDialogProps) 
   };
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={handleDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
         <Button>
           <MessageCirclePlus className="mr-2 h-4 w-4" />
@@ -185,7 +196,7 @@ const CreateThreadDialog = ({ onThreadCreated, user }: CreateThreadDialogProps) 
         </div>
         
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isCreating}>
+          <Button variant="outline" onClick={() => handleDialogOpen(false)} disabled={isCreating}>
             Cancel
           </Button>
           <Button 

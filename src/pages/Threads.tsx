@@ -31,6 +31,10 @@ const Threads = () => {
     setThreads(prevThreads => [newThread, ...prevThreads]);
   };
 
+  const handleOpenCreateDialog = () => {
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
@@ -40,6 +44,8 @@ const Threads = () => {
           <CreateThreadDialog 
             onThreadCreated={handleThreadCreated}
             user={user}
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
           />
         )}
       </div>
@@ -48,7 +54,7 @@ const Threads = () => {
         threads={threads}
         isLoading={isLoading}
         user={user}
-        onNewThreadClick={() => setIsDialogOpen(true)}
+        onNewThreadClick={handleOpenCreateDialog}
       />
     </div>
   );
