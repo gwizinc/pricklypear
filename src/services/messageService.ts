@@ -15,34 +15,70 @@ export const saveMessage = async (
       return false;
     }
 
-    // Get the profile ID for the sender
+    // Get the profile ID for the sender - using maybeSingle instead of single
+    // and properly handling the case where no profile is found
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
-      .eq('name', sender)  // Using name to find the profile
-      .single();
+      .eq('name', sender)
+      .maybeSingle();
 
-    if (profileError || !profileData) {
+    if (profileError) {
       console.error("Error getting profile for sender", profileError);
       return false;
     }
+    
+    if (!profileData) {
+      console.error(`No profile found for sender: ${sender}`);
+      
+      // Try to create a profile for this sender
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: crypto.randomUUID(), // Generate a random UUID
+          name: sender
+        })
+        .select('id')
+        .single();
+      
+      if (createError || !newProfile) {
+        console.error("Failed to create profile for sender:", createError);
+        return false;
+      }
+      
+      // Use the newly created profile ID
+      const { error } = await supabase
+        .from("messages")
+        .insert({
+          sender_profile_id: newProfile.id,
+          original_text: text,
+          kind_text: kind || text,
+          selected_text: selected || text,
+          conversation_id: threadId,
+          timestamp: new Date().toISOString()
+        });
 
-    // Insert the message
-    const { data, error } = await supabase
-      .from("messages")
-      .insert({
-        sender_profile_id: profileData.id, // Only use profile ID now
-        original_text: text,
-        kind_text: kind || text, // Default to text if kind is not provided
-        selected_text: selected || text, // Default to text if selected is not provided
-        conversation_id: threadId,
-        timestamp: new Date().toISOString()
-      })
-      .select();
+      if (error) {
+        console.error("Error saving message:", error);
+        return false;
+      }
+    } else {
+      // Insert the message with the existing profile ID
+      const { error } = await supabase
+        .from("messages")
+        .insert({
+          sender_profile_id: profileData.id,
+          original_text: text,
+          kind_text: kind || text,
+          selected_text: selected || text,
+          conversation_id: threadId,
+          timestamp: new Date().toISOString()
+        });
 
-    if (error || !data) {
-      console.error("Error saving message:", error);
-      return false;
+      if (error) {
+        console.error("Error saving message:", error);
+        return false;
+      }
     }
 
     return true;
