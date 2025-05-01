@@ -26,23 +26,28 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#362518', // dark brown
-					foreground: '#FCE4CA' // light peach
+					DEFAULT: '#8A3B12', // Terracotta
+					foreground: '#F8F1E8' // Light sand
 				},
 				secondary: {
-					DEFAULT: '#97BFB4', // sage green
-					foreground: '#362518' // dark brown
+					DEFAULT: '#79A089', // Sage green
+					foreground: '#39352A' // Dusk
 				},
 				accent: {
-					DEFAULT: '#B5674D', // rust color
-					foreground: '#FCE4CA' // light peach
+					DEFAULT: '#8A3B12', // Terracotta
+					foreground: '#F8F1E8' // Light sand
 				},
 				warm: {
-					DEFAULT: '#FCE4CA', // peach background
-					foreground: '#362518' // dark brown
+					DEFAULT: '#EAD9C5', // Sand light
+					foreground: '#39352A' // Dusk
 				},
-				bgLight: '#FCE4CA', // peach background
-				textBody: '#362518', // dark brown text
+				desert1: '#EAD9C5', // Lighter sand
+				desert2: '#D4BFA9', // Deeper sand
+				sage: '#79A089',    // Accent & icons
+				dusk: '#39352A',    // Headlines / strong text
+				surface: '#F8F1E8', // Card / modal background
+				bgLight: '#EAD9C5', // Sand light background
+				textBody: '#4F4738', // Body text
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
@@ -79,6 +84,7 @@ export default {
 			},
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
+				display: ['"Libre Baskerville"', 'serif'],
 				rounded: ['Nunito', 'sans-serif'],
 			},
 			borderRadius: {
@@ -86,9 +92,10 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)',
 				'xl': '20px',
+				card: '16px',
 			},
 			boxShadow: {
-				card: '0 2px 4px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.02)',
+				card: '0 1px 3px rgba(0,0,0,.04), 0 1px 1px rgba(0,0,0,.02)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -116,8 +123,8 @@ export default {
 				wobble: 'wobble 0.3s ease-in-out',
 			},
 			backgroundImage: {
-				'hero-gradient': 'linear-gradient(135deg, #97BFB4 0%, #FCE4CA 50%, #B5674D 100%)',
-				'wave-pattern': "url('/lovable-uploads/31c13539-8c1e-459a-b039-dad94ec48057.png')",
+				'hero-gradient': 'linear-gradient(135deg, #F8F1E8 0%, #EAD9C5 60%, #C0D5C6 100%)',
+				'wave-pattern': "url('/lovable-uploads/fb2eab01-36f0-49f2-b0f0-41e5213884a8.png')",
 			},
 		}
 	},
