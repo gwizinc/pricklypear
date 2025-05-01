@@ -27,10 +27,13 @@ export const useThreadActions = (
     
     setIsRequestingClose(true);
     
-    const currentUser = user.email?.split('@')[0] || '';
-    const success = await requestCloseThread(threadId, currentUser);
+    // Use user.id directly as the profile ID
+    const success = await requestCloseThread(threadId, user.id);
     
     if (success) {
+      // Get user name for the system message
+      const currentUser = user.email?.split('@')[0] || user.id;
+      
       // Add a system message about the close request
       await addSystemMessage(`${currentUser} has requested to close this thread.`);
       
@@ -38,7 +41,7 @@ export const useThreadActions = (
       if (thread) {
         setThread({
           ...thread,
-          closeRequestedBy: currentUser
+          closeRequestedBy: user.id
         });
       }
       
@@ -60,7 +63,7 @@ export const useThreadActions = (
   const handleApproveClose = async () => {
     if (!threadId || !thread || !user) return;
     
-    const currentUser = user.email?.split('@')[0] || '';
+    const currentUser = user.email?.split('@')[0] || user.id;
     const success = await approveCloseThread(threadId);
     
     if (success) {
@@ -90,7 +93,7 @@ export const useThreadActions = (
   const handleRejectClose = async () => {
     if (!threadId || !thread || !user) return;
     
-    const currentUser = user.email?.split('@')[0] || '';
+    const currentUser = user.email?.split('@')[0] || user.id;
     const success = await rejectCloseThread(threadId);
     
     if (success) {

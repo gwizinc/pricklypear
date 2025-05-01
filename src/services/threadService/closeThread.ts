@@ -1,12 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-export const requestCloseThread = async (threadId: string, requestedBy: string): Promise<boolean> => {
+export const requestCloseThread = async (threadId: string, requestedByProfileId: string): Promise<boolean> => {
   try {
     const { error } = await supabase
       .from('threads')
       .update({ 
-        close_requested_by: requestedBy 
+        close_requested_by: requestedByProfileId 
       })
       .eq('id', threadId);
 

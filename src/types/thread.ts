@@ -7,5 +7,5 @@ export type Thread = {
   owner_id?: string;
   status: string;
   summary?: string | null;
-  closeRequestedBy?: string | null;
+  closeRequestedBy?: string | null; // Now a UUID reference to profiles.id
 };

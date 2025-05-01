@@ -265,7 +265,22 @@ export type Database = {
           summary?: string | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "threads_close_requested_by_profile_id_fkey"
+            columns: ["close_requested_by"]
+            isOneToOne: false
+            referencedRelation: "message_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "threads_close_requested_by_profile_id_fkey"
+            columns: ["close_requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

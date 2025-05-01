@@ -1,32 +1,71 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { approveCloseThread, rejectCloseThread } from "@/services/threadService";
 import { saveSystemMessage } from "@/services/messageService";
-import { ProfileUser } from "@/types/user";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ThreadCloseRequestProps {
   threadId: string;
-  requestedByUser: ProfileUser;
-  currentUser: ProfileUser;
+  requestedByUserId: string;
+  currentUserId: string;
   onApproved: () => void;
   onRejected: () => void;
 }
 
 const ThreadCloseRequest = ({ 
   threadId, 
-  requestedByUser, 
-  currentUser,
+  requestedByUserId,
+  currentUserId,
   onApproved,
   onRejected
 }: ThreadCloseRequestProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [requestedByName, setRequestedByName] = useState<string>("");
+  const [currentUserName, setCurrentUserName] = useState<string>("");
+  
+  // Fetch user names from profile IDs
+  useEffect(() => {
+    const fetchUserNames = async () => {
+      try {
+        // Fetch requested by user name
+        if (requestedByUserId) {
+          const { data: requestedByData, error: requestedByError } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', requestedByUserId)
+            .single();
+            
+          if (!requestedByError && requestedByData) {
+            setRequestedByName(requestedByData.name);
+          }
+        }
+        
+        // Fetch current user name
+        if (currentUserId) {
+          const { data: currentUserData, error: currentUserError } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', currentUserId)
+            .single();
+            
+          if (!currentUserError && currentUserData) {
+            setCurrentUserName(currentUserData.name);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user names:', error);
+      }
+    };
+    
+    fetchUserNames();
+  }, [requestedByUserId, currentUserId]);
   
   // Don't show actions to the user who requested the closure
-  const showActions = requestedByUser.id !== currentUser.id;
+  const showActions = requestedByUserId !== currentUserId;
 
   const handleApprove = async () => {
     setIsLoading(true);
@@ -35,7 +74,7 @@ const ThreadCloseRequest = ({
     if (success) {
       // Add a system message about the thread being closed
       await saveSystemMessage(
-        `${currentUser.name} approved ${requestedByUser.name}'s request to close this thread.`,
+        `${currentUserName} approved ${requestedByName}'s request to close this thread.`,
         threadId
       );
       
@@ -62,7 +101,7 @@ const ThreadCloseRequest = ({
     if (success) {
       // Add a system message about the rejection
       await saveSystemMessage(
-        `${currentUser.name} rejected ${requestedByUser.name}'s request to close this thread.`,
+        `${currentUserName} rejected ${requestedByName}'s request to close this thread.`,
         threadId
       );
       
@@ -82,10 +121,14 @@ const ThreadCloseRequest = ({
     setIsLoading(false);
   };
 
+  if (!requestedByName) {
+    return <div className="bg-muted p-4 rounded-lg mb-4 animate-pulse">Loading request details...</div>;
+  }
+
   return (
     <div className="bg-muted p-4 rounded-lg mb-4 animate-fade-in">
       <p className="font-medium mb-3">
-        <span className="text-primary">{requestedByUser.name}</span> has requested to close this thread.
+        <span className="text-primary">{requestedByName}</span> has requested to close this thread.
         {showActions ? (
           <span> Do you agree to close this conversation?</span>
         ) : (
@@ -101,7 +144,7 @@ const ThreadCloseRequest = ({
             size="sm"
             disabled={isLoading}
           >
-            <Check className="h-4 w-4 mr-1" /> Approve
+            {isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Check className="h-4 w-4 mr-1" />} Approve
           </Button>
           <Button 
             onClick={handleReject} 
@@ -109,7 +152,7 @@ const ThreadCloseRequest = ({
             size="sm"
             disabled={isLoading}
           >
-            <X className="h-4 w-4 mr-1" /> Reject
+            {isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <X className="h-4 w-4 mr-1" />} Reject
           </Button>
         </div>
       )}
