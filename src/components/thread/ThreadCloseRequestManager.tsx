@@ -3,6 +3,7 @@ import React from "react";
 import ThreadCloseRequest from "@/components/ThreadCloseRequest";
 import ThreadClosedBanner from "@/components/thread/ThreadClosedBanner";
 import type { Thread } from "@/types/thread";
+import type { ProfileUser } from "@/types/user";
 
 interface ThreadCloseRequestManagerProps {
   thread: Thread;
@@ -25,8 +26,16 @@ const ThreadCloseRequestManager: React.FC<ThreadCloseRequestManagerProps> = ({
       {hasCloseRequest && thread.closeRequestedBy && (
         <ThreadCloseRequest
           threadId={thread.id}
-          requestedBy={thread.closeRequestedBy}
-          currentUser={currentUser}
+          requestedByUser={{
+            id: thread.closeRequestedBy, // Using the name as an ID for now
+            name: thread.closeRequestedBy,
+            email: null
+          }}
+          currentUser={{
+            id: currentUser, // Using the name as an ID for now
+            name: currentUser,
+            email: null
+          }}
           onApproved={onApproveClose}
           onRejected={onRejectClose}
         />

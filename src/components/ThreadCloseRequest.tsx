@@ -5,18 +5,19 @@ import { Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { approveCloseThread, rejectCloseThread } from "@/services/threadService";
 import { saveSystemMessage } from "@/services/messageService";
+import { ProfileUser } from "@/types/user";
 
 interface ThreadCloseRequestProps {
   threadId: string;
-  requestedBy: string;
-  currentUser: string;
+  requestedByUser: ProfileUser;
+  currentUser: ProfileUser;
   onApproved: () => void;
   onRejected: () => void;
 }
 
 const ThreadCloseRequest = ({ 
   threadId, 
-  requestedBy, 
+  requestedByUser, 
   currentUser,
   onApproved,
   onRejected
@@ -25,7 +26,7 @@ const ThreadCloseRequest = ({
   const [isLoading, setIsLoading] = React.useState(false);
   
   // Don't show actions to the user who requested the closure
-  const showActions = requestedBy !== currentUser;
+  const showActions = requestedByUser.name !== currentUser.name;
 
   const handleApprove = async () => {
     setIsLoading(true);
@@ -34,7 +35,7 @@ const ThreadCloseRequest = ({
     if (success) {
       // Add a system message about the thread being closed
       await saveSystemMessage(
-        `${currentUser} approved ${requestedBy}'s request to close this thread.`,
+        `${currentUser.name} approved ${requestedByUser.name}'s request to close this thread.`,
         threadId
       );
       
@@ -61,7 +62,7 @@ const ThreadCloseRequest = ({
     if (success) {
       // Add a system message about the rejection
       await saveSystemMessage(
-        `${currentUser} rejected ${requestedBy}'s request to close this thread.`,
+        `${currentUser.name} rejected ${requestedByUser.name}'s request to close this thread.`,
         threadId
       );
       
@@ -84,7 +85,7 @@ const ThreadCloseRequest = ({
   return (
     <div className="bg-muted p-4 rounded-lg mb-4 animate-fade-in">
       <p className="font-medium mb-3">
-        <span className="text-primary">{requestedBy}</span> has requested to close this thread.
+        <span className="text-primary">{requestedByUser.name}</span> has requested to close this thread.
         {showActions ? (
           <span> Do you agree to close this conversation?</span>
         ) : (
