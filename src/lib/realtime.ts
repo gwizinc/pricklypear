@@ -50,11 +50,11 @@ export function subscribeToRealtimeChanges(
   let channel = activeChannels.get(channelKey);
   
   if (!channel) {
-    // Create and subscribe to the channel
+    // Create a new channel
     channel = supabaseClient.channel(channelKey);
     
-    // Add postgres_changes listener
-    channel = channel.on(
+    // Configure channel with postgres_changes listener
+    channel.on(
       'postgres_changes',
       {
         event,
@@ -76,16 +76,18 @@ export function subscribeToRealtimeChanges(
       }
     );
     
-    // Add system event listener
-    channel = channel.on('system', { event: 'reconnected' }, async () => {
+    // Configure system event listener for reconnection
+    channel.on('system', { event: 'reconnected' }, async () => {
       // Handle reconnection - perform backfill if requested
       if (backfillOnReconnect && reconnectedHandler) {
         await reconnectedHandler(channel!);
       }
     });
-      
+    
     // Start the subscription
-    channel.subscribe();
+    channel.subscribe((status) => {
+      console.log(`Channel ${channelKey} status: ${status}`);
+    });
     
     // Register in the active channels registry
     activeChannels.set(channelKey, channel);
@@ -102,6 +104,7 @@ export function subscribeToRealtimeChanges(
       // Only unsubscribe if this is the last reference
       const channel = activeChannels.get(channelKey);
       if (channel) {
+        console.log(`Unsubscribing from channel ${channelKey}`);
         channel.unsubscribe();
         activeChannels.delete(channelKey);
       }
@@ -125,7 +128,7 @@ export function subscribeToThread(
     'messages',
     callback,
     {
-      filter: `threadId=eq.${threadId}`,
+      filter: `conversation_id=eq.${threadId}`,
       crossTabBroadcast: true,
     },
     reconnectedHandler

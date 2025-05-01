@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -34,28 +35,28 @@ const ThreadView = () => {
     isRequestingClose,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose,
-    loadMessages
+    handleRejectClose
   } = useThreadDetails(threadId);
 
   // Set up realtime subscription for thread messages
   useEffect(() => {
     if (!threadId) return;
     
-    // Initial load of messages
-    loadMessages();
+    console.log(`Setting up realtime subscription for thread ${threadId}`);
     
     // Subscribe to realtime updates for this thread
     const unsubscribe = subscribeToThread(threadId, (payload) => {
+      console.log(`Received realtime update for thread ${threadId}:`, payload);
       // Apply the changes to the message store
       messageStore.applyDelta(payload);
     });
     
     return () => {
+      console.log(`Cleaning up realtime subscription for thread ${threadId}`);
       // Clean up subscription when component unmounts
       unsubscribe();
     };
-  }, [threadId, loadMessages]);
+  }, [threadId]);
 
   const isThreadClosed = thread?.status === 'closed';
 
