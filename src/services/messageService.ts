@@ -73,10 +73,14 @@ export const saveSystemMessage = async (
     if (systemProfileError || !systemProfileData) {
       console.error("System profile not found", systemProfileError);
       
+      // Generate a random UUID for the system profile
+      const systemProfileId = crypto.randomUUID();
+      
       // Create a system profile if it doesn't exist
       const { data: newProfileData, error: newProfileError } = await supabase
         .from('profiles')
         .insert({
+          id: systemProfileId,
           name: 'system'
         })
         .select();
@@ -93,7 +97,7 @@ export const saveSystemMessage = async (
           original_text: text,
           kind_text: text,
           selected_text: text,
-          sender_profile_id: newProfileData[0].id,
+          sender_profile_id: systemProfileId,
           conversation_id: threadId,
           timestamp: new Date().toISOString(),
           is_system: true
