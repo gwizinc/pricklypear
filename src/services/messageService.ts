@@ -111,27 +111,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
     // Transform database records into Message objects
     return (messages || []).map(msg => {
-      // Determine the sender value, ensuring it's always a string
-      let senderValue: string;
-      
-      if (msg.is_system) {
-        senderValue = 'system';
-      } else if (
-        msg.profiles && 
-        typeof msg.profiles === 'object' && 
-        msg.profiles !== null && 
-        'name' in msg.profiles &&
-        typeof msg.profiles.name === 'string'
-      ) {
-        senderValue = msg.profiles.name;
-      } else {
-        senderValue = 'Unknown Profile';
-      }
-      
       return {
         id: msg.id,
         text: msg.selected_text || '',
-        sender: senderValue, // Now this is guaranteed to be a string
+        sender: msg.is_system ? 'system' : msg.profiles!.name!,
         timestamp: new Date(msg.timestamp || ''),
         original_text: msg.original_text || '',
         kind_text: msg.kind_text || '',
