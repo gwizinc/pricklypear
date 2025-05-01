@@ -119,21 +119,22 @@ export function subscribeToRealtimeChanges(
 }
 
 /**
- * Helper function to subscribe to changes for a specific thread
+ * Helper function to subscribe to unread receipts for a specific user
  */
-export function subscribeToThread(
-  threadId: string,
-  callback: (payload: RealtimePostgresChangesPayload<Database['public']['Tables']['threads']>) => void,
-  reconnectedHandler?: ReconnectedHandler
+export function subscribeToUnreadReceipts(
+  currentUserId: string,
+  callback: (
+    payload: RealtimePostgresChangesPayload<Database['public']['Tables']['message_read_receipts']>
+  ) => void,
 ): () => void {
   return subscribeToRealtimeChanges(
-    `thread-${threadId}`,
-    'messages',
+    'unread-receipts',
+    'message_read_receipts',
     callback,
     {
-      filter: `conversation_id=eq.${threadId}`,
+      event: '*',
+      filter: `profile_id=eq.${currentUserId}&read_at=null`,
       crossTabBroadcast: true,
-    },
-    reconnectedHandler
+    }
   );
 }
