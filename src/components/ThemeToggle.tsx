@@ -21,7 +21,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon">
+      <Button variant="ghost" size="icon" className="text-warm-DEFAULT">
         <Sun className="h-[1.2rem] w-[1.2rem]" />
         <span className="sr-only">Toggle theme</span>
       </Button>
@@ -31,22 +31,23 @@ export function ThemeToggle() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="text-warm-DEFAULT">
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="p-2">
+      <PopoverContent align="end" className="p-2 bg-warm-DEFAULT border-accent">
         <div className="flex items-center justify-between space-x-2">
-          <Sun className="h-4 w-4" />
+          <Sun className="h-4 w-4 text-accent" />
           <Switch 
             checked={theme === "dark"}
             onCheckedChange={(checked) => 
               setTheme(checked ? "dark" : "light")
             }
+            className="data-[state=checked]:bg-accent"
           />
-          <Moon className="h-4 w-4" />
+          <Moon className="h-4 w-4 text-primary" />
         </div>
       </PopoverContent>
     </Popover>

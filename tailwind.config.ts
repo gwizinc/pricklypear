@@ -26,23 +26,23 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#1E2A44',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#362518', // dark brown
+					foreground: '#FCE4CA' // light peach
 				},
 				secondary: {
-					DEFAULT: '#2CCED2',
-					foreground: '#1E2A44'
+					DEFAULT: '#97BFB4', // sage green
+					foreground: '#362518' // dark brown
 				},
 				accent: {
-					DEFAULT: '#FF6B6B',
-					foreground: '#FFFFFF'
+					DEFAULT: '#B5674D', // rust color
+					foreground: '#FCE4CA' // light peach
 				},
 				warm: {
-					DEFAULT: '#FFD166',
-					foreground: '#1E2A44'
+					DEFAULT: '#FCE4CA', // peach background
+					foreground: '#362518' // dark brown
 				},
-				bgLight: '#F7FAFC',
-				textBody: '#3A475E',
+				bgLight: '#FCE4CA', // peach background
+				textBody: '#362518', // dark brown text
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
@@ -116,7 +116,8 @@ export default {
 				wobble: 'wobble 0.3s ease-in-out',
 			},
 			backgroundImage: {
-				'hero-gradient': 'linear-gradient(135deg, #2CCED2 0%, #FFD166 50%, #FF6B6B 100%)',
+				'hero-gradient': 'linear-gradient(135deg, #97BFB4 0%, #FCE4CA 50%, #B5674D 100%)',
+				'wave-pattern': "url('/lovable-uploads/31c13539-8c1e-459a-b039-dad94ec48057.png')",
 			},
 		}
 	},
