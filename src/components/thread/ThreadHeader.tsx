@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Lock, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { Thread } from "@/types/thread";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -20,10 +21,27 @@ const ThreadHeader = ({
   onRequestClose,
   isGeneratingSummary,
 }: ThreadHeaderProps) => {
+  const topicLabels: Record<string, string> = {
+    'travel': '✈️ Travel',
+    'parenting_time': '👨‍👩‍👧 Parenting Time',
+    'health': '🏥 Health',
+    'education': '🎓 Education',
+    'activity': '🏃 Activity',
+    'legal': '⚖️ Legal',
+    'other': '📝 Other'
+  };
+
+  const topicLabel = thread.topic && topicLabels[thread.topic] 
+    ? topicLabels[thread.topic]
+    : topicLabels.other;
+
   return (
     <div className="space-y-4 mb-6">
       <div className="flex justify-between">
         <div className="space-y-1">
+          {thread.topic && (
+            <Badge variant="outline" className="mb-2">{topicLabel}</Badge>
+          )}
           <h1 className="text-2xl font-bold">{thread.title}</h1>
           {thread.summary ? (
             <p className="text-muted-foreground text-sm">{thread.summary}</p>

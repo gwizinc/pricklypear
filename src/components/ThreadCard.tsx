@@ -30,9 +30,12 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg">{thread.title}</CardTitle>
-          <Badge variant={thread.status === 'open' ? 'default' : 'secondary'}>
-            {thread.status === 'open' ? 'Open' : 'Closed'}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge variant="outline">{topicLabel}</Badge>
+            <Badge variant={thread.status === 'open' ? 'default' : 'secondary'}>
+              {thread.status === 'open' ? 'Open' : 'Closed'}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -40,9 +43,6 @@ const ThreadCard = ({ thread }: ThreadCardProps) => {
           <p className="text-sm text-muted-foreground">
             Created {thread.createdAt.toLocaleDateString()}
           </p>
-          <div className="flex items-center mt-1.5 space-x-1.5">
-            <Badge variant="outline">{topicLabel}</Badge>
-          </div>
           <div className="mt-3">
             <p className="text-sm font-medium">Summary:</p>
             <p className="text-sm text-muted-foreground mt-1">
