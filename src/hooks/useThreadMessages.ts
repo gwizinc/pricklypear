@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMessages, saveMessage, saveSystemMessage, getUnreadMessageCount } from "@/services/messageService";
@@ -15,6 +16,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   
   // Message review states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -24,6 +26,9 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Use a ref to track initialization
+  const initializedRef = useRef(false);
 
   // Load unread count for the thread
   useEffect(() => {
@@ -57,7 +62,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   }, [threadId]);
 
   const loadMessages = useCallback(async () => {
-    if (!threadId) return [];
+    if (!threadId || hasLoaded) return [];
     
     setIsLoading(true);
     
@@ -69,6 +74,8 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       // Update the message store with the loaded messages
       messageStore.setMessages(threadId, messagesData);
       
+      // Mark as loaded to prevent redundant loading
+      setHasLoaded(true);
       setIsLoading(false);
       return messagesData;
     } catch (error) {
@@ -81,7 +88,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       });
       return [];
     }
-  }, [threadId, toast]);
+  }, [threadId, toast, hasLoaded]);
 
   const handleInitiateMessageReview = async () => {
     if (!newMessage.trim() || !user) return;
@@ -159,10 +166,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
         isCurrentUser: true // Explicitly set isCurrentUser to true
       };
       
-      // Load the latest messages after sending
-      // The realtime subscription will update the UI when the new message arrives
-      await loadMessages();
-      
+      // Reset the message input
       setNewMessage("");
       
       // Generate a new summary after sending a message
@@ -190,9 +194,6 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     if (!threadId) return false;
     
     const success = await saveSystemMessage(message, threadId);
-    if (success) {
-      await loadMessages();
-    }
     return success;
   };
 

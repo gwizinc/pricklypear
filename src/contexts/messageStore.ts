@@ -53,7 +53,13 @@ class MessageStore {
     if (!newRecord && !oldRecord) return;
     
     // Access conversation_id instead of threadId from Supabase payload
-    const threadId = (newRecord?.conversation_id || oldRecord?.conversation_id) as string | undefined;
+    // Fix type error by checking if the property exists first
+    const threadId = (newRecord && 'conversation_id' in newRecord) 
+      ? newRecord.conversation_id as string 
+      : (oldRecord && 'conversation_id' in oldRecord) 
+        ? oldRecord.conversation_id as string
+        : undefined;
+        
     if (!threadId) return;
     
     // Initialize thread messages array if it doesn't exist

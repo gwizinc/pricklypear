@@ -1,11 +1,12 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useThreadState } from "./useThreadState";
 import { useThreadMessages } from "./useThreadMessages";
 import { useThreadActions } from "./useThreadActions";
 
 export const useThreadDetails = (threadId: string | undefined) => {
   const [initialized, setInitialized] = useState(false);
+  const initializingRef = useRef(false);
 
   // Get thread state management
   const { 
@@ -46,8 +47,10 @@ export const useThreadDetails = (threadId: string | undefined) => {
   // Initialize thread and messages - only once
   useEffect(() => {
     const initialize = async () => {
-      if (initialized || !threadId) return;
+      // Prevent multiple simultaneous initialization attempts
+      if (initialized || !threadId || initializingRef.current) return;
       
+      initializingRef.current = true;
       console.log("Initializing thread details");
       setIsThreadLoading(true);
       
@@ -66,6 +69,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
         console.error("Error initializing thread details:", error);
       } finally {
         setIsThreadLoading(false);
+        initializingRef.current = false;
       }
     };
     
