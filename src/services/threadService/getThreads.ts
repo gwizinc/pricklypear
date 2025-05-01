@@ -51,7 +51,8 @@ export const getThreads = async (): Promise<Thread[]> => {
         status: thread.status,
         summary: thread.summary,
         closeRequestedBy: thread.close_requested_by,
-        owner_id: thread.owner_id
+        owner_id: thread.owner_id,
+        topic: thread.topic || 'other' // Ensure topic is properly mapped
       };
     }));
 
