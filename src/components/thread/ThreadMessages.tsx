@@ -21,16 +21,13 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
   
-  // Process messages to add isCurrentUser property
-  const processedMessages = messages.map(message => ({
-    ...message,
-    isCurrentUser: message.sender === currentUser
-  }));
+
+  // NOTE `messages` already has isCurrentUser properly set!
   
   return (
     <div className="flex-grow overflow-y-auto px-2 py-4 border rounded-md mb-4">
-      {processedMessages.length > 0 ? (
-        processedMessages.map((message) => (
+      {messages.length > 0 ? (
+        messages.map((message) => (
           <MessageBubble 
             key={message.id} 
             message={message}
