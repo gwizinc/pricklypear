@@ -37,10 +37,6 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
     if (participantsError) {
       console.error("Error fetching thread participants:", participantsError);
     }
-
-    // if (participantsData.length > 1) {
-    //   throw new Errro("RLS issue getting thread participants. Expecting at least 2");
-    // }
     
     // Extract participant names, excluding the current user
     const participants = participantsData
