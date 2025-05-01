@@ -1,17 +1,29 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-// Re-export all connection-related functions and types from the new structure
-export {
-  getConnections,
-  updateConnectionStatus,
-  deleteConnection,
-  disableConnection,
-  inviteByEmail,
+// Import connection types from types/connection.ts
+import { ConnectionStatus, Connection, InviteResponse } from '@/types/connection';
+
+// Import functions from the connections directory
+import { 
+  getConnections, 
+  updateConnectionStatus, 
+  deleteConnection, 
+  disableConnection, 
+  inviteByEmail 
+} from './connections';
+
+// Re-export all connection-related functions and types
+export { 
+  getConnections, 
+  updateConnectionStatus, 
+  deleteConnection, 
+  disableConnection, 
+  inviteByEmail, 
   type ConnectionStatus,
-  type Connection,
-  type InviteResponse
-} from '@/types/connection';
+  type Connection, 
+  type InviteResponse 
+};
 
 // This function is updated to work with the new profile-based sender structure
 export const searchUsers = async (query: string): Promise<{ id: string; username: string }[]> => {
