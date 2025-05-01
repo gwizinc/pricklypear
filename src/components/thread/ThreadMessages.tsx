@@ -21,9 +21,6 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Ensure we have the current user's email prefix to compare consistently
-  const currentUserEmailPrefix = user?.email?.split('@')[0] || '';
-
   return (
     <div className="flex-grow overflow-y-auto px-2 py-4 border rounded-md mb-4">
       {messages.length > 0 ? (
@@ -31,10 +28,7 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }
           <MessageBubble 
             key={message.id} 
             message={message} 
-            isCurrentUser={
-              message.sender === currentUserEmailPrefix || 
-              message.sender === currentUser
-            }
+            isCurrentUser={message.sender_profile_id === user.id}
           />
         ))
       ) : (
