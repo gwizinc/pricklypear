@@ -22,7 +22,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
   return (
     <div
       className={cn(
-        "flex flex-col max-w-[80%] mb-2 animate-message-appear",
+        "flex flex-col mb-2 animate-message-appear",
         isSystemMessage ? "self-center items-center w-full" : 
         message.isCurrentUser ? "self-end items-end" : "self-start items-start"
       )}
