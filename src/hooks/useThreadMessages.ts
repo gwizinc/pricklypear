@@ -1,12 +1,18 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMessages, saveMessage, saveSystemMessage, getUnreadMessageCount } from "@/services/messageService";
 import { reviewMessage } from "@/utils/messageReview";
 import { generateThreadSummary } from "@/services/threadService";
+import { supabase } from "@/integrations/supabase/client";
 import type { Message } from "@/types/message";
 import type { Thread } from "@/types/thread";
+import type { Database } from "@/integrations/supabase/types";
+
+type MessageReadReceiptWithThread = 
+  Database['public']['Tables']['message_read_receipts']['Row'] & 
+  { conversation_id?: string | null };
 
 export const useThreadMessages = (threadId: string | undefined, thread: Thread | null, setThread: (thread: Thread | null) => void) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,6 +26,8 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   const [originalMessage, setOriginalMessage] = useState("");
   const [kindMessage, setKindMessage] = useState("");
   const [isReviewingMessage, setIsReviewingMessage] = useState(false);
+  
+  const lastTimestampRef = useRef<string>('');
   
   const { toast } = useToast();
   const { user } = useAuth();
@@ -35,7 +43,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       loadUnreadCount();
     }
   }, [threadId, messages]);
-
+  
   const loadMessages = async () => {
     if (!threadId) return [];
     
@@ -43,6 +51,88 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     setMessages(messagesData);
     return messagesData;
   };
+  
+  useEffect(() => {
+    if (!threadId || !user) return;
+    
+    console.log(`Setting up message_read_receipts subscription for thread ${threadId}`);
+    
+    loadMessages();
+    
+    const channel = supabase.channel(`message_read_receipts-${threadId}`);
+    
+    channel
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'message_read_receipts',
+        },
+        async (payload) => {
+          if (payload.eventType !== 'INSERT' && payload.eventType !== 'UPDATE') return;
+          
+          const rec = payload.new;
+          
+          const { data: messageData, error: messageError } = await supabase
+            .from('messages')
+            .select('conversation_id')
+            .eq('id', rec.message_id)
+            .single();
+          
+          if (messageError || !messageData) {
+            console.error("Error fetching message for receipt:", messageError);
+            return;
+          }
+          
+          const messageThreadId = messageData.conversation_id;
+          if (messageThreadId !== threadId) return;
+          
+          const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', threadId)
+            .gt('timestamp', lastTimestampRef.current || '1970-01-01T00:00:00Z')
+            .order('timestamp', { ascending: true });
+          
+          if (error) {
+            console.error("Error fetching new messages:", error);
+            return;
+          }
+          
+          if (data && data.length) {
+            const mapped = data.map((msg) => ({
+              id: msg.id,
+              text: msg.selected_text,
+              sender: msg.sender_profile_id,
+              timestamp: new Date(msg.timestamp || ''),
+              original_text: msg.original_text,
+              kind_text: msg.kind_text,
+              threadId: threadId,
+              isSystem: Boolean(msg.is_system),
+            }));
+            
+            // Update messages state with new messages
+            setMessages(prev => {
+              const existingIds = new Set(prev.map(m => m.id));
+              const newMessages = mapped.filter(m => !existingIds.has(m.id));
+              return [...prev, ...newMessages];
+            });
+            
+            if (mapped.length) {
+              lastTimestampRef.current = mapped[mapped.length - 1].timestamp?.toISOString?.() ?? lastTimestampRef.current;
+            }
+          }
+        }
+      );
+    
+    channel.subscribe();
+    
+    return () => {
+      console.log(`Unsubscribing from message_read_receipts for thread ${threadId}`);
+      supabase.removeChannel(channel);
+    };
+  }, [threadId, user]);
 
   const handleInitiateMessageReview = async () => {
     if (!newMessage.trim() || !user) return;
