@@ -2,7 +2,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
+	darkMode: "class",
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
@@ -41,8 +41,8 @@ export default {
 					DEFAULT: '#FFD166',
 					foreground: '#1E2A44'
 				},
-				bgLight: '#F7FAFC',
-				textBody: '#3A475E',
+				bglight: '#F7FAFC',
+				textbody: '#3A475E',
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
