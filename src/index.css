@@ -73,15 +73,15 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-[hsl(var(--border))];
   }
 
   body {
-    @apply bg-desert1 text-textBody font-sans;
+    @apply bg-background text-foreground font-sans;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-bold text-dusk;
+    @apply font-display font-bold text-foreground;
   }
   
   h1 {

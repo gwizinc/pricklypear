@@ -2,7 +2,7 @@ import { serve } from 'bun';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import postcss from 'postcss';
-import tailwindcss from 'tailwindcss';
+import tailwindcssPostcss from '@tailwindcss/postcss';
 import autoprefixer from 'autoprefixer';
 
 const server = serve({
@@ -18,7 +18,7 @@ const server = serve({
         
         // Process CSS with PostCSS and Tailwind
         const result = await postcss([
-          tailwindcss,
+          tailwindcssPostcss,
           autoprefixer
         ]).process(css, { from: cssPath });
 
@@ -43,7 +43,16 @@ const server = serve({
     try {
       const filePath = join(process.cwd(), 'src', path);
       const file = await readFile(filePath);
-      return new Response(file);
+      
+      const contentType = path.endsWith('.js') || path.endsWith('.jsx') || path.endsWith('.ts') || path.endsWith('.tsx') 
+        ? 'application/javascript; charset=utf-8' 
+        : path.endsWith('.json') 
+          ? 'application/json'
+          : 'application/octet-stream';
+          
+      return new Response(file, {
+        headers: { 'Content-Type': contentType }
+      });
     } catch (error) {
       return new Response('Not Found', { status: 404 });
     }
@@ -51,4 +60,4 @@ const server = serve({
   development: process.env.NODE_ENV !== 'production',
 });
 
-console.log(`🚀 Server running at ${server.url}`); 
+console.log(`🚀 Server running at ${server.url}`);        
