@@ -8,11 +8,6 @@ import { generateThreadSummary } from "@/services/threadService";
 import { supabase } from "@/integrations/supabase/client";
 import type { Message } from "@/types/message";
 import type { Thread } from "@/types/thread";
-import type { Database } from "@/integrations/supabase/types";
-
-type MessageReadReceiptWithThread = 
-  Database['public']['Tables']['message_read_receipts']['Row'] & 
-  { conversation_id?: string | null };
 
 export const useThreadMessages = (threadId: string | undefined, thread: Thread | null, setThread: (thread: Thread | null) => void) => {
   const [messages, setMessages] = useState<Message[]>([]);
