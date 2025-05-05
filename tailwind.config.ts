@@ -122,10 +122,6 @@ export default {
 				'message-appear': 'message-appear 0.3s ease-out',
 				wobble: 'wobble 0.3s ease-in-out',
 			},
-			backgroundImage: {
-				'hero-gradient': 'linear-gradient(135deg, #F8F1E8 0%, #EAD9C5 60%, #C0D5C6 100%)',
-				'wave-pattern': "url('/lovable-uploads/fb2eab01-36f0-49f2-b0f0-41e5213884a8.png')",
-			},
 		}
 	},
 	plugins: [animate],
