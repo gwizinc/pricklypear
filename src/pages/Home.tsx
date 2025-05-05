@@ -7,12 +7,12 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center">
       {/* Hero Section with Wave Background */}
-      <div className="w-full bg-desert1 py-20 px-4 wave-background">
+      <div className="w-full bg-background py-20 px-4 wave-background">
         <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-dusk mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-foreground mb-6">
             A safe place for parenting communication
           </h1>
-          <p className="text-xl text-textBody max-w-2xl mx-auto mb-10">
+          <p className="text-xl text-foreground max-w-2xl mx-auto mb-10">
             Making co-parenting conversations kinder and more productive.
           </p>
         </div>
@@ -49,12 +49,12 @@ const Home = () => {
 };
 
 const FeatureCard = ({ title, icon, description }: { title: string; icon: React.ReactNode; description: string }) => (
-  <div className="bg-surface rounded-card p-8 shadow-card hover:bg-surface transition-all hover-tilt border border-desert2">
+  <div className="bg-card rounded-card p-8 shadow-card hover:bg-card transition-all hover-tilt border border-border">
     <div className="flex justify-center mb-6">
       {icon}
     </div>
-    <h3 className="text-xl font-bold font-display mb-4 text-dusk text-center">{title}</h3>
-    <p className="text-textBody text-center">{description}</p>
+    <h3 className="text-xl font-bold font-display mb-4 text-foreground text-center">{title}</h3>
+    <p className="text-foreground text-center">{description}</p>
   </div>
 );
 
