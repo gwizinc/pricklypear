@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +6,7 @@ import {
   approveCloseThread, 
   rejectCloseThread
 } from "@/services/threadService";
+import { formatSystemMessage } from "@/messages/systemMessages";
 import type { Thread } from "@/types/thread";
 import type { Message } from "@/types/message";
 
@@ -35,7 +35,9 @@ export const useThreadActions = (
       const currentUser = user.email?.split('@')[0] || user.id;
       
       // Add a system message about the close request
-      await addSystemMessage(`${currentUser} has requested to close this thread.`);
+      await addSystemMessage(
+        formatSystemMessage("closeRequested", { actor: currentUser }),
+      );
       
       // Update local thread state to reflect the change
       if (thread) {
@@ -68,7 +70,9 @@ export const useThreadActions = (
     
     if (success) {
       // Add a system message about the thread closure
-      await addSystemMessage(`${currentUser} approved closing this thread. The thread is now closed.`);
+      await addSystemMessage(
+        formatSystemMessage("closeApproved", { actor: currentUser }),
+      );
       
       // Update local thread state
       setThread({
@@ -98,7 +102,9 @@ export const useThreadActions = (
     
     if (success) {
       // Add a system message about the rejection
-      await addSystemMessage(`${currentUser} rejected the request to close this thread.`);
+      await addSystemMessage(
+        formatSystemMessage("closeRejected", { actor: currentUser }),
+      );
       
       // Update local thread state
       setThread({
