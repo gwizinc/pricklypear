@@ -119,7 +119,7 @@ const ChatContainer = ({
     } else {
       setMessages((prevMessages) => [...prevMessages, tempMessage])
     }
-    // Actual persistence handled by ChatPanel after AI review (except in ephemeral mode)
+    // Actual persistence happens in ChatPanel (except in ephemeral mode)
   }
 
   const displayMessages = ephemeralMode ? ephemeralMessages : messages
