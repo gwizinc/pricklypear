@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeText } from "@/utils/sanitizeText";
 import { Message } from "@/types/message";
 
 export const saveMessage = async (
@@ -22,12 +23,15 @@ export const saveMessage = async (
       return false;
     }
     
+    // Prepare message text (strip wrapped quotes, prefer `selected` when present)
+    const messageText = sanitizeText(selected || text);
+
     // Insert the message using the current user's ID
     const { data: messageData, error } = await supabase
       .from("messages")
       .insert({
         sender_profile_id: user.id, // Use authenticated user ID directly
-        text: selected || text,
+        text: messageText,
         conversation_id: threadId,
         timestamp: new Date().toISOString()
       })
@@ -62,6 +66,8 @@ export const saveSystemMessage = async (
       return false;
     }
 
+    const sanitizedText = sanitizeText(text);
+
     // Get the system profile ID
     const { data: systemProfileData, error: systemProfileError } = await supabase
       .from('profiles')
@@ -93,7 +99,7 @@ export const saveSystemMessage = async (
       const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
-          text: text,
+          text: sanitizedText,
           sender_profile_id: systemProfileId,
           conversation_id: threadId,
           timestamp: new Date().toISOString(),
@@ -132,7 +138,7 @@ export const saveSystemMessage = async (
       const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
-          text: text,
+          text: sanitizedText,
           sender_profile_id: systemProfileData.id,
           conversation_id: threadId,
           timestamp: new Date().toISOString(),
