@@ -175,6 +175,13 @@ export const saveSystemMessage = async (
   }
 };
 
+const stripQuotes = (text: string): string => {
+  if (text.length >= 2 && text.startsWith('"') && text.endsWith('"')) {
+    return text.substring(1, text.length - 1);
+  }
+  return text;
+};
+
 export const getMessages = async (threadId: string): Promise<Message[]> => {
   try {
     if (!threadId) {
@@ -209,7 +216,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
       return {
         id: msg.message_id,
-        text: msg.text || '',
+        text: stripQuotes(msg.text || ''),
         sender: senderName,
         timestamp: new Date(msg.timestamp || ''),
         threadId: msg.conversation_id || '',
