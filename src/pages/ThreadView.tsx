@@ -77,7 +77,6 @@ const ThreadView = () => {
             onSendMessage={handleSendMessage}
           />
 
-          {/* Request-close link (shown only when applicable) */}
           {!isThreadClosed && thread && !thread.closeRequestedBy && (
             <button
               type="button"

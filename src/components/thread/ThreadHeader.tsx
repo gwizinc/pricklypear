@@ -53,8 +53,6 @@ const ThreadHeader = ({
             </p>
           )}
         </div>
-        
-        {/* Close-thread request control has been relocated to ThreadView */}
       </div>
 
       <div className="flex flex-col space-y-2">
