@@ -1,7 +1,5 @@
-
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Loader2, Lock, Users } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Thread } from "@/types/thread";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -56,22 +54,7 @@ const ThreadHeader = ({
           )}
         </div>
         
-        <div className="flex items-center gap-2">
-          {!isThreadClosed && !thread.closeRequestedBy && (
-            <Button 
-              variant="outline" 
-              onClick={onRequestClose}
-              disabled={isRequestingClose}
-            >
-              {isRequestingClose ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Lock className="h-4 w-4 mr-2" />
-              )}
-              Request Close
-            </Button>
-          )}
-        </div>
+        {/* Close-thread request control has been relocated to ThreadView */}
       </div>
 
       <div className="flex flex-col space-y-2">

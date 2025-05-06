@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -77,6 +76,25 @@ const ThreadView = () => {
             isThreadClosed={isThreadClosed}
             onSendMessage={handleSendMessage}
           />
+
+          {/* Request-close link (shown only when applicable) */}
+          {!isThreadClosed && thread && !thread.closeRequestedBy && (
+            <button
+              type="button"
+              onClick={handleRequestClose}
+              disabled={isRequestingClose}
+              className="self-start mt-2 text-sm text-muted-foreground hover:underline hover:text-blue-600 disabled:cursor-not-allowed"
+            >
+              {isRequestingClose ? (
+                <span className="inline-flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Requesting…
+                </span>
+              ) : (
+                "Request thread to be closed."
+              )}
+            </button>
+          )}
         </div>
       )}
       
