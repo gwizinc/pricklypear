@@ -1,4 +1,3 @@
-
 export type Message = {
   id: string;
   text: string;
@@ -16,4 +15,5 @@ export type Message = {
   // Read status information
   isRead?: boolean;
   readAt?: Date | null;
+  readBy?: string[];           // NEW: user IDs / names who have read the message
 };
