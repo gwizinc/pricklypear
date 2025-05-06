@@ -30,49 +30,58 @@ const ThreadCloseRequest = ({
   // Fetch user names from profile IDs
   useEffect(() => {
     const fetchUserNames = async () => {
+      // Nothing to fetch if one of the ids is missing
+      if (!requestedByUserId || !currentUserId) return;
+
       try {
-        // Fetch requested by user name
-        if (requestedByUserId) {
-          const { data: requestedByData, error: requestedByError } = await supabase
-            .from('profiles')
-            .select('name')
-            .eq('id', requestedByUserId)
-            .single();
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, name")
+          .in("id", [requestedByUserId, currentUserId]);
 
-          if (!requestedByError && requestedByData) {
-            setRequestedByName(requestedByData.name);
-          }
+        if (error) {
+          throw error;
         }
 
-        // Fetch current user name
-        if (currentUserId) {
-          const { data: currentUserData, error: currentUserError } = await supabase
-            .from('profiles')
-            .select('name')
-            .eq('id', currentUserId)
-            .single();
+        const nameMap: Record<string, string> = {};
+        data?.forEach((profile) => {
+          nameMap[profile.id] = profile.name;
+        });
 
-          if (!currentUserError && currentUserData) {
-            setCurrentUserName(currentUserData.name);
-          }
-        }
+        setRequestedByName(nameMap[requestedByUserId] ?? "");
+        setCurrentUserName(nameMap[currentUserId] ?? "");
       } catch (error) {
-        console.error('Error fetching user names:', error);
+        console.error("Error fetching user names:", error);
+        toast({
+          title: "Error",
+          description: "Unable to load participant details.",
+          variant: "destructive",
+        });
       }
     };
 
     fetchUserNames();
-  }, [requestedByUserId, currentUserId]);
+    // We intentionally include `toast` in the dependency array to satisfy
+    // the exhaustive-deps rule without changing behaviour.
+  }, [requestedByUserId, currentUserId, toast]);
 
   // Don't show actions to the user who requested the closure
   const showActions = requestedByUserId !== currentUserId;
 
   const handleApprove = async () => {
     setIsLoading(true);
-    const success = await approveCloseThread(threadId);
+    try {
+      const success = await approveCloseThread(threadId);
 
-    if (success) {
-      // Add a system message about the thread being closed
+      if (!success) {
+        toast({
+          title: "Error",
+          description: "Failed to close the thread. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       await saveSystemMessage(
         formatSystemMessage("closeApprovedWithRequester", {
           actor: currentUserName,
@@ -81,28 +90,41 @@ const ThreadCloseRequest = ({
         threadId,
       );
 
+      // Reset loading BEFORE notifying parent to avoid setting state
+      // after the component might have unmounted.
+      setIsLoading(false);
+      onApproved();
+
       toast({
         title: "Thread closed",
         description: "The thread has been closed successfully.",
       });
-      onApproved();
-    } else {
+    } catch (error) {
+      console.error("Error approving close request:", error);
       toast({
         title: "Error",
         description: "Failed to close the thread. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const handleReject = async () => {
     setIsLoading(true);
-    const success = await rejectCloseThread(threadId);
+    try {
+      const success = await rejectCloseThread(threadId);
 
-    if (success) {
-      // Add a system message about the rejection
+      if (!success) {
+        toast({
+          title: "Error",
+          description: "Failed to reject the request. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       await saveSystemMessage(
         formatSystemMessage("closeRejectedWithRequester", {
           actor: currentUserName,
@@ -111,20 +133,23 @@ const ThreadCloseRequest = ({
         threadId,
       );
 
+      setIsLoading(false);
+      onRejected();
+
       toast({
         title: "Request rejected",
         description: "The close request has been rejected.",
       });
-      onRejected();
-    } else {
+    } catch (error) {
+      console.error("Error rejecting close request:", error);
       toast({
         title: "Error",
         description: "Failed to reject the request. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   if (!requestedByName) {
