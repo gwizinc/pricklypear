@@ -35,7 +35,7 @@ export const useThreadActions = (
       const currentUser = user.email?.split('@')[0] || user.id;
       
       // Add a system message about the close request
-      await addSystemMessage(`${currentUser} has requested to close this thread.`);
+      await addSystemMessage(`${currentUser} requested thread to close.`);
       
       // Update local thread state to reflect the change
       if (thread) {
@@ -68,7 +68,7 @@ export const useThreadActions = (
     
     if (success) {
       // Add a system message about the thread closure
-      await addSystemMessage(`${currentUser} approved closing this thread. The thread is now closed.`);
+      await addSystemMessage(`${currentUser} accepted thread to close.`);
       
       // Update local thread state
       setThread({
@@ -98,7 +98,7 @@ export const useThreadActions = (
     
     if (success) {
       // Add a system message about the rejection
-      await addSystemMessage(`${currentUser} rejected the request to close this thread.`);
+      await addSystemMessage(`${currentUser} declined thread to close.`);
       
       // Update local thread state
       setThread({

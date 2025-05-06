@@ -74,7 +74,7 @@ const ThreadCloseRequest = ({
     if (success) {
       // Add a system message about the thread being closed
       await saveSystemMessage(
-        `${currentUserName} approved ${requestedByName}'s request to close this thread.`,
+        `${currentUserName} accepted thread to close.`,
         threadId
       );
       
@@ -101,7 +101,7 @@ const ThreadCloseRequest = ({
     if (success) {
       // Add a system message about the rejection
       await saveSystemMessage(
-        `${currentUserName} rejected ${requestedByName}'s request to close this thread.`,
+        `${currentUserName} declined thread to close.`,
         threadId
       );
       
