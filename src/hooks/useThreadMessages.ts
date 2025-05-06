@@ -1,170 +1,157 @@
-import { useState, useEffect } from "react"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/contexts/AuthContext"
-import {
-  getMessages,
-  saveMessage,
-  saveSystemMessage,
-  getUnreadMessageCount,
-} from "@/services/messageService"
-import { reviewMessage } from "@/utils/messageReview"
-import { generateThreadSummary } from "@/services/threadService"
-import type { Message } from "@/types/message"
-import type { Thread } from "@/types/thread"
 
-export const useThreadMessages = (
-  threadId: string | undefined,
-  thread: Thread | null,
-  setThread: (thread: Thread | null) => void
-) => {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [newMessage, setNewMessage] = useState("")
-  const [isSending, setIsSending] = useState(false)
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { getMessages, saveMessage, saveSystemMessage, getUnreadMessageCount } from "@/services/messageService";
+import { reviewMessage } from "@/utils/messageReview";
+import { generateThreadSummary } from "@/services/threadService";
+import type { Message } from "@/types/message";
+import type { Thread } from "@/types/thread";
 
+export const useThreadMessages = (threadId: string | undefined, thread: Thread | null, setThread: (thread: Thread | null) => void) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  
   // Message review states
-  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false)
-  const [originalMessage, setOriginalMessage] = useState("")
-  const [kindMessage, setKindMessage] = useState("")
-  const [isReviewingMessage, setIsReviewingMessage] = useState(false)
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [originalMessage, setOriginalMessage] = useState("");
+  const [kindMessage, setKindMessage] = useState("");
+  const [isReviewingMessage, setIsReviewingMessage] = useState(false);
+  
+  const { toast } = useToast();
+  const { user } = useAuth();
 
-  const { toast } = useToast()
-  const { user } = useAuth()
-
-  /* --------------------------------------------------
-     unread counts
-  -------------------------------------------------- */
+  // Load unread count for the thread
   useEffect(() => {
     if (threadId) {
       const loadUnreadCount = async () => {
-        const count = await getUnreadMessageCount(threadId)
-        setUnreadCount(count)
-      }
-
-      loadUnreadCount()
+        const count = await getUnreadMessageCount(threadId);
+        setUnreadCount(count);
+      };
+      
+      loadUnreadCount();
     }
-  }, [threadId, messages])
+  }, [threadId, messages]);
 
   const loadMessages = async () => {
-    if (!threadId) return []
+    if (!threadId) return [];
+    
+    const messagesData = await getMessages(threadId);
+    setMessages(messagesData);
+    return messagesData;
+  };
 
-    const messagesData = await getMessages(threadId)
-    setMessages(messagesData)
-    return messagesData
-  }
-
-  /* --------------------------------------------------
-     message review helpers
-  -------------------------------------------------- */
   const handleInitiateMessageReview = async () => {
-    if (!newMessage.trim() || !user) return
-
-    setOriginalMessage(newMessage)
-    setIsReviewingMessage(true)
-
+    if (!newMessage.trim() || !user) return;
+    
+    setOriginalMessage(newMessage);
+    setIsReviewingMessage(true);
+    
     try {
-      const kindText = await reviewMessage(newMessage)
-      setKindMessage(kindText)
+      // Call the message review API
+      const kindText = await reviewMessage(newMessage);
+      setKindMessage(kindText);
     } catch (error) {
-      console.error("Error reviewing message:", error)
-      setKindMessage(newMessage)
+      console.error("Error reviewing message:", error);
+      // If review fails, use the original message
+      setKindMessage(newMessage);
     } finally {
-      setIsReviewingMessage(false)
-      setIsReviewDialogOpen(true)
+      setIsReviewingMessage(false);
+      setIsReviewDialogOpen(true);
     }
-  }
+  };
 
   const handleGenerateSummary = async () => {
-    if (!threadId || !thread || messages.length === 0) return
-
-    setIsGeneratingSummary(true)
-
+    if (!threadId || !thread || messages.length === 0) return;
+    
+    setIsGeneratingSummary(true);
+    
     try {
-      const summary = await generateThreadSummary(threadId, messages)
-
+      const summary = await generateThreadSummary(threadId, messages);
+      
       if (summary) {
+        // Update local thread state with the new summary
         setThread({
           ...thread,
-          summary,
-        })
-
+          summary
+        });
+        
         toast({
           title: "Summary generated",
           description: "Thread summary has been successfully generated and saved.",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error generating summary:", error)
+      console.error("Error generating summary:", error);
     } finally {
-      setIsGeneratingSummary(false)
+      setIsGeneratingSummary(false);
     }
-  }
+  };
 
-  /* --------------------------------------------------
-     sending a reviewed message
-  -------------------------------------------------- */
   const handleSendReviewedMessage = async (selectedMessage: string) => {
-    if (!selectedMessage.trim() || !user || !threadId) return
-
-    setIsSending(true)
-
-    const currentUser = user.email?.split("@")[0] || ""
-
-    // Persist the final message (original text is *not* stored anymore)
+    if (!selectedMessage.trim() || !user || !threadId) return;
+    
+    setIsSending(true);
+    
+    const currentUser = user.email?.split('@')[0] || '';
+    
+    // Save the final message with original and kind versions
     const success = await saveMessage(
       currentUser,
       originalMessage,
       threadId,
-      selectedMessage,
-      kindMessage
-    )
-
+      selectedMessage, // Using the reviewed/selected text
+      kindMessage  // The kind version from AI
+    );
+    
     if (success) {
+      // Add to local messages list immediately with isCurrentUser flag
       const newMsg: Message = {
-        id: crypto.randomUUID(),
+        id: crypto.randomUUID(), // Generate a temporary ID
         text: selectedMessage,
         sender: currentUser,
         timestamp: new Date(),
         kind_text: kindMessage,
         threadId: threadId,
-        isCurrentUser: true,
-      }
-
-      setMessages((prev) => [...prev, newMsg])
-      setNewMessage("")
-
+        isCurrentUser: true // Explicitly set isCurrentUser to true
+      };
+      
+      setMessages(prev => [...prev, newMsg]);
+      setNewMessage("");
+      
+      // Generate a new summary after sending a message
       if (thread) {
-        handleGenerateSummary()
+        // Always generate summary after sending a message
+        handleGenerateSummary();
       }
     } else {
       toast({
         title: "Error",
         description: "Failed to send message. Please try again.",
         variant: "destructive",
-      })
+      });
     }
-
-    setIsSending(false)
-  }
+    
+    setIsSending(false);
+  };
 
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return
-    handleInitiateMessageReview()
-  }
+    if (!newMessage.trim()) return;
+    handleInitiateMessageReview();
+  };
 
-  /* --------------------------------------------------
-     system message helper
-  -------------------------------------------------- */
   const addSystemMessage = async (message: string) => {
-    if (!threadId) return false
-
-    const success = await saveSystemMessage(message, threadId)
+    if (!threadId) return false;
+    
+    const success = await saveSystemMessage(message, threadId);
     if (success) {
-      await loadMessages()
+      await loadMessages();
     }
-    return success
-  }
+    return success;
+  };
 
   return {
     messages,
@@ -181,6 +168,6 @@ export const useThreadMessages = (
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
     loadMessages,
-    addSystemMessage,
-  }
-}
+    addSystemMessage
+  };
+};
