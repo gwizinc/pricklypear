@@ -1,157 +1,148 @@
-import React, { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
-import ChatPanel from "./ChatPanel";
-import type { Message } from "@/types/message";
-import { getMessages } from "@/services/messageService";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState, useEffect } from "react"
+import { v4 as uuidv4 } from "uuid"
+import ChatPanel from "./ChatPanel"
+import type { Message } from "@/types/message"
+import { getMessages } from "@/services/messageService"
+import { useToast } from "@/hooks/use-toast"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "@/integrations/supabase/client"
 
 interface ChatContainerProps {
-  user1: string;
-  user2: string;
-  threadId: string;
-  ephemeralMode?: boolean;
-  ephemeralMessages?: Message[];
-  onSendEphemeralMessage?: (message: Message) => void;
-  singleUserMode?: boolean;
-  currentUserEmail?: string;
+  user1: string
+  user2: string
+  threadId: string
+  ephemeralMode?: boolean
+  ephemeralMessages?: Message[]
+  onSendEphemeralMessage?: (message: Message) => void
+  singleUserMode?: boolean
+  currentUserEmail?: string
 }
 
-const ChatContainer = ({ 
-  user1, 
-  user2, 
-  threadId, 
+const ChatContainer = ({
+  user1,
+  user2,
+  threadId,
   ephemeralMode = false,
   ephemeralMessages = [],
   onSendEphemeralMessage,
   singleUserMode = false,
-  currentUserEmail = ''
+  currentUserEmail = "",
 }: ChatContainerProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
+  const navigate = useNavigate()
 
   // Determine the current user based on email if in single user mode
-  const currentUser = singleUserMode ? (currentUserEmail ? currentUserEmail.split('@')[0] : user1) : null;
+  const currentUser = singleUserMode ? (currentUserEmail ? currentUserEmail.split("@")[0] : user1) : null
 
-  // Verify users exist in the database when component mounts
+  /* --------------------------------------------------
+     user existence check
+  -------------------------------------------------- */
   useEffect(() => {
     const verifyUsers = async () => {
       if (!ephemeralMode) {
-        const { data: user1Data } = await supabase
-          .from('profiles')
-          .select('name')
-          .eq('name', user1)
-          .maybeSingle();
-          
-        const { data: user2Data } = await supabase
-          .from('profiles')
-          .select('name')
-          .eq('name', user2)
-          .maybeSingle();
-        
+        const { data: user1Data } = await supabase.from("profiles").select("name").eq("name", user1).maybeSingle()
+        const { data: user2Data } = await supabase.from("profiles").select("name").eq("name", user2).maybeSingle()
+
         if (!user1Data) {
           toast({
             title: "User Not Found",
             description: `User "${user1}" doesn't exist in the database. Messages from this user won't be saved.`,
             variant: "default",
-          });
+          })
         }
-        
+
         if (!user2Data) {
           toast({
             title: "User Not Found",
             description: `User "${user2}" doesn't exist in the database. Messages from this user won't be saved.`,
             variant: "default",
-          });
+          })
         }
       }
-    };
-    
-    verifyUsers();
-  }, [user1, user2, ephemeralMode, toast]);
+    }
 
+    verifyUsers()
+  }, [user1, user2, ephemeralMode, toast])
+
+  /* --------------------------------------------------
+     load messages
+  -------------------------------------------------- */
   useEffect(() => {
     if (!threadId) {
       toast({
         title: "Error",
         description: "Thread ID is required",
         variant: "destructive",
-      });
-      navigate("/threads");
-      return;
+      })
+      navigate("/threads")
+      return
     }
 
-    // Only fetch from database if not in ephemeral mode
     if (!ephemeralMode) {
       const fetchMessages = async () => {
-        setIsLoading(true);
-        const fetchedMessages = await getMessages(threadId);
-        setMessages(fetchedMessages);
-        setIsLoading(false);
-      };
-  
-      fetchMessages();
-    } else {
-      // In ephemeral mode, we don't need to fetch from database
-      setIsLoading(false);
-    }
-  }, [threadId, navigate, toast, ephemeralMode]);
+        setIsLoading(true)
+        const fetchedMessages = await getMessages(threadId)
+        setMessages(fetchedMessages)
+        setIsLoading(false)
+      }
 
+      fetchMessages()
+    } else {
+      setIsLoading(false)
+    }
+  }, [threadId, navigate, toast, ephemeralMode])
+
+  /* --------------------------------------------------
+     optimistic send helper
+  -------------------------------------------------- */
   const handleSendMessage = async (sender: string, text: string) => {
     if (!threadId) {
       toast({
         title: "Error",
         description: "Cannot send messages outside of a thread",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
-    
-    // Create optimistic update
-    const tempId = uuidv4();
+
+    const tempId = uuidv4()
     const tempMessage: Message = {
       id: tempId,
       text,
       sender,
       timestamp: new Date(),
       threadId,
-      original_text: text,
       kind_text: text,
-    };
-    
-    if (ephemeralMode && onSendEphemeralMessage) {
-      // In ephemeral mode, we just update local state
-      onSendEphemeralMessage(tempMessage);
-    } else {
-      // Otherwise, use the normal flow
-      setMessages((prevMessages) => [...prevMessages, tempMessage]);
     }
-    
-    // Actual save to database happens in ChatPanel after AI review
-    // (but not in ephemeral mode)
-  };
 
-  // Use a simple array for display messages to avoid excessive type nesting
-  const displayMessages = ephemeralMode ? ephemeralMessages : messages;
+    if (ephemeralMode && onSendEphemeralMessage) {
+      onSendEphemeralMessage(tempMessage)
+    } else {
+      setMessages((prevMessages) => [...prevMessages, tempMessage])
+    }
+    // Actual persistence handled by ChatPanel after AI review (except in ephemeral mode)
+  }
+
+  const displayMessages = ephemeralMode ? ephemeralMessages : messages
 
   if (isLoading) {
     return (
       <div className="col-span-2 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
-    );
+    )
   }
 
-  // In single user mode, only show the current user's panel
+  /* --------------------------------------------------
+     single-user vs two-panel layout
+  -------------------------------------------------- */
   if (singleUserMode) {
-    // Determine which panel to show based on the current user
-    const isUser1 = currentUser === user1;
-    const otherUser = isUser1 ? user2 : user1;
-    const currentUserName = isUser1 ? user1 : user2;
-    
+    const isUser1 = currentUser === user1
+    const otherUser = isUser1 ? user2 : user1
+    const currentUserName = isUser1 ? user1 : user2
+
     return (
       <ChatPanel
         messages={displayMessages}
@@ -162,10 +153,10 @@ const ChatContainer = ({
         ephemeralMode={ephemeralMode}
         otherUser={otherUser}
       />
-    );
+    )
   }
 
-  // Default two-panel view for non-single user mode
+  // default two-panel
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 h-[85vh] rounded-lg overflow-hidden border shadow-md">
       <ChatPanel
@@ -187,7 +178,7 @@ const ChatContainer = ({
         otherUser={user1}
       />
     </div>
-  );
-};
+  )
+}
 
-export default ChatContainer;
+export default ChatContainer
