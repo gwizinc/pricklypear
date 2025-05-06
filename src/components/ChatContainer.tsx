@@ -118,7 +118,6 @@ const ChatContainer = ({
       sender,
       timestamp: new Date(),
       threadId,
-      kind_text: text,
     };
     
     if (ephemeralMode && onSendEphemeralMessage) {
