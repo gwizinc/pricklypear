@@ -22,7 +22,7 @@ const ThreadView = () => {
     isLoading,
     isSending,
     isReviewDialogOpen,
-    originalMessage,
+    // originalMessage removed
     kindMessage,
     isReviewingMessage,
     isGeneratingSummary,
@@ -83,7 +83,7 @@ const ThreadView = () => {
       <MessageReviewDialog
         open={isReviewDialogOpen}
         onOpenChange={setIsReviewDialogOpen}
-        originalMessage={originalMessage}
+        newMessage={newMessage}
         kindMessage={kindMessage}
         onAccept={handleSendReviewedMessage}
         isLoading={isReviewingMessage}

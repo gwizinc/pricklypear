@@ -118,7 +118,6 @@ const ChatContainer = ({
       sender,
       timestamp: new Date(),
       threadId,
-      original_text: text,
       kind_text: text,
     };
     
