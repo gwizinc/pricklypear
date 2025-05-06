@@ -31,12 +31,9 @@ export const useThreadActions = (
     const success = await requestCloseThread(threadId, user.id);
     
     if (success) {
-      // Get user name for the system message
-      const currentUser = user.email?.split('@')[0] || user.id;
-      
       // Add a system message about the close request
       await addSystemMessage(
-        formatSystemMessage("closeRequested", { actor: currentUser }),
+        formatSystemMessage("closeRequested", { actor: user.id }),
       );
       
       // Update local thread state to reflect the change
@@ -65,13 +62,12 @@ export const useThreadActions = (
   const handleApproveClose = async () => {
     if (!threadId || !thread || !user) return;
     
-    const currentUser = user.email?.split('@')[0] || user.id;
     const success = await approveCloseThread(threadId);
     
     if (success) {
       // Add a system message about the thread closure
       await addSystemMessage(
-        formatSystemMessage("closeApproved", { actor: currentUser }),
+        formatSystemMessage("closeApproved", { actor: user.id }),
       );
       
       // Update local thread state
@@ -97,13 +93,12 @@ export const useThreadActions = (
   const handleRejectClose = async () => {
     if (!threadId || !thread || !user) return;
     
-    const currentUser = user.email?.split('@')[0] || user.id;
     const success = await rejectCloseThread(threadId);
     
     if (success) {
       // Add a system message about the rejection
       await addSystemMessage(
-        formatSystemMessage("closeRejected", { actor: currentUser }),
+        formatSystemMessage("closeRejected", { actor: user.id }),
       );
       
       // Update local thread state

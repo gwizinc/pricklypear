@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -94,11 +93,9 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     
     setIsSending(true);
     
-    const currentUser = user.email?.split('@')[0] || '';
-    
     // Save the final message with kind version
     const success = await saveMessage(
-      currentUser,
+      user.id,
       newMessage,
       threadId,
       selectedMessage // Using the reviewed/selected text as the final text
@@ -109,7 +106,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       const newMsg: Message = {
         id: crypto.randomUUID(), // Generate a temporary ID
         text: selectedMessage,
-        sender: currentUser,
+        sender: user.id,
         timestamp: new Date(),
         threadId: threadId,
         isCurrentUser: true // Explicitly set isCurrentUser to true

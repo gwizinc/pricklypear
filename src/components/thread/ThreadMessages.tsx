@@ -1,18 +1,18 @@
-
 import React, { useRef, useEffect } from "react";
 import MessageBubble from "@/components/MessageBubble";
 import type { Message } from "@/types/message";
 import { useAuth } from "@/contexts/AuthContext";
 import { markMessagesAsRead } from "@/services/messageService";
+import type { User } from "@supabase/supabase-js";
 
 interface ThreadMessagesProps {
   messages: Message[];
-  currentUser: string;
+  user: User | null;
 }
 
-const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, currentUser }) => {
+const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, user }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     scrollToBottom();

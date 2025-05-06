@@ -6,11 +6,12 @@ import { approveCloseThread, rejectCloseThread } from "@/services/threadService"
 import { saveSystemMessage } from "@/services/messageService";
 import { formatSystemMessage } from "@/messages/systemMessages";
 import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 interface ThreadCloseRequestProps {
   threadId: string;
   requestedByUserId: string;
-  currentUserId: string;
+  user: User;
   onApproved: () => void;
   onRejected: () => void;
 }
@@ -18,7 +19,7 @@ interface ThreadCloseRequestProps {
 const ThreadCloseRequest = ({
   threadId,
   requestedByUserId,
-  currentUserId,
+  user,
   onApproved,
   onRejected
 }: ThreadCloseRequestProps) => {
@@ -31,13 +32,15 @@ const ThreadCloseRequest = ({
   useEffect(() => {
     const fetchUserNames = async () => {
       // Nothing to fetch if one of the ids is missing
-      if (!requestedByUserId || !currentUserId) return;
+      if (!requestedByUserId || !user.id) return;
+
+      console.log('fetchUserNames', requestedByUserId, user.id)
 
       try {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, name")
-          .in("id", [requestedByUserId, currentUserId]);
+          .in("id", [requestedByUserId, user.id]);
 
         if (error) {
           throw error;
@@ -49,7 +52,7 @@ const ThreadCloseRequest = ({
         });
 
         setRequestedByName(nameMap[requestedByUserId] ?? "");
-        setCurrentUserName(nameMap[currentUserId] ?? "");
+        setCurrentUserName(nameMap[user.id] ?? "");
       } catch (error) {
         console.error("Error fetching user names:", error);
         toast({
@@ -63,10 +66,10 @@ const ThreadCloseRequest = ({
     fetchUserNames();
     // We intentionally include `toast` in the dependency array to satisfy
     // the exhaustive-deps rule without changing behaviour.
-  }, [requestedByUserId, currentUserId, toast]);
+  }, [requestedByUserId, user.id, toast]);
 
   // Don't show actions to the user who requested the closure
-  const showActions = requestedByUserId !== currentUserId;
+  const showActions = requestedByUserId !== user.id;
 
   const handleApprove = async () => {
     setIsLoading(true);
