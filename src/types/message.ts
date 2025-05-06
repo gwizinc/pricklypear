@@ -6,7 +6,6 @@ export type Message = {
   timestamp: Date;
   
   // Fields for AI processing
-  original_text?: string;
   kind_text?: string;
   threadId?: string;
   

@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface MessageReviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  originalMessage: string;
+  newMessage: string;
   kindMessage: string;
   onAccept: (message: string) => void;
   isLoading: boolean;
@@ -24,7 +24,7 @@ interface MessageReviewDialogProps {
 const MessageReviewDialog = ({
   open,
   onOpenChange,
-  originalMessage,
+  newMessage,
   kindMessage,
   onAccept,
   isLoading,
@@ -51,7 +51,7 @@ const MessageReviewDialog = ({
         <div className="space-y-4 py-2">
           <div>
             <p className="text-sm text-muted-foreground mb-2">Original message:</p>
-            <div className="bg-muted p-3 rounded-md text-sm">{originalMessage}</div>
+            <div className="bg-muted p-3 rounded-md text-sm">{newMessage}</div>
           </div>
           <div>
             <p className="text-sm text-muted-foreground mb-2">AI suggested rephrasing:</p>

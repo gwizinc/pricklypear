@@ -27,7 +27,6 @@ export const saveMessage = async (
       .from("messages")
       .insert({
         sender_profile_id: user.id, // Use authenticated user ID directly
-        original_text: text,
         kind_text: kind || text,
         selected_text: selected || text,
         conversation_id: threadId,
@@ -95,7 +94,6 @@ export const saveSystemMessage = async (
       const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
-          original_text: text,
           kind_text: text,
           selected_text: text,
           sender_profile_id: systemProfileId,
@@ -136,7 +134,6 @@ export const saveSystemMessage = async (
       const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
-          original_text: text,
           kind_text: text,
           selected_text: text,
           sender_profile_id: systemProfileData.id,
@@ -218,7 +215,6 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
         text: msg.selected_text || '',
         sender: senderName,
         timestamp: new Date(msg.timestamp || ''),
-        original_text: msg.original_text || '',
         kind_text: msg.kind_text || '',
         threadId: msg.conversation_id || '',
         isSystem: Boolean(msg.is_system),

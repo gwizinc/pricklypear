@@ -17,7 +17,6 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   
   // Message review states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
-  const [originalMessage, setOriginalMessage] = useState("");
   const [kindMessage, setKindMessage] = useState("");
   const [isReviewingMessage, setIsReviewingMessage] = useState(false);
   
@@ -47,7 +46,6 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   const handleInitiateMessageReview = async () => {
     if (!newMessage.trim() || !user) return;
     
-    setOriginalMessage(newMessage);
     setIsReviewingMessage(true);
     
     try {
@@ -98,10 +96,10 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     
     const currentUser = user.email?.split('@')[0] || '';
     
-    // Save the final message with original and kind versions
+    // Save the final message with kind version
     const success = await saveMessage(
       currentUser,
-      originalMessage,
+      newMessage,
       threadId,
       selectedMessage, // Using the reviewed/selected text
       kindMessage  // The kind version from AI
@@ -114,7 +112,6 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
         text: selectedMessage,
         sender: currentUser,
         timestamp: new Date(),
-        original_text: originalMessage,
         kind_text: kindMessage,
         threadId: threadId,
         isCurrentUser: true // Explicitly set isCurrentUser to true
@@ -159,7 +156,6 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     newMessage,
     isSending,
     isReviewDialogOpen,
-    originalMessage,
     kindMessage,
     isReviewingMessage,
     isGeneratingSummary,

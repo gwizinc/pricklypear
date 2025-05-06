@@ -11,13 +11,7 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble = ({ message }: MessageBubbleProps) => {
-  const [showOriginal, setShowOriginal] = useState(false);
-  const hasOriginalText = message.original_text && message.original_text !== message.text;
   const isSystemMessage = message.isSystem;
-
-  const toggleOriginalText = () => {
-    setShowOriginal(prev => !prev);
-  };
 
   return (
     <div
@@ -46,29 +40,8 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
                 : "bg-chat-gray rounded-tl-none"
           )}
         >
-          {showOriginal && hasOriginalText ? message.original_text : message.text}
+          {message.text}
         </div>
-        
-        {message.isCurrentUser && hasOriginalText && !isSystemMessage && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={toggleOriginalText} 
-                  className={cn(
-                    "p-1 rounded-full hover:bg-gray-200 transition-colors",
-                    showOriginal && "bg-gray-200"
-                  )}
-                >
-                  <RotateCcw className="h-4 w-4 text-gray-500" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{showOriginal ? "Show AI rephrased message" : "Show original message"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
       </div>
     </div>
   );
