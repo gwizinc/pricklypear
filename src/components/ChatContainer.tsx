@@ -36,10 +36,7 @@ const ChatContainer = ({
   // Determine the current user based on email if in single user mode
   const currentUser = singleUserMode ? (currentUserEmail ? currentUserEmail.split("@")[0] : user1) : null
 
-  /* --------------------------------------------------
-     user existence check
-  -------------------------------------------------- */
-  useEffect(() => {
+  // Verify users exist in the database when component mounts
     const verifyUsers = async () => {
       if (!ephemeralMode) {
         const { data: user1Data } = await supabase.from("profiles").select("name").eq("name", user1).maybeSingle()
