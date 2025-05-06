@@ -16,4 +16,11 @@ export type Message = {
   // Read status information
   isRead?: boolean;
   readAt?: Date | null;
+  
+  readReceipts?: ReadReceipt[];
+};
+
+export type ReadReceipt = {
+  userId: string;
+  readAt: Date | null;
 };

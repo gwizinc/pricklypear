@@ -193,6 +193,35 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       console.error("Error fetching messages:", messagesError);
       return [];
     }
+    
+    if (!messagesData || messagesData.length === 0) {
+      return [];
+    }
+    
+    // Get all message read receipts for these messages
+    const messageIds = messagesData.map(msg => msg.message_id);
+    const { data: readReceiptsData, error: readReceiptsError } = await supabase
+      .from("message_read_receipts")
+      .select("message_id, profile_id, read_at")
+      .in("message_id", messageIds);
+      
+    if (readReceiptsError) {
+      console.error("Error fetching read receipts:", readReceiptsError);
+    }
+    
+    // Create a map of message ID to read receipts
+    const readReceiptsByMessage = new Map();
+    if (readReceiptsData) {
+      readReceiptsData.forEach(receipt => {
+        if (!readReceiptsByMessage.has(receipt.message_id)) {
+          readReceiptsByMessage.set(receipt.message_id, []);
+        }
+        readReceiptsByMessage.get(receipt.message_id).push({
+          userId: receipt.profile_id,
+          readAt: receipt.read_at ? new Date(receipt.read_at) : null
+        });
+      });
+    }
 
     // Get the current user's ID to consistently match messages
     const { data: { user } } = await supabase.auth.getUser();
@@ -206,6 +235,14 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       const senderName = msg.is_system 
         ? 'system' 
         : (msg.profile_name || 'Unknown User');
+      
+      // Get read receipts for this message
+      const readReceipts = readReceiptsByMessage.get(msg.message_id) || [];
+      
+      // Determine if the current user has read this message
+      const userReceipt = readReceipts.find(receipt => receipt.userId === user?.id);
+      const isRead = userReceipt?.readAt !== null;
+      const readAt = userReceipt?.readAt;
 
       return {
         id: msg.message_id,
@@ -214,7 +251,10 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
         timestamp: new Date(msg.timestamp || ''),
         threadId: msg.conversation_id || '',
         isSystem: Boolean(msg.is_system),
-        isCurrentUser: isCurrentUserMessage
+        isCurrentUser: isCurrentUserMessage,
+        isRead,
+        readAt,
+        readReceipts
       };
     });
   } catch (error) {
