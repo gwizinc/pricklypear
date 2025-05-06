@@ -57,20 +57,7 @@ const ThreadHeader = ({
         </div>
         
         <div className="flex items-center gap-2">
-          {!isThreadClosed && !thread.closeRequestedBy && (
-            <Button 
-              variant="outline" 
-              onClick={onRequestClose}
-              disabled={isRequestingClose}
-            >
-              {isRequestingClose ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Lock className="h-4 w-4 mr-2" />
-              )}
-              Request Close
-            </Button>
-          )}
+          {/* Request Close button removed from here and moved to ThreadMessageComposer */}
         </div>
       </div>
 

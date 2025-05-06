@@ -76,6 +76,8 @@ const ThreadView = () => {
             isSending={isSending || isReviewingMessage}
             isThreadClosed={isThreadClosed}
             onSendMessage={handleSendMessage}
+            onRequestClose={handleRequestClose}
+            thread={thread}
           />
         </div>
       )}
