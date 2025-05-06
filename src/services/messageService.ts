@@ -2,11 +2,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/message";
 
 export const saveMessage = async (
-  sender: string, 
-  text: string, 
-  threadId: string, 
-  selected?: string, 
-  kind?: string
+  _sender: string,   // kept for signature-compat, prefixed to silence ESLint
+  text: string,
+  threadId: string,
+  selected?: string,
+  _kind?: string     // kept for signature-compat, prefixed to silence ESLint
 ): Promise<boolean> => {
   try {
     if (!text || !threadId) {
@@ -26,13 +26,12 @@ export const saveMessage = async (
     const { data: messageData, error } = await supabase
       .from("messages")
       .insert({
-        sender_profile_id: user.id, // Use authenticated user ID directly
-        kind_text: kind || text,
-        selected_text: selected || text,
+        sender_profile_id: user.id,             // authenticated user
+        text: selected ?? text,                 // consolidated text column
         conversation_id: threadId,
         timestamp: new Date().toISOString()
       })
-      .select('id')
+      .select("id")
       .single();
 
     if (error) {
@@ -94,14 +93,13 @@ export const saveSystemMessage = async (
       const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
-          kind_text: text,
-          selected_text: text,
+          text,
           sender_profile_id: systemProfileId,
           conversation_id: threadId,
           timestamp: new Date().toISOString(),
           is_system: true
         })
-        .select('id')
+        .select("id")
         .single();
 
       if (error) {
@@ -134,14 +132,13 @@ export const saveSystemMessage = async (
       const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
-          kind_text: text,
-          selected_text: text,
+          text,
           sender_profile_id: systemProfileData.id,
           conversation_id: threadId,
           timestamp: new Date().toISOString(),
           is_system: true
         })
-        .select('id')
+        .select("id")
         .single();
 
       if (error) {
@@ -212,10 +209,11 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
       return {
         id: msg.message_id,
-        text: msg.selected_text || '',
+        text: msg.text || '',
         sender: senderName,
         timestamp: new Date(msg.timestamp || ''),
-        kind_text: msg.kind_text || '',
+        // Retain for compatibility if the column still exists in the view
+        kind_text: msg.kind_text ?? '',
         threadId: msg.conversation_id || '',
         isSystem: Boolean(msg.is_system),
         isCurrentUser: isCurrentUserMessage
