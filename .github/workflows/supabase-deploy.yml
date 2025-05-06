@@ -1,0 +1,38 @@
+name: Deploy Supabase Changes
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Set up Supabase config
+        run: |
+          echo "Setting up Supabase credentials..."
+          supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy Supabase Edge Functions
+        run: |
+          cd supabase
+          echo "Deploying Edge Functions..."
+          supabase functions deploy review-message --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} --no-verify-jwt
+          supabase functions deploy summarize-thread --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} --no-verify-jwt
+
+      - name: Deploy complete
+        run: |
+          echo "Supabase deployment completed successfully!"
