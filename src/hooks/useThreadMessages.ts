@@ -101,8 +101,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
       currentUser,
       newMessage,
       threadId,
-      selectedMessage, // Using the reviewed/selected text
-      kindMessage  // The kind version from AI
+      selectedMessage // Using the reviewed/selected text as the final text
     );
     
     if (success) {
@@ -112,7 +111,6 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
         text: selectedMessage,
         sender: currentUser,
         timestamp: new Date(),
-        kind_text: kindMessage,
         threadId: threadId,
         isCurrentUser: true // Explicitly set isCurrentUser to true
       };

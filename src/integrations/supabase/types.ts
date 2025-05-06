@@ -123,8 +123,7 @@ export type Database = {
           conversation_id: string | null
           id: string
           is_system: boolean | null
-          kind_text: string
-          selected_text: string
+          text: string
           sender_profile_id: string | null
           timestamp: string | null
         }
@@ -132,8 +131,7 @@ export type Database = {
           conversation_id?: string | null
           id?: string
           is_system?: boolean | null
-          kind_text: string
-          selected_text: string
+          text: string
           sender_profile_id?: string | null
           timestamp?: string | null
         }
@@ -141,8 +139,7 @@ export type Database = {
           conversation_id?: string | null
           id?: string
           is_system?: boolean | null
-          kind_text?: string
-          selected_text?: string
+          text?: string
           sender_profile_id?: string | null
           timestamp?: string | null
         }
@@ -288,11 +285,10 @@ export type Database = {
         Row: {
           conversation_id: string | null
           is_system: boolean | null
-          kind_text: string | null
+          text: string | null
           message_id: string | null
           profile_id: string | null
           profile_name: string | null
-          selected_text: string | null
           timestamp: string | null
         }
         Relationships: [

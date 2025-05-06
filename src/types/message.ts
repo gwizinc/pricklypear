@@ -5,8 +5,6 @@ export type Message = {
   sender: string;
   timestamp: Date;
   
-  // Fields for AI processing
-  kind_text?: string;
   threadId?: string;
   
   // For system messages (close requests etc.)
