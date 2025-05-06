@@ -28,7 +28,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
     >
       {!isSystemMessage && (
         <div className="flex items-center gap-1 mb-1 text-xs text-gray-500">
-          <span>{message.isCurrentUser ? "You" : message.sender}</span>
+          <span>{message.isCurrentUser ? 'You' : message.sender}</span>
           <span>•</span>
           <span>{format(message.timestamp, "h:mm a")}</span>
         </div>
