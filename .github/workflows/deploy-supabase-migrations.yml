@@ -43,3 +43,10 @@ jobs:
 
           echo "Running supabase db push against ${DB_HOST}..."
           supabase db push --db-url "$DB_URL"
+
+      - name: Deploy Supabase edge functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Deploying Supabase edge functions..."
+          supabase functions deploy --all
