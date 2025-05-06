@@ -1,20 +1,19 @@
-
 import React from "react";
 import ThreadCloseRequest from "@/components/ThreadCloseRequest";
 import ThreadClosedBanner from "@/components/thread/ThreadClosedBanner";
 import type { Thread } from "@/types/thread";
-import type { ProfileUser } from "@/types/user";
+import type { User } from "@supabase/supabase-js";
 
 interface ThreadCloseRequestManagerProps {
   thread: Thread;
-  currentUser: string;
+  user: User;
   onApproveClose: () => Promise<void>;
   onRejectClose: () => Promise<void>;
 }
 
 const ThreadCloseRequestManager: React.FC<ThreadCloseRequestManagerProps> = ({
   thread,
-  currentUser,
+  user,
   onApproveClose,
   onRejectClose
 }) => {
@@ -27,7 +26,7 @@ const ThreadCloseRequestManager: React.FC<ThreadCloseRequestManagerProps> = ({
         <ThreadCloseRequest
           threadId={thread.id}
           requestedByUserId={thread.closeRequestedBy}
-          currentUserId={currentUser}
+          user={user}
           onApproved={onApproveClose}
           onRejected={onRejectClose}
         />

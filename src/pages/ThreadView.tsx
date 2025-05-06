@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -13,7 +12,6 @@ import { useAuth } from "@/contexts/AuthContext";
 const ThreadView = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const { user } = useAuth();
-  const currentUser = user?.email?.split('@')[0] || '';
   
   const {
     thread,
@@ -22,7 +20,6 @@ const ThreadView = () => {
     isLoading,
     isSending,
     isReviewDialogOpen,
-    // originalMessage removed
     kindMessage,
     isReviewingMessage,
     isGeneratingSummary,
@@ -60,14 +57,14 @@ const ThreadView = () => {
           
           <ThreadCloseRequestManager
             thread={thread}
-            currentUser={currentUser}
+            user={user}
             onApproveClose={handleApproveClose}
             onRejectClose={handleRejectClose}
           />
 
           <ThreadMessages 
             messages={messages} 
-            currentUser={currentUser} 
+            user={user} 
           />
 
           <ThreadMessageComposer

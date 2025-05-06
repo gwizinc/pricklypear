@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +6,7 @@ import {
   approveCloseThread, 
   rejectCloseThread
 } from "@/services/threadService";
+import { formatSystemMessage } from "@/messages/systemMessages";
 import type { Thread } from "@/types/thread";
 import type { Message } from "@/types/message";
 
@@ -31,11 +31,10 @@ export const useThreadActions = (
     const success = await requestCloseThread(threadId, user.id);
     
     if (success) {
-      // Get user name for the system message
-      const currentUser = user.email?.split('@')[0] || user.id;
-      
       // Add a system message about the close request
-      await addSystemMessage(`${currentUser} has requested to close this thread.`);
+      await addSystemMessage(
+        formatSystemMessage("closeRequested", { actor: user.id }),
+      );
       
       // Update local thread state to reflect the change
       if (thread) {
@@ -63,12 +62,13 @@ export const useThreadActions = (
   const handleApproveClose = async () => {
     if (!threadId || !thread || !user) return;
     
-    const currentUser = user.email?.split('@')[0] || user.id;
     const success = await approveCloseThread(threadId);
     
     if (success) {
       // Add a system message about the thread closure
-      await addSystemMessage(`${currentUser} approved closing this thread. The thread is now closed.`);
+      await addSystemMessage(
+        formatSystemMessage("closeApproved", { actor: user.id }),
+      );
       
       // Update local thread state
       setThread({
@@ -93,12 +93,13 @@ export const useThreadActions = (
   const handleRejectClose = async () => {
     if (!threadId || !thread || !user) return;
     
-    const currentUser = user.email?.split('@')[0] || user.id;
     const success = await rejectCloseThread(threadId);
     
     if (success) {
       // Add a system message about the rejection
-      await addSystemMessage(`${currentUser} rejected the request to close this thread.`);
+      await addSystemMessage(
+        formatSystemMessage("closeRejected", { actor: user.id }),
+      );
       
       // Update local thread state
       setThread({

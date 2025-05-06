@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Connection, ConnectionStatus, InviteResponse } from "@/types/connection";
+import { ConnectionStatus, InviteResponse } from "@/types/connection";
 
 // Function to send an invitation by email
 export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
