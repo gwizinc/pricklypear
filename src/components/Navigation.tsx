@@ -165,7 +165,7 @@ const Navigation = () => {
         <div className="mr-4 hidden md:flex">
           <Link to="/" className="flex items-center space-x-2">
             <span className="font-bold flex items-center">
-              <span className="mr-1">🪺</span> Nest
+              <span className="mr-1">🌵</span> Prickly Pear
             </span>
           </Link>
         </div>
@@ -185,7 +185,7 @@ const Navigation = () => {
         <div className="flex flex-1 justify-center md:hidden">
           <Link to="/" className="flex items-center">
             <span className="font-bold flex items-center">
-              <span className="mr-1">🪺</span> Nest
+              <span className="mr-1">🌵</span> Prickly Pear
             </span>
           </Link>
         </div>
