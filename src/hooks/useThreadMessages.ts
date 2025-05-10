@@ -62,12 +62,12 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   };
 
   const handleGenerateSummary = async () => {
-    if (!threadId || !thread || messages.length === 0) return;
+    if (!threadId || !thread) return;
     
     setIsGeneratingSummary(true);
     
     try {
-      const summary = await generateThreadSummary(threadId, messages);
+      const summary = await generateThreadSummary({threadId});
       
       if (summary) {
         // Update local thread state with the new summary

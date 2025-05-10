@@ -1,13 +1,10 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { Message } from "@/types/message";
-import { updateThreadSummary } from "./updateThreadSummary";
 
-export const generateThreadSummary = async (threadId: string, messages: Message[]): Promise<string | null> => {
+export const generateThreadSummary = async (args: {threadId: string}): Promise<string | null> => {
   try {
     // Call the Supabase Edge Function to generate a summary
     const { data, error } = await supabase.functions.invoke('summarize-thread', {
-      body: { messages }
+      body: { threadId: args.threadId }
     });
 
     if (error) {
@@ -15,21 +12,7 @@ export const generateThreadSummary = async (threadId: string, messages: Message[
       return null;
     }
 
-    const summary = data?.summary;
-    
-    if (summary) {
-      // Update the thread with the new summary
-      const success = await updateThreadSummary(threadId, summary);
-      
-      if (!success) {
-        console.error("Failed to update thread summary in the database");
-        return null;
-      }
-      
-      return summary;
-    }
-    
-    return null;
+    return data?.summary || null;
   } catch (error) {
     console.error("Exception generating thread summary:", error);
     return null;

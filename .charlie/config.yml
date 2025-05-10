@@ -1,0 +1,12 @@
+ignorePatterns:
+  - '**/*.lock'
+
+checkCommands:
+  # fix: bun run fix
+  # lint: bun run lint && bun run knip
+  types: bun run typecheck
+  # test: bun run test
+
+beta:
+  canApprovePullRequests: true
+  forceAllCheckCommands: false
