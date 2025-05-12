@@ -108,43 +108,6 @@ $ supabase functions serve summarize-thread
 
 ---
 
-## Common workflows
-
-A few code-level examples (TypeScript):
-
-```ts
-// Create a new conversation
-import { createThread } from "@/services/threadService";
-
-await createThread("Holiday Schedule", ["Alex", "Sam"], "travel");
-
-// Send a message (and create read receipts)
-import { saveMessage } from "@/services/messageService";
-
-await saveMessage("Alex", "I'll pick them up at 4 PM", threadId);
-
-// Generate a short summary for the UI
-import { generateThreadSummary } from "@/services/threadService";
-
-const summary = await generateThreadSummary({ threadId });
-
-// Fetch connections for the sidebar
-import { getConnections } from "@/services/connections";
-
-const list = await getConnections();
-```
-
-CLI shortcuts:
-
-```bash
-bun run lint        # ESLint (flat-config)
-bun run typecheck   # TypeScript project references
-bun test            # Vitest + Testing Library
-bun run build       # Production bundle in dist/
-```
-
----
-
 ## Project scripts
 
 | Command               | Purpose                               |
