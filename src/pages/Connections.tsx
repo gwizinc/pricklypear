@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Users, Loader2 } from "lucide-react";
+import { UserPlus, Loader2 } from "lucide-react";
 import { 
   DialogTrigger,
   Dialog,
@@ -157,7 +157,7 @@ const Connections = () => {
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold flex items-center">
-          <Users className="mr-2" /> Connections
+          Connections
         </h1>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
