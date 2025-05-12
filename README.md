@@ -30,7 +30,7 @@ Prickly Pear is a single-page chat application focused on respectful co-parentin
 - **Auth & storage** – handled by Supabase (Postgres + Row Level Security).
 - **Hot-reloading dev server** – Bun serves `index.html` and rebuilds on save.
 
-The repo contains _both_ the React front-end **and** the Supabase Edge Functions that run in Deno on the server side.
+The repo contains *both* the React front-end **and** the Supabase Edge Functions that run in Deno on the server side.
 
 ---
 
@@ -66,8 +66,6 @@ High-level code layout:
 - **build.ts** – Bun script that bundles the SPA with Tailwind CSS
 - **src/index.tsx** – tiny Bun server that serves `index.html` for any route
 
-> There is **no NestJS** in the current codebase – the repository name is historical.
-
 ---
 
 ## Installation & local setup
@@ -83,8 +81,8 @@ Steps:
 
 ```bash
 # 1. Clone and install deps
-$ git clone https://github.com/gwizinc/nest-5066c2fc.git
-$ cd nest-5066c2fc
+$ git clone https://github.com/gwizinc/pricklypear.git
+$ cd pricklypear
 $ bun install
 
 # 2. Environment (create .env or export vars)
@@ -183,7 +181,7 @@ bun run build       # Production bundle in dist/
 1. Fork & clone.
 2. Create a branch (`git checkout -b feat/my-feature`).
 3. **Write code + tests**. Run `bun run lint && bun run typecheck` before committing.
-4. Push and open a PR. Describe _why_, link any related issues, and keep commits focused.
+4. Push and open a PR. Describe *why*, link any related issues, and keep commits focused.
 5. One of the maintainers will review, request changes if needed, and merge.
 
 Style & tooling:
