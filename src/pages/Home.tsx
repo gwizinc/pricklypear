@@ -11,10 +11,10 @@ const Home = () => {
       <div className="w-full bg-hero-gradient py-20 px-4">
         <div className="container mx-auto max-w-4xl text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold font-rounded text-primary mb-6">
-            A safe place for parenting communication
+            AI-assisted parenting communication.
           </h1>
           <p className="text-xl text-primary max-w-2xl mx-auto mb-10">
-            Making co-parenting conversations kinder and more productive.
+            Co-parenting can be <i><b>prickly</b></i>. Use AI to help keep it friendly.
           </p>
         </div>
       </div>
