@@ -1,7 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Thread } from "@/types/thread";
 import { v4 as uuidv4 } from "uuid";
+import { requireCurrentUser } from "@/utils/authCache";
 
 export const createThread = async (
   title: string, 
@@ -9,12 +9,7 @@ export const createThread = async (
   topic: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other' = 'other'
 ): Promise<Thread | null> => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      console.error("No authenticated user found");
-      return null;
-    }
+    const user = await requireCurrentUser();
     
     // Create the thread first
     const threadId = uuidv4();

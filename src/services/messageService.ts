@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeText } from "@/utils/sanitizeText";
 import { Message } from "@/types/message";
-import { getCurrentUser } from "@/utils/authCache";
+import { requireCurrentUser } from "@/utils/authCache";
 
 export const saveMessage = async (
   sender: string, 
@@ -17,12 +17,7 @@ export const saveMessage = async (
     }
 
     // Get the current authenticated user using the cache
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      console.error("No authenticated user found");
-      return false;
-    }
+    const user = await requireCurrentUser();
     
     // Prepare message text (strip wrapped quotes, prefer `selected` when present)
     const messageText = sanitizeText(selected || text);
@@ -202,7 +197,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
     }
 
     // Get the current user's ID using the cache
-    const user = await getCurrentUser();
+    const user = await requireCurrentUser();
     
     // Transform database records into Message objects
     return (messagesData || []).map(msg => {
@@ -235,12 +230,7 @@ export const markMessagesAsRead = async (messageIds: string[]): Promise<boolean>
     if (!messageIds.length) return true;
 
     // Get the current authenticated user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      console.error("No authenticated user found", userError);
-      return false;
-    }
+    const user = await requireCurrentUser();
 
     // For each message ID, insert or update a read receipt
     const readReceipts = messageIds.map(messageId => ({
@@ -319,7 +309,7 @@ const createReadReceiptsForNewMessage = async (
 // New function to get unread message counts for threads
 export const getUnreadMessageCount = async (threadId: string): Promise<number> => {
   try {
-    const user = await getCurrentUser();
+    const user = await requireCurrentUser();
     
     if (!user) return 0;
     
@@ -371,7 +361,7 @@ export const getUnreadMessageCount = async (threadId: string): Promise<number> =
 // Function to get unread counts for all threads
 export const getAllUnreadCounts = async (): Promise<Record<string, number>> => {
   try {
-    const user = await getCurrentUser();
+    const user = await requireCurrentUser();
     
     if (!user) return {};
     

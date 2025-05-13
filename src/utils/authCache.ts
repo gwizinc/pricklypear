@@ -15,6 +15,16 @@ export async function getCurrentUser(
   return cachedUser;
 }
 
+export async function requireCurrentUser(
+  forceRefresh = false,
+): Promise<User> {
+  const user = await getCurrentUser(forceRefresh);
+  if (!user) {
+    throw new Error("No authenticated user found");
+  }
+  return user;
+}
+
 /* ───────────────────────────────────────────────────────────
    Keep the cache in sync – any sign-in / sign-out event that
    Supabase emits will update (or clear) the cached value.
