@@ -34,8 +34,6 @@ const ThreadCloseRequest = ({
       // Nothing to fetch if one of the ids is missing
       if (!requestedByUserId || !user.id) return;
 
-      console.log('fetchUserNames', requestedByUserId, user.id)
-
       try {
         const { data, error } = await supabase
           .from("profiles")
