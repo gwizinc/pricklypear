@@ -374,27 +374,34 @@ export const getAllUnreadCounts = async (): Promise<Record<string, number>> => {
     
     if (!user) return {};
     
-    // Get all threads the user participates in
-    const { data: threadParticipations, error: threadError } = await supabase
-      .from('thread_participants')
-      .select('thread_id')
-      .eq('profile_id', user.id);
-    
-    if (threadError || !threadParticipations) {
-      console.error("Error fetching threads:", threadError);
+    // Get all unread messages for the user in a single query
+    const { data: unreadMessages, error } = await supabase
+      .from('message_read_receipts')
+      .select(`
+        message_id,
+        messages!inner (
+          conversation_id,
+          sender_profile_id,
+          is_system
+        )
+      `)
+      .eq('profile_id', user.id)
+      .is('read_at', null)
+      .neq('messages.sender_profile_id', user.id)
+      .eq('messages.is_system', false);
+
+    if (error) {
+      console.error("Error fetching unread messages:", error);
       return {};
     }
-    
+
+    // Count unread messages per conversation
     const unreadCounts: Record<string, number> = {};
-    
-    // Get unread counts for each thread (could be optimized with a single query in the future)
-    await Promise.all(
-      threadParticipations.map(async ({ thread_id }) => {
-        const count = await getUnreadMessageCount(thread_id);
-        unreadCounts[thread_id] = count;
-      })
-    );
-    
+    unreadMessages?.forEach(({ messages }) => {
+      const threadId = messages.conversation_id;
+      unreadCounts[threadId] = (unreadCounts[threadId] || 0) + 1;
+    });
+
     return unreadCounts;
   } catch (error) {
     console.error("Exception fetching all unread counts:", error);
