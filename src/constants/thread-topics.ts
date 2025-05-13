@@ -1,10 +1,10 @@
 // Centralized thread topic definitions, metadata, and helpers
 // -----------------------------------------------------------
-// 1. ThreadTopic – the single source of truth for every valid topic string.
-// 2. THREAD_TOPIC_INFO – label + emoji metadata keyed by topic.
-// 3. getThreadTopicInfo – convenience helper that gracefully falls back to "other".
+// 1. ThreadTopic - the single source of truth for every valid topic string.
+// 2. THREAD_TOPIC_INFO - label + emoji metadata keyed by topic.
+// 3. getThreadTopicInfo - convenience helper that gracefully falls back to "other".
 //
-// Whenever you add a new topic, update the union and THREAD_TOPIC_INFO below –
+// Whenever you add a new topic, update the union and THREAD_TOPIC_INFO below -
 // every component and service picks them up automatically.
 
 /** All valid thread topic identifiers used throughout the app. */
