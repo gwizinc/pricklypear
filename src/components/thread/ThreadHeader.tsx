@@ -4,6 +4,7 @@ import { Loader2, Lock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Thread } from "@/types/thread";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getThreadTopicInfo } from "@/constants/thread-topics";
 
 interface ThreadHeaderProps {
   thread: Thread;
@@ -20,21 +21,8 @@ const ThreadHeader = ({
   onRequestClose,
   isGeneratingSummary,
 }: ThreadHeaderProps) => {
-  const topicLabels: Record<string, string> = {
-    travel: "✈️ Travel",
-    parenting_time: "👨‍👩‍👧 Parenting Time",
-    health: "🏥 Health",
-    education: "🎓 Education",
-    activity: "🏃 Activity",
-    legal: "⚖️ Legal",
-    expense: "💵 Expense",
-    other: "📝 Other",
-  };
-
-  const topicLabel =
-    thread.topic && topicLabels[thread.topic]
-      ? topicLabels[thread.topic]
-      : topicLabels.other;
+  const { label, icon } = getThreadTopicInfo(thread.topic);
+  const topicLabel = `${icon} ${label}`;
 
   return (
     <div className="space-y-4 mb-6">

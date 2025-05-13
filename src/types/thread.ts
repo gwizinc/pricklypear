@@ -1,3 +1,5 @@
+import type { ThreadTopic } from "@/constants/thread-topics";
+
 export type Thread = {
   id: string;
   title: string;
@@ -7,14 +9,5 @@ export type Thread = {
   status: string;
   summary?: string | null;
   closeRequestedBy?: string | null; // Now a UUID reference to profiles.id
-  topic:
-    | "travel"
-    | "parenting_time"
-    | "health"
-    | "education"
-    | "activity"
-    | "legal"
-    | "expense"
-    | "other"
-    | null;
+  topic: ThreadTopic | null;
 };
