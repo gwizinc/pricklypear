@@ -9,7 +9,7 @@
   "scripts": {
     "build": "bun run build.ts",
     "dev": "bun run --hot src/index.tsx",
-    "lint": "eslint .",
+    "lint": "eslint . && prettier --ignore-path='../../.prettierignore' --check .",
     "test": "bun test",
     "fix": "eslint --fix --quiet . && prettier --ignore-path='../../.prettierignore' --log-level=silent --write .",
     "typecheck": "tsc --noEmit",
@@ -87,6 +87,7 @@
     "eslint-plugin-react-refresh": "0.4.20",
     "globals": "16.0.0",
     "jsdom": "26.1.0",
+    "knip": "5.55.1",
     "postcss": "8.5.3",
     "prettier": "3.5.3",
     "tailwindcss": "4.1.5",
