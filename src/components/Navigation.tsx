@@ -117,11 +117,6 @@ const Navigation = () => {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel>
             {user.user_metadata?.username || user.email || 'My Account'}
-            {totalUnread > 0 && (
-              <span className="ml-2 bg-accent text-white text-xs font-medium rounded-full px-2 py-0.5">
-                {totalUnread}
-              </span>
-            )}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
@@ -130,11 +125,6 @@ const Navigation = () => {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 <span>Messages</span>
               </div>
-              {totalUnread > 0 && (
-                <span className="bg-accent text-white text-xs font-medium rounded-full px-2 py-0.5">
-                  {totalUnread}
-                </span>
-              )}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

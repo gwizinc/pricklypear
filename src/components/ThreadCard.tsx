@@ -77,9 +77,6 @@ const ThreadCard = ({ thread, unreadCount = 0 }: ThreadCardProps) => {
         >
           <Link to={`/threads/${thread.id}`}>
             View Conversation
-            {unreadCount > 0 && (
-              <NotificationBadge count={unreadCount} className="top-0 right-0" />
-            )}
           </Link>
         </Button>
         <p className="text-sm text-muted-foreground text-center">
