@@ -22,8 +22,6 @@ export const getThreads = async (): Promise<Thread[]> => {
       return [];
     }
 
-    console.log('getThreads',threadData)
-
     // For each thread, get the participants
     const threadsWithParticipants = await Promise.all((threadData || []).map(async (thread) => {
       // Get participant profiles for this thread
