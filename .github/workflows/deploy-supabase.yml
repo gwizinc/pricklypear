@@ -6,13 +6,16 @@ name: Deploy Supabase Migrations
 on:
   pull_request:
     types: [closed]
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read   # required for actions/checkout
 
 jobs:
   deploy:
-    if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' }}
+    if: ${{ github.event.pull_request.base.ref == 'main' }}
     runs-on: ubuntu-latest
 
     env:
