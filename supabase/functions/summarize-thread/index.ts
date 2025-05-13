@@ -61,7 +61,8 @@ serve(async (req) => {
     // Format messages for OpenAI
     const conversationText = messagesData.map(msg => {
       const sender = msg.is_system ? 'SYSTEM' : msg.profile_name;
-      return `${sender}: ${msg.text}`;
+      const timestamp = new Date(msg.timestamp).toLocaleString();
+      return `[${timestamp}] ${sender}: ${msg.text}`;
     }).join('\n\n');
 
     // Initialize OpenAI with the API key from Supabase Secrets
@@ -75,11 +76,17 @@ serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: "You are an assistant that summarizes conversations. Create a brief, concise summary (maximum 2-3 sentences) of the conversation provided. Focus on the main points and outcomes only."
+          content: `You are an assistant that summarizes conversations. The messages are provided in chronological order (oldest to newest) with timestamps. 
+          
+Important guidelines:
+1. Pay special attention to the chronological order of messages - newer messages may contain updates or corrections to earlier information
+2. If there are conflicting statements, prioritize the most recent information
+3. Create a brief, concise summary (maximum 2 sentences) focusing on the main points and final outcomes
+4. Ensure the summary reflects the most current state of the conversation based on the latest messages`
         },
         {
           role: "user",
-          content: `Please summarize this conversation:\n\n${conversationText}`
+          content: `Please summarize this conversation, paying special attention to the chronological order and timestamps:\n\n${conversationText}`
         }
       ],
       temperature: 0.7,
