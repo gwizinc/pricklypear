@@ -39,7 +39,7 @@ export const useThreadMessages = (
           const count = await getUnreadMessageCount(threadId);
           setUnreadCount(count);
         } catch (error) {
-          console.error('Failed to load unread count:', error);
+          console.error("Failed to load unread count:", error);
           setUnreadCount(0);
         }
       })();
