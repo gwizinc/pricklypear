@@ -34,13 +34,15 @@ export const useThreadMessages = (
   // Load unread count for the thread
   useEffect(() => {
     if (threadId) {
-      const loadUnreadCount = async () => {
-        console.log("loadUnreadCount::getUnreadMessageCount", threadId);
-        const count = await getUnreadMessageCount(threadId);
-        setUnreadCount(count);
-      };
-
-      loadUnreadCount();
+      (async () => {
+        try {
+          const count = await getUnreadMessageCount(threadId);
+          setUnreadCount(count);
+        } catch (error) {
+          console.error('Failed to load unread count:', error);
+          setUnreadCount(0);
+        }
+      })();
     }
   }, [threadId, messages]);
 
