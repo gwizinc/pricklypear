@@ -1,7 +1,7 @@
 # Deploy Supabase migrations when a pull-request is merged into `main`
 # Closes #34
 
-name: Deploy Supabase Migrations
+name: Deploy Supabase
 
 on:
   pull_request:
