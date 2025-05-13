@@ -25,6 +25,7 @@ interface CreateThreadFormProps {
     | "education"
     | "activity"
     | "legal"
+    | "expense"
     | "other";
   setSelectedTopic?: (
     topic:
@@ -34,6 +35,7 @@ interface CreateThreadFormProps {
       | "education"
       | "activity"
       | "legal"
+      | "expense"
       | "other",
   ) => void;
   connections: Connection[];
@@ -63,6 +65,7 @@ const CreateThreadForm = ({
     education: "Education",
     activity: "Activity",
     legal: "Legal",
+    expense: "Expense",
     other: "Other",
   };
 
@@ -125,6 +128,7 @@ const CreateThreadForm = ({
                   | "education"
                   | "activity"
                   | "legal"
+                  | "expense"
                   | "other",
               )
             }

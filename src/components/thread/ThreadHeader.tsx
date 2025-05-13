@@ -27,6 +27,7 @@ const ThreadHeader = ({
     education: "🎓 Education",
     activity: "🏃 Activity",
     legal: "⚖️ Legal",
+    expense: "💵 Expense",
     other: "📝 Other",
   };
 

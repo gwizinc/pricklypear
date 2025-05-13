@@ -325,6 +325,7 @@ export type Database = {
         | "education"
         | "activity"
         | "legal"
+        | "expense"
         | "other";
     };
     CompositeTypes: {
@@ -449,6 +450,7 @@ export const Constants = {
         "education",
         "activity",
         "legal",
+        "expense",
         "other",
       ],
     },

@@ -13,6 +13,7 @@ export const createThread = async (
     | "education"
     | "activity"
     | "legal"
+    | "expense"
     | "other" = "other",
 ): Promise<Thread | null> => {
   try {

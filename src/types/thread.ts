@@ -14,6 +14,7 @@ export type Thread = {
     | "education"
     | "activity"
     | "legal"
+    | "expense"
     | "other"
     | null;
 };

@@ -25,6 +25,7 @@ const ThreadCard = ({ thread, unreadCount = 0 }: ThreadCardProps) => {
     education: { label: "Education", icon: "🎓" },
     activity: { label: "Activity", icon: "🏃" },
     legal: { label: "Legal", icon: "⚖️" },
+    expense: { label: "Expense", icon: "💵" },
     other: { label: "Other", icon: "📝" },
   };
 
