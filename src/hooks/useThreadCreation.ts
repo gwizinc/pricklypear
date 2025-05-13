@@ -5,10 +5,21 @@ import { createThread } from "@/services/threadService";
 import type { User } from "@supabase/supabase-js";
 import type { Thread } from "@/types/thread";
 
-export const useThreadCreation = (onThreadCreated: (thread: Thread) => void, onClose: () => void) => {
+export const useThreadCreation = (
+  onThreadCreated: (thread: Thread) => void,
+  onClose: () => void,
+) => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
   const [selectedContact, setSelectedContact] = useState<string>("");
-  const [selectedTopic, setSelectedTopic] = useState<'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other'>('other');
+  const [selectedTopic, setSelectedTopic] = useState<
+    | "travel"
+    | "parenting_time"
+    | "health"
+    | "education"
+    | "activity"
+    | "legal"
+    | "other"
+  >("other");
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -23,7 +34,7 @@ export const useThreadCreation = (onThreadCreated: (thread: Thread) => void, onC
       navigate("/auth");
       return;
     }
-    
+
     if (!newThreadTitle.trim()) {
       toast({
         title: "Title required",
@@ -32,7 +43,7 @@ export const useThreadCreation = (onThreadCreated: (thread: Thread) => void, onC
       });
       return;
     }
-    
+
     if (!selectedContact) {
       toast({
         title: "Contact required",
@@ -41,24 +52,24 @@ export const useThreadCreation = (onThreadCreated: (thread: Thread) => void, onC
       });
       return;
     }
-    
+
     setIsCreating(true);
-    
+
     const newThread = await createThread(
       newThreadTitle,
       [selectedContact],
-      selectedTopic
+      selectedTopic,
     );
-    
+
     setIsCreating(false);
-    
+
     if (newThread) {
       onThreadCreated(newThread);
       setNewThreadTitle("");
       setSelectedContact("");
       setSelectedTopic("other");
       onClose();
-      
+
       toast({
         title: "Thread created",
         description: `"${newThreadTitle}" has been created successfully.`,
@@ -80,6 +91,6 @@ export const useThreadCreation = (onThreadCreated: (thread: Thread) => void, onC
     selectedTopic,
     setSelectedTopic,
     isCreating,
-    handleCreateThread
+    handleCreateThread,
   };
 };

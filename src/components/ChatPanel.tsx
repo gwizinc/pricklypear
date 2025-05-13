@@ -20,14 +20,14 @@ interface ChatPanelProps {
   otherUser?: string;
 }
 
-const ChatPanel = ({ 
-  messages, 
-  currentUser, 
-  bgColor, 
+const ChatPanel = ({
+  messages,
+  currentUser,
+  bgColor,
   onSendMessage,
   threadId,
   ephemeralMode = false,
-  otherUser
+  otherUser,
 }: ChatPanelProps) => {
   const [inputValue, setInputValue] = useState("");
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -40,7 +40,7 @@ const ChatPanel = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!threadId) {
       toast({
         title: "Error",
@@ -50,22 +50,22 @@ const ChatPanel = ({
       navigate("/threads");
       return;
     }
-    
+
     if (inputValue.trim()) {
       setOriginalMessage(inputValue.trim());
       setIsProcessing(true);
-      
+
       try {
         // Show toast notification that rephrasing is in progress
         toast({
           title: "Processing message",
           description: "AI is suggesting a kinder phrasing...",
         });
-        
+
         // Get AI rephrasing
         const rephrasedMessage = await reviewMessage(inputValue.trim());
         setKindMessage(rephrasedMessage);
-        
+
         // Open review dialog
         setIsReviewDialogOpen(true);
       } catch (error) {
@@ -73,10 +73,11 @@ const ChatPanel = ({
         // Fallback to original message
         setKindMessage(inputValue.trim());
         setIsReviewDialogOpen(true);
-        
+
         toast({
           title: "Error",
-          description: "Could not generate AI suggestion. Using original message.",
+          description:
+            "Could not generate AI suggestion. Using original message.",
           variant: "destructive",
         });
       } finally {
@@ -94,22 +95,22 @@ const ChatPanel = ({
       });
       return;
     }
-    
+
     // First call parent's onSendMessage for immediate UI update
     onSendMessage(finalMessage);
-    
+
     // Only save to database if not in ephemeral mode
     if (!ephemeralMode) {
       try {
         // Then save to database (both original and AI versions)
         const success = await saveMessage(
-          currentUser, 
+          currentUser,
           originalMessage,
           threadId,
           finalMessage,
-          kindMessage
+          kindMessage,
         );
-        
+
         if (!success) {
           toast({
             title: "Error",
@@ -126,7 +127,7 @@ const ChatPanel = ({
         });
       }
     }
-    
+
     // Reset form
     setInputValue("");
     setOriginalMessage("");
@@ -147,7 +148,7 @@ const ChatPanel = ({
         <div></div> {/* Empty div to maintain spacing */}
         <div></div> {/* Empty div to maintain the space between elements */}
       </div>
-      
+
       {/* Messages container with scrolling */}
       <div className="flex-1 overflow-y-auto p-4 chat-scrollbar">
         <div className="flex flex-col">
@@ -156,24 +157,30 @@ const ChatPanel = ({
               key={message.id}
               message={{
                 ...message,
-                isCurrentUser: message.sender === currentUser
+                isCurrentUser: message.sender === currentUser,
               }}
             />
           ))}
           <div ref={messagesEndRef} />
         </div>
       </div>
-      
+
       {/* Input area with loading indicator */}
       <form onSubmit={handleSubmit} className="p-4 border-t flex gap-2">
         <Input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder={isProcessing ? "Processing message..." : "Type your message..."}
+          placeholder={
+            isProcessing ? "Processing message..." : "Type your message..."
+          }
           className="flex-1"
           disabled={isProcessing}
         />
-        <Button type="submit" size="icon" disabled={!inputValue.trim() || isProcessing}>
+        <Button
+          type="submit"
+          size="icon"
+          disabled={!inputValue.trim() || isProcessing}
+        >
           {isProcessing ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { approveCloseThread, rejectCloseThread } from "@/services/threadService";
+import {
+  approveCloseThread,
+  rejectCloseThread,
+} from "@/services/threadService";
 import { saveSystemMessage } from "@/services/messageService";
 import { formatSystemMessage } from "@/messages/systemMessages";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +24,7 @@ const ThreadCloseRequest = ({
   requestedByUserId,
   user,
   onApproved,
-  onRejected
+  onRejected,
 }: ThreadCloseRequestProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -154,13 +157,18 @@ const ThreadCloseRequest = ({
   };
 
   if (!requestedByName) {
-    return <div className="bg-muted p-4 rounded-lg mb-4 animate-pulse">Loading request details...</div>;
+    return (
+      <div className="bg-muted p-4 rounded-lg mb-4 animate-pulse">
+        Loading request details...
+      </div>
+    );
   }
 
   return (
     <div className="bg-muted p-4 rounded-lg mb-4 animate-fade-in">
       <p className="font-medium mb-3">
-        <span className="text-primary">{requestedByName}</span> has requested to close this thread.
+        <span className="text-primary">{requestedByName}</span> has requested to
+        close this thread.
         {showActions ? (
           <span> Do you agree to close this conversation?</span>
         ) : (
@@ -176,7 +184,12 @@ const ThreadCloseRequest = ({
             size="sm"
             disabled={isLoading}
           >
-            {isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Check className="h-4 w-4 mr-1" />} Approve
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4 mr-1" />
+            )}{" "}
+            Approve
           </Button>
           <Button
             onClick={handleReject}
@@ -184,7 +197,12 @@ const ThreadCloseRequest = ({
             size="sm"
             disabled={isLoading}
           >
-            {isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <X className="h-4 w-4 mr-1" />} Reject
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            ) : (
+              <X className="h-4 w-4 mr-1" />
+            )}{" "}
+            Reject
           </Button>
         </div>
       )}

@@ -1,24 +1,33 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { getMessages, saveMessage, saveSystemMessage, getUnreadMessageCount } from "@/services/messageService";
+import {
+  getMessages,
+  saveMessage,
+  saveSystemMessage,
+  getUnreadMessageCount,
+} from "@/services/messageService";
 import { reviewMessage } from "@/utils/messageReview";
 import { generateThreadSummary } from "@/services/threadService";
 import type { Message } from "@/types/message";
 import type { Thread } from "@/types/thread";
 
-export const useThreadMessages = (threadId: string | undefined, thread: Thread | null, setThread: (thread: Thread | null) => void) => {
+export const useThreadMessages = (
+  threadId: string | undefined,
+  thread: Thread | null,
+  setThread: (thread: Thread | null) => void,
+) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  
+
   // Message review states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [kindMessage, setKindMessage] = useState("");
   const [isReviewingMessage, setIsReviewingMessage] = useState(false);
-  
+
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -26,18 +35,18 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   useEffect(() => {
     if (threadId) {
       const loadUnreadCount = async () => {
-        console.log('loadUnreadCount::getUnreadMessageCount', threadId)
+        console.log("loadUnreadCount::getUnreadMessageCount", threadId);
         const count = await getUnreadMessageCount(threadId);
         setUnreadCount(count);
       };
-      
+
       loadUnreadCount();
     }
   }, [threadId, messages]);
 
   const loadMessages = async () => {
     if (!threadId) return [];
-    
+
     const messagesData = await getMessages(threadId);
     setMessages(messagesData);
     return messagesData;
@@ -45,9 +54,9 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
 
   const handleInitiateMessageReview = async () => {
     if (!newMessage.trim() || !user) return;
-    
+
     setIsReviewingMessage(true);
-    
+
     try {
       // Call the message review API
       const kindText = await reviewMessage(newMessage);
@@ -64,22 +73,23 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
 
   const handleGenerateSummary = async () => {
     if (!threadId || !thread) return;
-    
+
     setIsGeneratingSummary(true);
-    
+
     try {
-      const summary = await generateThreadSummary({threadId});
-      
+      const summary = await generateThreadSummary({ threadId });
+
       if (summary) {
         // Update local thread state with the new summary
         setThread({
           ...thread,
-          summary
+          summary,
         });
-        
+
         toast({
           title: "Summary generated",
-          description: "Thread summary has been successfully generated and saved.",
+          description:
+            "Thread summary has been successfully generated and saved.",
         });
       }
     } catch (error) {
@@ -91,17 +101,17 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
 
   const handleSendReviewedMessage = async (selectedMessage: string) => {
     if (!selectedMessage.trim() || !user || !threadId) return;
-    
+
     setIsSending(true);
-    
+
     // Save the final message with kind version
     const success = await saveMessage(
       user.id,
       newMessage,
       threadId,
-      selectedMessage // Using the reviewed/selected text as the final text
+      selectedMessage, // Using the reviewed/selected text as the final text
     );
-    
+
     if (success) {
       // Add to local messages list immediately with isCurrentUser flag
       const newMsg: Message = {
@@ -110,12 +120,12 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
         sender: user.id,
         timestamp: new Date(),
         threadId: threadId,
-        isCurrentUser: true // Explicitly set isCurrentUser to true
+        isCurrentUser: true, // Explicitly set isCurrentUser to true
       };
-      
-      setMessages(prev => [...prev, newMsg]);
+
+      setMessages((prev) => [...prev, newMsg]);
       setNewMessage("");
-      
+
       // Generate a new summary after sending a message
       if (thread) {
         // Always generate summary after sending a message
@@ -128,7 +138,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
         variant: "destructive",
       });
     }
-    
+
     setIsSending(false);
   };
 
@@ -139,7 +149,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
 
   const addSystemMessage = async (message: string) => {
     if (!threadId) return false;
-    
+
     const success = await saveSystemMessage(message, threadId);
     if (success) {
       await loadMessages();
@@ -161,6 +171,6 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
     loadMessages,
-    addSystemMessage
+    addSystemMessage,
   };
 };

@@ -1,19 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Loader2 } from "lucide-react";
-import { 
-  DialogTrigger,
-  Dialog,
-} from "@/components/ui/dialog";
+import { DialogTrigger, Dialog } from "@/components/ui/dialog";
 
-import { 
+import {
   Connection,
-  ConnectionStatus, 
-  getConnections, 
+  ConnectionStatus,
+  getConnections,
   updateConnectionStatus,
   disableConnection,
-  inviteByEmail
+  inviteByEmail,
 } from "@/services/connectionService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,15 +59,15 @@ const Connections = () => {
       });
       return;
     }
-    
+
     setIsInviting(true);
     try {
       const response = await inviteByEmail(email);
-      
+
       if (response.success) {
         setIsDialogOpen(false);
         loadConnections();
-        
+
         toast({
           title: "Invitation sent",
           description: `You've sent a connection invitation to ${email}`,
@@ -95,13 +91,17 @@ const Connections = () => {
     }
   };
 
-  const handleUpdateStatus = async (connectionId: string, status: ConnectionStatus) => {
+  const handleUpdateStatus = async (
+    connectionId: string,
+    status: ConnectionStatus,
+  ) => {
     try {
       await updateConnectionStatus(connectionId, status);
       loadConnections();
-      
+
       toast({
-        title: status === 'accepted' ? "Connection accepted" : "Connection declined",
+        title:
+          status === "accepted" ? "Connection accepted" : "Connection declined",
       });
     } catch (error) {
       console.error("Error updating connection:", error);
@@ -117,7 +117,7 @@ const Connections = () => {
     try {
       await disableConnection(connectionId);
       loadConnections();
-      
+
       toast({
         title: "Connection disabled",
         description: "This connection has been disabled",
@@ -134,16 +134,20 @@ const Connections = () => {
 
   // Filter connections by status and relation to current user
   const pendingIncomingConnections = connections.filter(
-    c => c.status === 'pending' && !c.isUserSender
+    (c) => c.status === "pending" && !c.isUserSender,
   );
-  
+
   const pendingOutgoingConnections = connections.filter(
-    c => c.status === 'pending' && c.isUserSender
+    (c) => c.status === "pending" && c.isUserSender,
   );
-  
-  const acceptedConnections = connections.filter(c => c.status === 'accepted');
-  
-  const disabledConnections = connections.filter(c => c.status === 'disabled');
+
+  const acceptedConnections = connections.filter(
+    (c) => c.status === "accepted",
+  );
+
+  const disabledConnections = connections.filter(
+    (c) => c.status === "disabled",
+  );
 
   if (isLoading) {
     return (
@@ -156,10 +160,8 @@ const Connections = () => {
   return (
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold flex items-center">
-          Connections
-        </h1>
-        
+        <h1 className="text-3xl font-bold flex items-center">Connections</h1>
+
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -167,7 +169,7 @@ const Connections = () => {
               Add Connection
             </Button>
           </DialogTrigger>
-          <InviteConnectionDialog 
+          <InviteConnectionDialog
             open={isDialogOpen}
             onOpenChange={setIsDialogOpen}
             onInvite={handleInvite}
@@ -175,23 +177,21 @@ const Connections = () => {
           />
         </Dialog>
       </div>
-      
-      <PendingConnectionsList 
+
+      <PendingConnectionsList
         connections={pendingIncomingConnections}
         onUpdateStatus={handleUpdateStatus}
       />
-      
-      <AcceptedConnectionsList 
+
+      <AcceptedConnectionsList
         connections={acceptedConnections}
         onDisable={handleDisableConnection}
         onOpenInviteDialog={() => setIsDialogOpen(true)}
       />
-      
-      <OutgoingConnectionsList 
-        connections={pendingOutgoingConnections}
-      />
-      
-      <DisabledConnectionsList 
+
+      <OutgoingConnectionsList connections={pendingOutgoingConnections} />
+
+      <DisabledConnectionsList
         connections={disabledConnections}
         onUpdateStatus={handleUpdateStatus}
       />

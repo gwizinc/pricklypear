@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Lock, Users } from "lucide-react";
@@ -22,31 +21,36 @@ const ThreadHeader = ({
   isGeneratingSummary,
 }: ThreadHeaderProps) => {
   const topicLabels: Record<string, string> = {
-    'travel': '✈️ Travel',
-    'parenting_time': '👨‍👩‍👧 Parenting Time',
-    'health': '🏥 Health',
-    'education': '🎓 Education',
-    'activity': '🏃 Activity',
-    'legal': '⚖️ Legal',
-    'other': '📝 Other'
+    travel: "✈️ Travel",
+    parenting_time: "👨‍👩‍👧 Parenting Time",
+    health: "🏥 Health",
+    education: "🎓 Education",
+    activity: "🏃 Activity",
+    legal: "⚖️ Legal",
+    other: "📝 Other",
   };
 
-  const topicLabel = thread.topic && topicLabels[thread.topic] 
-    ? topicLabels[thread.topic]
-    : topicLabels.other;
+  const topicLabel =
+    thread.topic && topicLabels[thread.topic]
+      ? topicLabels[thread.topic]
+      : topicLabels.other;
 
   return (
     <div className="space-y-4 mb-6">
       <div className="flex justify-between">
         <div className="space-y-1">
           {thread.topic && (
-            <Badge variant="outline" className="mb-2">{topicLabel}</Badge>
+            <Badge variant="outline" className="mb-2">
+              {topicLabel}
+            </Badge>
           )}
           <h1 className="text-2xl font-bold">{thread.title}</h1>
           {thread.summary ? (
             <p className="text-muted-foreground text-sm">{thread.summary}</p>
           ) : (
-            <p className="text-muted-foreground/70 text-sm italic">No summary provided</p>
+            <p className="text-muted-foreground/70 text-sm italic">
+              No summary provided
+            </p>
           )}
           {isGeneratingSummary && (
             <p className="text-xs text-muted-foreground flex items-center gap-2">
@@ -55,11 +59,11 @@ const ThreadHeader = ({
             </p>
           )}
         </div>
-        
+
         <div className="flex items-center gap-2">
           {!isThreadClosed && !thread.closeRequestedBy && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={onRequestClose}
               disabled={isRequestingClose}
             >
@@ -78,7 +82,7 @@ const ThreadHeader = ({
         <p className="text-sm text-muted-foreground">
           Created {thread.createdAt.toLocaleDateString()}
         </p>
-        
+
         {thread.participants && thread.participants.length > 0 ? (
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -93,11 +97,13 @@ const ThreadHeader = ({
               ))}
             </div>
             <span className="text-sm text-muted-foreground">
-              {thread.participants.join(', ')}
+              {thread.participants.join(", ")}
             </span>
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">No other participants</div>
+          <div className="text-sm text-muted-foreground">
+            No other participants
+          </div>
         )}
       </div>
     </div>

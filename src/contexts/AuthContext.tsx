@@ -1,8 +1,14 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { getCurrentUser } from '@/utils/authCache';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+} from "react";
+import { Session, User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { getCurrentUser } from "@/utils/authCache";
 
 type AuthContextType = {
   session: Session | null;
@@ -23,18 +29,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // Set up the auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        setSession(currentSession);
-        // Use the cached user value which is already updated by the listener in authCache.ts
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      setSession(currentSession);
+      // Use the cached user value which is already updated by the listener in authCache.ts
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    });
 
     // Then check for existing session and user
     const initializeAuth = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
       setSession(currentSession);
       const currentUser = await getCurrentUser();
       setUser(currentUser);
@@ -55,19 +63,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         toast({
-          title: 'Error signing in',
+          title: "Error signing in",
           description: error.message,
-          variant: 'destructive',
+          variant: "destructive",
         });
         throw error;
       }
-      
+
       toast({
-        title: 'Welcome back!',
-        description: 'You have successfully signed in.',
+        title: "Welcome back!",
+        description: "You have successfully signed in.",
       });
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error("Error signing in:", error);
       throw error;
     }
   };
@@ -86,19 +94,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         toast({
-          title: 'Error signing up',
+          title: "Error signing up",
           description: error.message,
-          variant: 'destructive',
+          variant: "destructive",
         });
         throw error;
       }
 
       toast({
-        title: 'Account created!',
-        description: 'You have successfully signed up.',
+        title: "Account created!",
+        description: "You have successfully signed up.",
       });
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error("Error signing up:", error);
       throw error;
     }
   };
@@ -107,40 +115,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // First check if we have a valid session before attempting to sign out
       const { data } = await supabase.auth.getSession();
-      
+
       // If there's no session, just update the local state
       if (!data.session) {
         setSession(null);
         setUser(null);
         toast({
-          title: 'Signed out',
-          description: 'You have successfully signed out.',
+          title: "Signed out",
+          description: "You have successfully signed out.",
         });
         return;
       }
-      
+
       // Otherwise proceed with normal sign out
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Error during sign out:', error);
+        console.error("Error during sign out:", error);
         toast({
-          title: 'Error signing out',
+          title: "Error signing out",
           description: error.message,
-          variant: 'destructive',
+          variant: "destructive",
         });
         throw error;
       }
-      
+
       // Explicitly clear the state
       setSession(null);
       setUser(null);
-      
+
       toast({
-        title: 'Signed out',
-        description: 'You have successfully signed out.',
+        title: "Signed out",
+        description: "You have successfully signed out.",
       });
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
       // Even if there's an error, we should try to reset the local state
       setSession(null);
       setUser(null);
@@ -167,7 +175,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

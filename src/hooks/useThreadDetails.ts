@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useThreadState } from "./useThreadState";
 import { useThreadMessages } from "./useThreadMessages";
@@ -6,13 +5,8 @@ import { useThreadActions } from "./useThreadActions";
 
 export const useThreadDetails = (threadId: string | undefined) => {
   // Get thread state management
-  const { 
-    thread, 
-    setThread, 
-    isLoading, 
-    setIsLoading, 
-    loadThread 
-  } = useThreadState(threadId);
+  const { thread, setThread, isLoading, setIsLoading, loadThread } =
+    useThreadState(threadId);
 
   // Get message handling
   const {
@@ -29,7 +23,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
     loadMessages,
-    addSystemMessage
+    addSystemMessage,
   } = useThreadMessages(threadId, thread, setThread);
 
   // Get thread action handlers
@@ -37,7 +31,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
     isRequestingClose,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose
+    handleRejectClose,
   } = useThreadActions(threadId, thread, messages, addSystemMessage, setThread);
 
   // Initialize thread and messages
@@ -50,7 +44,7 @@ export const useThreadDetails = (threadId: string | undefined) => {
       }
       setIsLoading(false);
     };
-    
+
     initialize();
   }, [threadId]);
 
@@ -78,6 +72,6 @@ export const useThreadDetails = (threadId: string | undefined) => {
     isRequestingClose,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose
+    handleRejectClose,
   };
 };

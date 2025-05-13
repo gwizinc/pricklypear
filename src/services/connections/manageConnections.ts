@@ -5,7 +5,7 @@ import { requireCurrentUser } from "@/utils/authCache";
 // Update the status of a connection
 export const updateConnectionStatus = async (
   connectionId: string,
-  status: ConnectionStatus
+  status: ConnectionStatus,
 ): Promise<boolean> => {
   try {
     const { error } = await supabase
@@ -22,12 +22,16 @@ export const updateConnectionStatus = async (
 };
 
 // Disable a connection (instead of deleting)
-export const disableConnection = async (connectionId: string): Promise<boolean> => {
-  return updateConnectionStatus(connectionId, 'disabled');
+export const disableConnection = async (
+  connectionId: string,
+): Promise<boolean> => {
+  return updateConnectionStatus(connectionId, "disabled");
 };
 
 // Delete a connection
-export const deleteConnection = async (connectionId: string): Promise<boolean> => {
+export const deleteConnection = async (
+  connectionId: string,
+): Promise<boolean> => {
   try {
     // First get the connection details to check if it exists
     const { data: connectionData, error: fetchError } = await supabase
@@ -49,13 +53,16 @@ export const deleteConnection = async (connectionId: string): Promise<boolean> =
     // Get the user information to log who is deleting
     const user = await requireCurrentUser();
     const userId = user.id;
-    
+
     console.log("User attempting to delete connection:", userId);
     console.log("Connection details:", connectionData);
-    
+
     // Check if the current user has permission to delete this connection
-    const canDelete = userId && (connectionData.user_id === userId || connectionData.connected_user_id === userId);
-    
+    const canDelete =
+      userId &&
+      (connectionData.user_id === userId ||
+        connectionData.connected_user_id === userId);
+
     if (!canDelete) {
       console.error("User does not have permission to delete this connection");
       return false;
@@ -71,7 +78,7 @@ export const deleteConnection = async (connectionId: string): Promise<boolean> =
       console.error("Error deleting connection:", error);
       throw error;
     }
-    
+
     console.log("Connection successfully deleted:", connectionId);
     return true;
   } catch (error) {

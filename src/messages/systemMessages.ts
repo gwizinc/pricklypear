@@ -21,28 +21,29 @@ interface SystemMessageDefinition {
   placeholders: readonly string[];
 }
 
-export const systemMessages: Record<SystemMessageKey, SystemMessageDefinition> = {
-  closeRequested: {
-    text: "{actor} has requested to close this thread.",
-    placeholders: ["actor"],
-  },
-  closeApproved: {
-    text: "{actor} approved closing this thread. The thread is now closed.",
-    placeholders: ["actor"],
-  },
-  closeRejected: {
-    text: "{actor} rejected the request to close this thread.",
-    placeholders: ["actor"],
-  },
-  closeApprovedWithRequester: {
-    text: "{actor} approved {requester}'s request to close this thread.",
-    placeholders: ["actor", "requester"],
-  },
-  closeRejectedWithRequester: {
-    text: "{actor} rejected {requester}'s request to close this thread.",
-    placeholders: ["actor", "requester"],
-  },
-};
+export const systemMessages: Record<SystemMessageKey, SystemMessageDefinition> =
+  {
+    closeRequested: {
+      text: "{actor} has requested to close this thread.",
+      placeholders: ["actor"],
+    },
+    closeApproved: {
+      text: "{actor} approved closing this thread. The thread is now closed.",
+      placeholders: ["actor"],
+    },
+    closeRejected: {
+      text: "{actor} rejected the request to close this thread.",
+      placeholders: ["actor"],
+    },
+    closeApprovedWithRequester: {
+      text: "{actor} approved {requester}'s request to close this thread.",
+      placeholders: ["actor", "requester"],
+    },
+    closeRejectedWithRequester: {
+      text: "{actor} rejected {requester}'s request to close this thread.",
+      placeholders: ["actor", "requester"],
+    },
+  };
 
 /**
  * Replace all placeholders in a system message definition with concrete values.

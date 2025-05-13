@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { getAllUnreadCounts } from '@/services/messageService';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { getAllUnreadCounts } from "@/services/messageService";
 
 export const useUnreadMessages = () => {
   const [totalUnread, setTotalUnread] = useState<number>(0);
@@ -21,10 +20,13 @@ export const useUnreadMessages = () => {
       setIsLoading(true);
       try {
         const counts = await getAllUnreadCounts();
-        
+
         // Calculate total across all threads
-        const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-        
+        const total = Object.values(counts).reduce(
+          (sum, count) => sum + count,
+          0,
+        );
+
         setTotalUnread(total);
         setThreadCounts(counts);
       } catch (error) {
@@ -35,10 +37,10 @@ export const useUnreadMessages = () => {
     };
 
     fetchUnreadCounts();
-    
+
     // Set up a polling interval to check for new messages regularly
     const interval = setInterval(fetchUnreadCounts, 30000); // Check every 30 seconds
-    
+
     return () => clearInterval(interval);
   }, [user]);
 

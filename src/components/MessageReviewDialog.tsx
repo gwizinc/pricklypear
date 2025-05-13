@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -50,18 +49,24 @@ const MessageReviewDialog = ({
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div>
-            <p className="text-sm text-muted-foreground mb-2">Original message:</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              Original message:
+            </p>
             <div className="bg-muted p-3 rounded-md text-sm">{newMessage}</div>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground mb-2">AI suggested rephrasing:</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              AI suggested rephrasing:
+            </p>
             {isLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
               </div>
             ) : (
-              <div className="bg-muted p-3 rounded-md text-sm">{kindMessage}</div>
+              <div className="bg-muted p-3 rounded-md text-sm">
+                {kindMessage}
+              </div>
             )}
           </div>
         </div>

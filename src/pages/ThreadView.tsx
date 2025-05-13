@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const ThreadView = () => {
   const { threadId } = useParams<{ threadId: string }>();
   const { user } = useAuth();
-  
+
   const {
     thread,
     messages,
@@ -30,10 +30,10 @@ const ThreadView = () => {
     isRequestingClose,
     handleRequestClose,
     handleApproveClose,
-    handleRejectClose
+    handleRejectClose,
   } = useThreadDetails(threadId);
 
-  const isThreadClosed = thread?.status === 'closed';
+  const isThreadClosed = thread?.status === "closed";
 
   if (isLoading) {
     return (
@@ -47,14 +47,14 @@ const ThreadView = () => {
     <div className="container py-8">
       {thread && (
         <div className="flex flex-col h-[calc(100vh-12rem)]">
-          <ThreadHeader 
+          <ThreadHeader
             thread={thread}
             isThreadClosed={isThreadClosed}
             isRequestingClose={isRequestingClose}
             onRequestClose={handleRequestClose}
             isGeneratingSummary={isGeneratingSummary}
           />
-          
+
           <ThreadCloseRequestManager
             thread={thread}
             user={user}
@@ -62,10 +62,7 @@ const ThreadView = () => {
             onRejectClose={handleRejectClose}
           />
 
-          <ThreadMessages 
-            messages={messages} 
-            user={user} 
-          />
+          <ThreadMessages messages={messages} user={user} />
 
           <ThreadMessageComposer
             newMessage={newMessage}
@@ -76,7 +73,7 @@ const ThreadView = () => {
           />
         </div>
       )}
-      
+
       <MessageReviewDialog
         open={isReviewDialogOpen}
         onOpenChange={setIsReviewDialogOpen}

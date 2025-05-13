@@ -23,9 +23,9 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, user }) => {
     if (user && messages.length > 0) {
       // Get message IDs that aren't from the current user
       const otherUserMessageIds = messages
-        .filter(message => !message.isCurrentUser && !message.isSystem)
-        .map(message => message.id);
-      
+        .filter((message) => !message.isCurrentUser && !message.isSystem)
+        .map((message) => message.id);
+
       if (otherUserMessageIds.length > 0) {
         markMessagesAsRead(otherUserMessageIds);
       }
@@ -35,15 +35,12 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, user }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
+
   return (
     <div className="flex-grow overflow-y-auto px-2 py-4 border rounded-md mb-4">
       {messages.length > 0 ? (
         messages.map((message) => (
-          <MessageBubble 
-            key={message.id} 
-            message={message}
-          />
+          <MessageBubble key={message.id} message={message} />
         ))
       ) : (
         <div className="text-center text-muted-foreground py-8">

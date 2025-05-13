@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +7,7 @@ import type { Thread } from "@/types/thread";
 export const useThreadState = (threadId: string | undefined) => {
   const [thread, setThread] = useState<Thread | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -17,7 +16,7 @@ export const useThreadState = (threadId: string | undefined) => {
       navigate("/threads");
       return null;
     }
-    
+
     const threadData = await getThread(threadId);
     if (!threadData) {
       toast({
@@ -28,7 +27,7 @@ export const useThreadState = (threadId: string | undefined) => {
       navigate("/threads");
       return null;
     }
-    
+
     setThread(threadData);
     return threadData;
   };
@@ -38,6 +37,6 @@ export const useThreadState = (threadId: string | undefined) => {
     setThread,
     isLoading,
     setIsLoading,
-    loadThread
+    loadThread,
   };
 };

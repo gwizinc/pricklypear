@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap");
 
 @import "tailwindcss";
 @config "../tailwind.config.ts";
@@ -76,27 +76,33 @@
   body {
     @apply bg-bglight text-textbody font-sans;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-rounded font-bold;
   }
-  
+
   h1 {
     @apply text-4xl font-extrabold tracking-tight;
   }
-  
-  button, a.button {
+
+  button,
+  a.button {
     @apply font-sans font-semibold uppercase tracking-wide;
   }
-  
+
   .glass-nav {
     @apply backdrop-blur-lg backdrop-saturate-[180%];
   }
-  
+
   .hover-tilt {
     @apply transition-transform hover:-translate-y-1 hover:shadow-md;
   }
-  
+
   .hover-rotate {
     @apply transition-transform hover:-translate-y-[2px] hover:rotate-[-1deg];
   }

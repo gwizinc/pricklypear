@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,10 +48,7 @@ const InviteConnectionDialog: React.FC<InviteConnectionDialogProps> = ({
               }
             }}
           />
-          <Button
-            onClick={handleInvite}
-            disabled={!email.trim() || isInviting}
-          >
+          <Button onClick={handleInvite} disabled={!email.trim() || isInviting}>
             {isInviting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -62,7 +58,8 @@ const InviteConnectionDialog: React.FC<InviteConnectionDialogProps> = ({
         </div>
 
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          Enter your friend's email address to send them a connection invitation.
+          Enter your friend's email address to send them a connection
+          invitation.
         </div>
 
         <DialogFooter>

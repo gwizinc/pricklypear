@@ -1,4 +1,3 @@
-
 export interface ProfileUser {
   id: string;
   name: string;

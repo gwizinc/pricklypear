@@ -27,17 +27,20 @@ export const getConnections = async (): Promise<Connection[]> => {
     if (receivedError) throw receivedError;
 
     // Combined connections
-    const allConnections = [...(sentConnections || []), ...(receivedConnections || [])];
+    const allConnections = [
+      ...(sentConnections || []),
+      ...(receivedConnections || []),
+    ];
 
     // Format the connections to include necessary information
     const formattedConnections = await Promise.all(
       allConnections.map(async (connection) => {
         // Determine if the current user is the sender
         const isUserSender = connection.user_id === userId;
-        
+
         // Get ID of the other user in the connection
-        const otherUserId = isUserSender 
-          ? connection.connected_user_id 
+        const otherUserId = isUserSender
+          ? connection.connected_user_id
           : connection.user_id;
 
         // Get the other user's details
@@ -65,7 +68,7 @@ export const getConnections = async (): Promise<Connection[]> => {
           updatedAt: connection.updated_at,
           isUserSender, // Now correctly indicates if the user is the sender or receiver
         };
-      })
+      }),
     );
 
     return formattedConnections;

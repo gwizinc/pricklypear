@@ -9,11 +9,13 @@ export const useConnections = (user: User | null) => {
 
   const loadConnections = async () => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
       const acceptedConnections = await getConnections();
-      setConnections(acceptedConnections.filter(conn => conn.status === 'accepted'));
+      setConnections(
+        acceptedConnections.filter((conn) => conn.status === "accepted"),
+      );
     } catch (error) {
       console.error("Error loading connections:", error);
     } finally {
@@ -24,6 +26,6 @@ export const useConnections = (user: User | null) => {
   return {
     connections,
     isLoading,
-    loadConnections
+    loadConnections,
   };
 };

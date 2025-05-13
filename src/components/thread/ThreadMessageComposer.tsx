@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,7 +31,9 @@ const ThreadMessageComposer = ({
   return (
     <div className="flex gap-2">
       <Textarea
-        placeholder={isThreadClosed ? "Thread is closed" : "Type your message..."}
+        placeholder={
+          isThreadClosed ? "Thread is closed" : "Type your message..."
+        }
         value={newMessage}
         onChange={(e) => setNewMessage(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -40,8 +41,8 @@ const ThreadMessageComposer = ({
         className="flex-grow min-h-[80px]"
         rows={3}
       />
-      <Button 
-        onClick={onSendMessage} 
+      <Button
+        onClick={onSendMessage}
         disabled={!newMessage.trim() || isSending || isThreadClosed}
         className="self-end"
       >

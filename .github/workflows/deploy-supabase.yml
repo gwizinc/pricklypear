@@ -11,7 +11,7 @@ on:
       - main
 
 permissions:
-  contents: read   # required for actions/checkout
+  contents: read # required for actions/checkout
 
 jobs:
   deploy:

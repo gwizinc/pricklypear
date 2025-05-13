@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { getThreads } from "@/services/threadService";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,7 +25,7 @@ const Threads = () => {
   }, [user]);
 
   const handleThreadCreated = (newThread: Thread) => {
-    setThreads(prevThreads => [newThread, ...prevThreads]);
+    setThreads((prevThreads) => [newThread, ...prevThreads]);
   };
 
   const handleOpenCreateDialog = () => {
@@ -37,9 +36,9 @@ const Threads = () => {
     <div className="container py-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Threads</h1>
-        
+
         {user && (
-          <CreateThreadDialog 
+          <CreateThreadDialog
             onThreadCreated={handleThreadCreated}
             user={user}
             isOpen={isDialogOpen}
@@ -48,7 +47,7 @@ const Threads = () => {
         )}
       </div>
 
-      <ThreadsList 
+      <ThreadsList
         threads={threads}
         isLoading={isLoading}
         user={user}

@@ -15,10 +15,11 @@ const ThreadCloseRequestManager: React.FC<ThreadCloseRequestManagerProps> = ({
   thread,
   user,
   onApproveClose,
-  onRejectClose
+  onRejectClose,
 }) => {
-  const isThreadClosed = thread.status === 'closed';
-  const hasCloseRequest = thread.closeRequestedBy !== null && thread.closeRequestedBy !== undefined;
+  const isThreadClosed = thread.status === "closed";
+  const hasCloseRequest =
+    thread.closeRequestedBy !== null && thread.closeRequestedBy !== undefined;
 
   return (
     <>
@@ -31,7 +32,7 @@ const ThreadCloseRequestManager: React.FC<ThreadCloseRequestManagerProps> = ({
           onRejected={onRejectClose}
         />
       )}
-      
+
       {isThreadClosed && <ThreadClosedBanner />}
     </>
   );

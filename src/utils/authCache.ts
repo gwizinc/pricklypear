@@ -1,8 +1,8 @@
-import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
-let cachedUser: User | null | undefined;   // undefined = not yet fetched
-let inFlightRequest: Promise<User | null> | null = null;  // Track in-flight request
+let cachedUser: User | null | undefined; // undefined = not yet fetched
+let inFlightRequest: Promise<User | null> | null = null; // Track in-flight request
 
 export async function getCurrentUser(
   forceRefresh = false,
@@ -16,7 +16,9 @@ export async function getCurrentUser(
   // Create new request
   inFlightRequest = (async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       cachedUser = user ?? null;
       return cachedUser;
     } finally {
@@ -28,9 +30,7 @@ export async function getCurrentUser(
   return inFlightRequest;
 }
 
-export async function requireCurrentUser(
-  forceRefresh = false,
-): Promise<User> {
+export async function requireCurrentUser(forceRefresh = false): Promise<User> {
   const user = await getCurrentUser(forceRefresh);
   if (!user) {
     throw new Error("No authenticated user found");
@@ -46,4 +46,4 @@ supabase.auth.onAuthStateChange((_event, session) => {
   cachedUser = session?.user ?? null;
   // Clear any in-flight request since the auth state has changed
   inFlightRequest = null;
-}); 
+});

@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   AlertDialog,
@@ -35,8 +34,9 @@ const DisableConnectionDialog: React.FC<DisableConnectionDialogProps> = ({
           </AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to disable your connection with{" "}
-            <strong>{connectionName}</strong>? 
-            They will no longer see your profile or be able to message you until this connection is enabled again.
+            <strong>{connectionName}</strong>? They will no longer see your
+            profile or be able to message you until this connection is enabled
+            again.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

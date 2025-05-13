@@ -6,24 +6,24 @@ export async function reviewMessage(message: string): Promise<string> {
     // Get the user's message tone preference if authenticated
     const user = await getCurrentUser();
     const userId = user?.id;
-    
+
     let tone = "friendly"; // Default tone
-    
+
     if (userId) {
       const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('message_tone')
-        .eq('id', userId)
+        .from("profiles")
+        .select("message_tone")
+        .eq("id", userId)
         .maybeSingle();
-      
+
       if (profileData?.message_tone && !error) {
         tone = profileData.message_tone;
       }
     }
-    
+
     // Call the Supabase Edge Function with the user's preferred tone
-    const { data, error } = await supabase.functions.invoke('review-message', {
-      body: { message, tone }
+    const { data, error } = await supabase.functions.invoke("review-message", {
+      body: { message, tone },
     });
 
     if (error) {

@@ -33,7 +33,6 @@ remains clean, maintainable, and efficient.
   - It's OK to use default exports in the CLI because it is required by oclif
 - Avoid barrel exports (`export * from './foo.js';`) and instead use named exports (`export { foo } from './foo.js';`)
 
-
 ## TypeScript
 
 - NEVER use `any`/`unknown` or cast values like `(value as any)` or `value!` in TypeScript outside of test files e.g. `*.test.ts` or test fixtures e.g. `**/test-data.ts`.

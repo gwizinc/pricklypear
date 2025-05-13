@@ -1,31 +1,23 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardHeader, 
-  CardFooter, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Card, CardHeader, CardFooter, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  TooltipProvider, 
-  Tooltip, 
-  TooltipTrigger, 
-  TooltipContent 
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@/components/ui/tooltip";
-import { 
-  CheckCircle2, 
-  XCircle, 
-  UserCheck,
-  EyeOff
-} from "lucide-react";
+import { CheckCircle2, XCircle, UserCheck, EyeOff } from "lucide-react";
 import { Connection } from "@/services/connectionService";
 import DisableConnectionDialog from "./DisableConnectionDialog";
 
 interface ConnectionCardProps {
   connection: Connection;
-  onUpdateStatus?: (connectionId: string, status: "accepted" | "declined" | "disabled" | "pending") => void;
+  onUpdateStatus?: (
+    connectionId: string,
+    status: "accepted" | "declined" | "disabled" | "pending",
+  ) => void;
   onDisable?: (connectionId: string) => void;
   variant: "pending-incoming" | "pending-outgoing" | "accepted" | "disabled";
 }
@@ -60,7 +52,10 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Connected since {new Date(connection.updatedAt).toLocaleDateString()}</p>
+                <p>
+                  Connected since{" "}
+                  {new Date(connection.updatedAt).toLocaleDateString()}
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -80,14 +75,14 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onUpdateStatus?.(connection.id, 'declined')}
+              onClick={() => onUpdateStatus?.(connection.id, "declined")}
             >
               <XCircle className="h-4 w-4 mr-1" />
               Decline
             </Button>
             <Button
               size="sm"
-              onClick={() => onUpdateStatus?.(connection.id, 'accepted')}
+              onClick={() => onUpdateStatus?.(connection.id, "accepted")}
             >
               <CheckCircle2 className="h-4 w-4 mr-1" />
               Accept
@@ -99,7 +94,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onUpdateStatus?.(connection.id, 'declined')}
+            onClick={() => onUpdateStatus?.(connection.id, "declined")}
           >
             <XCircle className="h-4 w-4 mr-1" />
             Cancel
@@ -121,7 +116,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onUpdateStatus?.(connection.id, 'accepted')}
+            onClick={() => onUpdateStatus?.(connection.id, "accepted")}
           >
             <UserCheck className="h-4 w-4 mr-1" />
             Enable

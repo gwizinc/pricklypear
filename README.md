@@ -30,7 +30,7 @@ Prickly Pear is a single-page chat application focused on respectful co-parentin
 - **Auth & storage** – handled by Supabase (Postgres + Row Level Security).
 - **Hot-reloading dev server** – Bun serves `index.html` and rebuilds on save.
 
-The repo contains *both* the React front-end **and** the Supabase Edge Functions that run in Deno on the server side.
+The repo contains _both_ the React front-end **and** the Supabase Edge Functions that run in Deno on the server side.
 
 ---
 
@@ -72,7 +72,7 @@ High-level code layout:
 
 Prerequisites:
 
-1. **Bun ≥ 1.2**  (https://bun.sh)
+1. **Bun ≥ 1.2** (https://bun.sh)
 2. A Supabase project – grab the Project URL and anon/public key.
 3. An OpenAI API key if you want AI features locally.
 4. `git` and a modern browser.
@@ -110,14 +110,14 @@ $ supabase functions serve summarize-thread
 
 ## Project scripts
 
-| Command               | Purpose                               |
-| --------------------- | ------------------------------------- |
-| `bun run dev`         | Start hot-reload dev server           |
-| `bun run build`       | Build optimized bundle to `dist/`     |
-| `bun test`            | Run Vitest test suite                 |
-| `bun run lint`        | ESLint (React hooks, TypeScript)      |
-| `bun run typecheck`   | Strict type checking (no emit)        |
-| `bun run ci`          | Lint + typecheck + build (CI helper)  |
+| Command             | Purpose                              |
+| ------------------- | ------------------------------------ |
+| `bun run dev`       | Start hot-reload dev server          |
+| `bun run build`     | Build optimized bundle to `dist/`    |
+| `bun test`          | Run Vitest test suite                |
+| `bun run lint`      | ESLint (React hooks, TypeScript)     |
+| `bun run typecheck` | Strict type checking (no emit)       |
+| `bun run ci`        | Lint + typecheck + build (CI helper) |
 
 ---
 
@@ -144,7 +144,7 @@ $ supabase functions serve summarize-thread
 1. Fork & clone.
 2. Create a branch (`git checkout -b feat/my-feature`).
 3. **Write code + tests**. Run `bun run lint && bun run typecheck` before committing.
-4. Push and open a PR. Describe *why*, link any related issues, and keep commits focused.
+4. Push and open a PR. Describe _why_, link any related issues, and keep commits focused.
 5. One of the maintainers will review, request changes if needed, and merge.
 
 Style & tooling:

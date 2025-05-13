@@ -1,14 +1,16 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
-export const requestCloseThread = async (threadId: string, requestedByProfileId: string): Promise<boolean> => {
+export const requestCloseThread = async (
+  threadId: string,
+  requestedByProfileId: string,
+): Promise<boolean> => {
   try {
     const { error } = await supabase
-      .from('threads')
-      .update({ 
-        close_requested_by: requestedByProfileId 
+      .from("threads")
+      .update({
+        close_requested_by: requestedByProfileId,
       })
-      .eq('id', threadId);
+      .eq("id", threadId);
 
     if (error) {
       console.error("Error requesting thread closure:", error);
@@ -22,15 +24,17 @@ export const requestCloseThread = async (threadId: string, requestedByProfileId:
   }
 };
 
-export const approveCloseThread = async (threadId: string): Promise<boolean> => {
+export const approveCloseThread = async (
+  threadId: string,
+): Promise<boolean> => {
   try {
     const { error } = await supabase
-      .from('threads')
-      .update({ 
-        status: 'closed',
-        close_requested_by: null 
+      .from("threads")
+      .update({
+        status: "closed",
+        close_requested_by: null,
       })
-      .eq('id', threadId);
+      .eq("id", threadId);
 
     if (error) {
       console.error("Error closing thread:", error);
@@ -47,11 +51,11 @@ export const approveCloseThread = async (threadId: string): Promise<boolean> => 
 export const rejectCloseThread = async (threadId: string): Promise<boolean> => {
   try {
     const { error } = await supabase
-      .from('threads')
-      .update({ 
-        close_requested_by: null 
+      .from("threads")
+      .update({
+        close_requested_by: null,
       })
-      .eq('id', threadId);
+      .eq("id", threadId);
 
     if (error) {
       console.error("Error rejecting thread closure:", error);
