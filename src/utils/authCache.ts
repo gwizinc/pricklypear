@@ -2,17 +2,30 @@ import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
 let cachedUser: User | null | undefined;   // undefined = not yet fetched
+let inFlightRequest: Promise<User | null> | null = null;  // Track in-flight request
 
 export async function getCurrentUser(
   forceRefresh = false,
 ): Promise<User | null> {
-  // already have a value and we weren't asked to refresh → return it
+  // If we have a cached value and aren't forcing refresh, return it
   if (!forceRefresh && cachedUser !== undefined) return cachedUser;
 
-  // grab it once from Supabase
-  const { data: { user } } = await supabase.auth.getUser();
-  cachedUser = user ?? null;
-  return cachedUser;
+  // If there's already a request in flight, return that promise
+  if (inFlightRequest) return inFlightRequest;
+
+  // Create new request
+  inFlightRequest = (async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      cachedUser = user ?? null;
+      return cachedUser;
+    } finally {
+      // Clear the in-flight request when done
+      inFlightRequest = null;
+    }
+  })();
+
+  return inFlightRequest;
 }
 
 export async function requireCurrentUser(
@@ -31,4 +44,6 @@ export async function requireCurrentUser(
 ────────────────────────────────────────────────────────────── */
 supabase.auth.onAuthStateChange((_event, session) => {
   cachedUser = session?.user ?? null;
+  // Clear any in-flight request since the auth state has changed
+  inFlightRequest = null;
 }); 
