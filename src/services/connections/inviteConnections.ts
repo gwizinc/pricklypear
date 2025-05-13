@@ -1,19 +1,12 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ConnectionStatus, InviteResponse } from "@/types/connection";
+import { requireCurrentUser } from "@/utils/authCache";
 
 // Function to send an invitation by email
 export const inviteByEmail = async (email: string): Promise<InviteResponse> => {
   try {
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
-      return { 
-        success: false, 
-        message: "User not authenticated" 
-      };
-    }
-    
-    const userId = userData.user.id;
+    const user = await requireCurrentUser();
+    const userId = user.id;
     
     // Get the user by email - we need to query the profiles table
     const { data: users, error: usersError } = await supabase

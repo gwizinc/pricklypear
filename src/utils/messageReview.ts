@@ -1,11 +1,11 @@
-
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUser } from "@/utils/authCache";
 
 export async function reviewMessage(message: string): Promise<string> {
   try {
     // Get the user's message tone preference if authenticated
-    const { data: authData } = await supabase.auth.getUser();
-    const userId = authData.user?.id;
+    const user = await getCurrentUser();
+    const userId = user?.id;
     
     let tone = "friendly"; // Default tone
     

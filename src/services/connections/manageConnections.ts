@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ConnectionStatus } from "@/types/connection";
+import { requireCurrentUser } from "@/utils/authCache";
 
 // Update the status of a connection
 export const updateConnectionStatus = async (
@@ -47,8 +47,8 @@ export const deleteConnection = async (connectionId: string): Promise<boolean> =
     }
 
     // Get the user information to log who is deleting
-    const { data: userData } = await supabase.auth.getUser();
-    const userId = userData?.user?.id;
+    const user = await requireCurrentUser();
+    const userId = user.id;
     
     console.log("User attempting to delete connection:", userId);
     console.log("Connection details:", connectionData);

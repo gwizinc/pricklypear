@@ -1,5 +1,5 @@
-
 import { supabase } from "@/integrations/supabase/client";
+import { requireCurrentUser } from "@/utils/authCache";
 
 // Import connection types from types/connection.ts
 import { ConnectionStatus, Connection, InviteResponse } from '@/types/connection';
@@ -25,16 +25,14 @@ export {
 
 // This function is updated to work with the new profile-based sender structure
 export const searchUsers = async (query: string): Promise<{ id: string; username: string }[]> => {
-  const { data: currentUser } = await supabase.auth.getUser();
-  
-  if (!currentUser.user) return [];
+  const user = await requireCurrentUser();
   
   // Search for users by username
   const { data, error } = await supabase
     .from("profiles")
     .select("id, name")
     .ilike("name", `%${query}%`)
-    .neq("id", currentUser.user.id)
+    .neq("id", user.id)
     .limit(10);
   
   if (error) {
