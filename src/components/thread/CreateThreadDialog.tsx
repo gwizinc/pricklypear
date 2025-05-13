@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MessageCirclePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,42 +12,46 @@ import {
 import { useConnections } from "@/hooks/useConnections";
 import { useThreadCreation } from "@/hooks/useThreadCreation";
 import CreateThreadForm from "./CreateThreadForm";
+import type { Thread } from "@/types/thread";
+import type { User } from "@supabase/supabase-js";
 
 interface CreateThreadDialogProps {
-  onThreadCreated: (newThread: any) => void;
-  user: any;
+  onThreadCreated: (newThread: Thread) => void;
+  user: User;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-const CreateThreadDialog = ({ 
-  onThreadCreated, 
-  user, 
-  isOpen: externalIsOpen, 
-  onOpenChange: externalOnOpenChange 
+const CreateThreadDialog = ({
+  onThreadCreated,
+  user,
+  isOpen: externalIsOpen,
+  onOpenChange: externalOnOpenChange,
 }: CreateThreadDialogProps) => {
   // Internal state for dialog open status
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  
+
   // Use controlled state if external state is provided
-  const dialogOpen = externalIsOpen !== undefined ? externalIsOpen : isDialogOpen;
+  const dialogOpen =
+    externalIsOpen !== undefined ? externalIsOpen : isDialogOpen;
   const setDialogOpen = externalOnOpenChange || setIsDialogOpen;
 
   // Custom hooks for connections and thread creation
-  const { connections, isLoading: isLoadingContacts, loadConnections } = useConnections(user);
-  const { 
-    newThreadTitle, 
-    setNewThreadTitle, 
-    selectedContact, 
+  const {
+    connections,
+    isLoading: isLoadingContacts,
+    loadConnections,
+  } = useConnections(user);
+  const {
+    newThreadTitle,
+    setNewThreadTitle,
+    selectedContact,
     setSelectedContact,
     selectedTopic,
     setSelectedTopic,
-    isCreating, 
-    handleCreateThread 
-  } = useThreadCreation(
-    onThreadCreated, 
-    () => setDialogOpen(false)
-  );
+    isCreating,
+    handleCreateThread,
+  } = useThreadCreation(onThreadCreated, () => setDialogOpen(false));
 
   const handleDialogOpen = (open: boolean) => {
     setDialogOpen(open);
@@ -72,10 +75,11 @@ const CreateThreadDialog = ({
         <DialogHeader>
           <DialogTitle>Create New Thread</DialogTitle>
           <DialogDescription>
-            Give your conversation thread a name, select a topic, and choose a contact to chat with.
+            Give your conversation thread a name, select a topic, and choose a
+            contact to chat with.
           </DialogDescription>
         </DialogHeader>
-        
+
         <CreateThreadForm
           newThreadTitle={newThreadTitle}
           setNewThreadTitle={setNewThreadTitle}

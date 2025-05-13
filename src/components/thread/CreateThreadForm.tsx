@@ -1,10 +1,14 @@
-
-import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { Connection } from "@/types/connection";
@@ -14,8 +18,24 @@ interface CreateThreadFormProps {
   setNewThreadTitle: (title: string) => void;
   selectedContact: string;
   setSelectedContact: (contact: string) => void;
-  selectedTopic?: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other';
-  setSelectedTopic?: (topic: 'travel' | 'parenting_time' | 'health' | 'education' | 'activity' | 'legal' | 'other') => void;
+  selectedTopic?:
+    | "travel"
+    | "parenting_time"
+    | "health"
+    | "education"
+    | "activity"
+    | "legal"
+    | "other";
+  setSelectedTopic?: (
+    topic:
+      | "travel"
+      | "parenting_time"
+      | "health"
+      | "education"
+      | "activity"
+      | "legal"
+      | "other",
+  ) => void;
   connections: Connection[];
   isLoadingContacts: boolean;
   isCreating: boolean;
@@ -28,22 +48,22 @@ const CreateThreadForm = ({
   setNewThreadTitle,
   selectedContact,
   setSelectedContact,
-  selectedTopic = 'other',
+  selectedTopic = "other",
   setSelectedTopic,
   connections,
   isLoadingContacts,
   isCreating,
   onSubmit,
-  onCancel
+  onCancel,
 }: CreateThreadFormProps) => {
   const topicLabels = {
-    'travel': 'Travel',
-    'parenting_time': 'Parenting Time',
-    'health': 'Health',
-    'education': 'Education',
-    'activity': 'Activity',
-    'legal': 'Legal',
-    'other': 'Other'
+    travel: "Travel",
+    parenting_time: "Parenting Time",
+    health: "Health",
+    education: "Education",
+    activity: "Activity",
+    legal: "Legal",
+    other: "Other",
   };
 
   return (
@@ -53,12 +73,10 @@ const CreateThreadForm = ({
         value={newThreadTitle}
         onChange={(e) => setNewThreadTitle(e.target.value)}
       />
-      
+
       <div>
-        <label className="text-sm font-medium mb-1 block">
-          Select Contact
-        </label>
-        
+        <label className="text-sm font-medium mb-1 block">Select Contact</label>
+
         {isLoadingContacts ? (
           <div className="flex items-center justify-center py-2">
             <Loader2 className="h-4 w-4 animate-spin text-primary mr-2" />
@@ -69,12 +87,7 @@ const CreateThreadForm = ({
             <p className="text-sm text-muted-foreground">
               No contacts available. Add contacts first.
             </p>
-            <Button 
-              variant="link" 
-              size="sm" 
-              asChild 
-              className="mt-1"
-            >
+            <Button variant="link" size="sm" asChild className="mt-1">
               <Link to="/connections">Go to Connections</Link>
             </Button>
           </div>
@@ -85,7 +98,11 @@ const CreateThreadForm = ({
             </SelectTrigger>
             <SelectContent>
               {connections.map((connection) => (
-                <SelectItem key={connection.otherUserId} value={connection.username} className="normal-case">
+                <SelectItem
+                  key={connection.otherUserId}
+                  value={connection.username}
+                  className="normal-case"
+                >
                   {connection.username}
                 </SelectItem>
               ))}
@@ -97,9 +114,20 @@ const CreateThreadForm = ({
       {setSelectedTopic && (
         <div className="space-y-3">
           <Label className="text-sm font-medium">Thread Topic</Label>
-          <RadioGroup 
-            value={selectedTopic} 
-            onValueChange={(value) => setSelectedTopic(value as any)} 
+          <RadioGroup
+            value={selectedTopic}
+            onValueChange={(value) =>
+              setSelectedTopic(
+                value as
+                  | "travel"
+                  | "parenting_time"
+                  | "health"
+                  | "education"
+                  | "activity"
+                  | "legal"
+                  | "other",
+              )
+            }
             className="grid grid-cols-2 gap-2"
           >
             {Object.entries(topicLabels).map(([value, label]) => (
@@ -118,8 +146,8 @@ const CreateThreadForm = ({
         <Button variant="outline" onClick={onCancel} disabled={isCreating}>
           Cancel
         </Button>
-        <Button 
-          onClick={onSubmit} 
+        <Button
+          onClick={onSubmit}
           disabled={!newThreadTitle.trim() || !selectedContact || isCreating}
         >
           {isCreating ? (

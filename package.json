@@ -11,6 +11,7 @@
     "dev": "bun run --hot src/index.tsx",
     "lint": "eslint .",
     "test": "bun test",
+    "fix": "eslint --fix --quiet . && prettier --ignore-path='../../.prettierignore' --log-level=silent --write .",
     "typecheck": "tsc --noEmit",
     "ci": "bun run lint && bun run typecheck && bun run build"
   },
@@ -87,6 +88,7 @@
     "globals": "16.0.0",
     "jsdom": "26.1.0",
     "postcss": "8.5.3",
+    "prettier": "3.5.3",
     "tailwindcss": "4.1.5",
     "typescript": "5.8.3",
     "typescript-eslint": "8.32.0"
