@@ -308,58 +308,75 @@ const createReadReceiptsForNewMessage = async (
   }
 };
 
-// New function to get unread message counts for threads
+// Cache for unread message count promises
+const unreadCountCache = new Map<string, Promise<number>>();
+
 export const getUnreadMessageCount = async (
   threadId: string,
 ): Promise<number> => {
-  try {
-    const user = await requireCurrentUser();
-
-    if (!user) return 0;
-
-    // Count messages where there's no read receipt or read_at is null
-    // Using a different approach to avoid the "unexpected [ expecting (" error
-    const { data, error } = await supabase
-      .from("messages")
-      .select("id, sender_profile_id, is_system")
-      .eq("conversation_id", threadId)
-      .neq("sender_profile_id", user.id)
-      .eq("is_system", false);
-
-    if (error) {
-      console.error("Error getting message data:", error);
-      return 0;
-    }
-
-    if (!data || data.length === 0) return 0;
-
-    // Get read receipts for this user
-    const { data: readReceipts, error: readReceiptsError } = await supabase
-      .from("message_read_receipts")
-      .select("message_id, read_at")
-      .eq("profile_id", user.id)
-      .not("read_at", "is", null);
-
-    if (readReceiptsError) {
-      console.error("Error getting read receipts:", readReceiptsError);
-      return 0;
-    }
-
-    // Create a set of read message IDs
-    const readMessageIds = new Set(
-      (readReceipts || []).map((receipt) => receipt.message_id),
-    );
-
-    // Count messages that aren't in the read set
-    const unreadCount = data.filter(
-      (message) => !readMessageIds.has(message.id),
-    ).length;
-
-    return unreadCount;
-  } catch (error) {
-    console.error("Exception getting unread count:", error);
-    return 0;
+  // Check if we have a cached promise for this threadId
+  const cachedPromise = unreadCountCache.get(threadId);
+  if (cachedPromise) {
+    return cachedPromise;
   }
+
+  // Create new promise and cache it
+  const promise = (async () => {
+    try {
+      const user = await requireCurrentUser();
+
+      if (!user) return 0;
+
+      // Count messages where there's no read receipt or read_at is null
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id, sender_profile_id, is_system")
+        .eq("conversation_id", threadId)
+        .neq("sender_profile_id", user.id)
+        .eq("is_system", false);
+
+      if (error) {
+        console.error("Error getting message data:", error);
+        return 0;
+      }
+
+      if (!data || data.length === 0) return 0;
+
+      // Get read receipts for this user
+      const { data: readReceipts, error: readReceiptsError } = await supabase
+        .from("message_read_receipts")
+        .select("message_id, read_at")
+        .eq("profile_id", user.id)
+        .not("read_at", "is", null);
+
+      if (readReceiptsError) {
+        console.error("Error getting read receipts:", readReceiptsError);
+        return 0;
+      }
+
+      // Create a set of read message IDs
+      const readMessageIds = new Set(
+        (readReceipts || []).map((receipt) => receipt.message_id),
+      );
+
+      // Count messages that aren't in the read set
+      const unreadCount = data.filter(
+        (message) => !readMessageIds.has(message.id),
+      ).length;
+
+      return unreadCount;
+    } catch (error) {
+      console.error("Exception getting unread count:", error);
+      return 0;
+    } finally {
+      // Remove the promise from cache after it resolves
+      unreadCountCache.delete(threadId);
+    }
+  })();
+
+  // Store the promise in cache
+  unreadCountCache.set(threadId, promise);
+  return promise;
 };
 
 // Function to get unread counts for all threads
