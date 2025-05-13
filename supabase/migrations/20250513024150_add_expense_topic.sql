@@ -1,0 +1,1 @@
+alter type thread_topic add value if not exists 'expense';
