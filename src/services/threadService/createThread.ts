@@ -1,19 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Thread } from "@/types/thread";
+import type { ThreadTopic } from "@/constants/thread-topics";
 import { v4 as uuidv4 } from "uuid";
 import { requireCurrentUser } from "@/utils/authCache";
 
 export const createThread = async (
   title: string,
   participantNames: string[],
-  topic:
-    | "travel"
-    | "parenting_time"
-    | "health"
-    | "education"
-    | "activity"
-    | "legal"
-    | "other" = "other",
+  topic: ThreadTopic = "other",
 ): Promise<Thread | null> => {
   try {
     const user = await requireCurrentUser();

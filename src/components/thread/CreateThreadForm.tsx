@@ -1,3 +1,4 @@
+import { THREAD_TOPIC_INFO, type ThreadTopic } from "@/constants/thread-topics";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -18,24 +19,8 @@ interface CreateThreadFormProps {
   setNewThreadTitle: (title: string) => void;
   selectedContact: string;
   setSelectedContact: (contact: string) => void;
-  selectedTopic?:
-    | "travel"
-    | "parenting_time"
-    | "health"
-    | "education"
-    | "activity"
-    | "legal"
-    | "other";
-  setSelectedTopic?: (
-    topic:
-      | "travel"
-      | "parenting_time"
-      | "health"
-      | "education"
-      | "activity"
-      | "legal"
-      | "other",
-  ) => void;
+  selectedTopic?: ThreadTopic;
+  setSelectedTopic?: (topic: ThreadTopic) => void;
   connections: Connection[];
   isLoadingContacts: boolean;
   isCreating: boolean;
@@ -56,15 +41,7 @@ const CreateThreadForm = ({
   onSubmit,
   onCancel,
 }: CreateThreadFormProps) => {
-  const topicLabels = {
-    travel: "Travel",
-    parenting_time: "Parenting Time",
-    health: "Health",
-    education: "Education",
-    activity: "Activity",
-    legal: "Legal",
-    other: "Other",
-  };
+  const topicInfo = THREAD_TOPIC_INFO;
 
   return (
     <div className="space-y-4 mt-2">
@@ -125,16 +102,17 @@ const CreateThreadForm = ({
                   | "education"
                   | "activity"
                   | "legal"
+                  | "expense"
                   | "other",
               )
             }
             className="grid grid-cols-2 gap-2"
           >
-            {Object.entries(topicLabels).map(([value, label]) => (
+            {Object.entries(topicInfo).map(([value, info]) => (
               <div key={value} className="flex items-center space-x-2">
                 <RadioGroupItem value={value} id={`topic-${value}`} />
                 <Label htmlFor={`topic-${value}`} className="text-sm">
-                  {label}
+                  {info.label}
                 </Label>
               </div>
             ))}

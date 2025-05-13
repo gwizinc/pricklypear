@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import NotificationBadge from "@/components/ui/notification-badge";
+import { getThreadTopicInfo } from "@/constants/thread-topics";
 import type { Thread } from "@/types/thread";
 
 interface ThreadCardProps {
@@ -18,20 +19,7 @@ interface ThreadCardProps {
 }
 
 const ThreadCard = ({ thread, unreadCount = 0 }: ThreadCardProps) => {
-  const topicLabels: Record<string, { label: string; icon: string }> = {
-    travel: { label: "Travel", icon: "✈️" },
-    parenting_time: { label: "Parenting Time", icon: "👨‍👩‍👧" },
-    health: { label: "Health", icon: "🏥" },
-    education: { label: "Education", icon: "🎓" },
-    activity: { label: "Activity", icon: "🏃" },
-    legal: { label: "Legal", icon: "⚖️" },
-    other: { label: "Other", icon: "📝" },
-  };
-
-  const topicInfo =
-    thread.topic && topicLabels[thread.topic]
-      ? topicLabels[thread.topic]
-      : topicLabels.other;
+  const topicInfo = getThreadTopicInfo(thread.topic);
 
   return (
     <Card className="rounded-xl shadow-card hover:bg-bgLight transition-all hover-tilt">
