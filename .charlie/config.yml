@@ -10,4 +10,4 @@ checkCommands:
 
 beta:
   canApprovePullRequests: true
-  forceAllCheckCommands: false
+  forceAllCheckCommands: true
