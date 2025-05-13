@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeText } from "@/utils/sanitizeText";
 import { Message } from "@/types/message";
+import { getCurrentUser } from "@/utils/authCache";
 
 export const saveMessage = async (
   sender: string, 
@@ -15,11 +16,11 @@ export const saveMessage = async (
       return false;
     }
 
-    // Get the current authenticated user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // Get the current authenticated user using the cache
+    const user = await getCurrentUser();
     
-    if (userError || !user) {
-      console.error("No authenticated user found", userError);
+    if (!user) {
+      console.error("No authenticated user found");
       return false;
     }
     
@@ -200,8 +201,8 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       return [];
     }
 
-    // Get the current user's ID to consistently match messages
-    const { data: { user } } = await supabase.auth.getUser();
+    // Get the current user's ID using the cache
+    const user = await getCurrentUser();
     
     // Transform database records into Message objects
     return (messagesData || []).map(msg => {
@@ -318,7 +319,7 @@ const createReadReceiptsForNewMessage = async (
 // New function to get unread message counts for threads
 export const getUnreadMessageCount = async (threadId: string): Promise<number> => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
     
     if (!user) return 0;
     
@@ -370,7 +371,7 @@ export const getUnreadMessageCount = async (threadId: string): Promise<number> =
 // Function to get unread counts for all threads
 export const getAllUnreadCounts = async (): Promise<Record<string, number>> => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
     
     if (!user) return {};
     

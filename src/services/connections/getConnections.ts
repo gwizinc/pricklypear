@@ -1,14 +1,14 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Connection, ConnectionStatus } from "@/types/connection";
+import { getCurrentUser } from "@/utils/authCache";
 
 // Get all connections for the current user (both as sender and receiver)
 export const getConnections = async (): Promise<Connection[]> => {
   try {
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) throw new Error("User not authenticated");
+    const user = await getCurrentUser();
+    if (!user) throw new Error("User not authenticated");
 
-    const userId = userData.user.id;
+    const userId = user.id;
 
     // Get connections where the user is the sender (user_id equals current user)
     const { data: sentConnections, error: sentError } = await supabase

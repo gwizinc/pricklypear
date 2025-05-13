@@ -1,10 +1,10 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Thread } from "@/types/thread";
+import { getCurrentUser } from "@/utils/authCache";
 
 export const getThreads = async (): Promise<Thread[]> => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
     
     if (!user) {
       console.error("No authenticated user found");

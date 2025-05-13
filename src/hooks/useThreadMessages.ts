@@ -26,6 +26,7 @@ export const useThreadMessages = (threadId: string | undefined, thread: Thread |
   useEffect(() => {
     if (threadId) {
       const loadUnreadCount = async () => {
+        console.log('loadUnreadCount::getUnreadMessageCount', threadId)
         const count = await getUnreadMessageCount(threadId);
         setUnreadCount(count);
       };
