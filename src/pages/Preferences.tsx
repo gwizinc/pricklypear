@@ -55,7 +55,11 @@ const Preferences = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [messageTone, setMessageTone] = useState<string>("friendly");
-  const { subscription, loading: subLoading, refresh: refreshSub } = useSubscription();
+  const {
+    subscription,
+    loading: subLoading,
+    refresh: refreshSub,
+  } = useSubscription();
 
   // Form with validation
   const form = useForm<FormValues>({
@@ -322,7 +326,9 @@ const Preferences = () => {
                 <p className="font-medium text-muted-foreground">Interval</p>
                 <p className="capitalize">{subscription.interval ?? "—"}</p>
 
-                <p className="font-medium text-muted-foreground">Next renewal</p>
+                <p className="font-medium text-muted-foreground">
+                  Next renewal
+                </p>
                 <p>
                   {subscription.currentPeriodEnd
                     ? format(new Date(subscription.currentPeriodEnd), "PPP")
@@ -337,7 +343,10 @@ const Preferences = () => {
                 <Button
                   variant="default"
                   onClick={() => {
-                    toast({ title: "Coming soon", description: "Plan change flow" });
+                    toast({
+                      title: "Coming soon",
+                      description: "Plan change flow",
+                    });
                     void refreshSub();
                   }}
                 >
@@ -355,7 +364,10 @@ const Preferences = () => {
                 <Button
                   variant="ghost"
                   onClick={() => {
-                    toast({ title: "Coming soon", description: "Billing history" });
+                    toast({
+                      title: "Coming soon",
+                      description: "Billing history",
+                    });
                     void refreshSub();
                   }}
                 >

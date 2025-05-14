@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Subscription } from "@/types/subscription";
 
 /**
- * Row shape for the `subscriptions` table.  
+ * Row shape for the `subscriptions` table.
  * Extend or refine as the schema evolves.
  */
 type SubscriptionRow = {
@@ -30,7 +30,9 @@ export function useSubscription() {
   /**
    * Maps an arbitrary object (metadata row or DB record) into a `Subscription`.
    */
-  const mapToSubscription = (raw: Record<string, unknown> | null): Subscription | null => {
+  const mapToSubscription = (
+    raw: Record<string, unknown> | null,
+  ): Subscription | null => {
     if (!raw) return null;
 
     return {
@@ -39,7 +41,9 @@ export function useSubscription() {
       interval: typeof raw.interval === "string" ? raw.interval : null,
       isActive: raw.is_active === true || raw.status === "active",
       currentPeriodEnd:
-        typeof raw.current_period_end === "string" ? raw.current_period_end : null,
+        typeof raw.current_period_end === "string"
+          ? raw.current_period_end
+          : null,
       status: typeof raw.status === "string" ? raw.status : null,
     };
   };
@@ -60,7 +64,10 @@ export function useSubscription() {
 
       // 1. Client-side metadata (present today)
       const metaSub = mapToSubscription(
-        (user.user_metadata?.subscription ?? null) as Record<string, unknown> | null,
+        (user.user_metadata?.subscription ?? null) as Record<
+          string,
+          unknown
+        > | null,
       );
 
       // 2. Future server data (ignore for now – wrapped in try/catch)
