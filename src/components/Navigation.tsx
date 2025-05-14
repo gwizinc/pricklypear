@@ -13,6 +13,7 @@ import {
   Settings,
   FileText,
   Bell,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +21,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationBadge from "@/components/ui/notification-badge";
+import { useSearchThread } from "@/contexts/search-thread-context.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +33,7 @@ import {
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
+  const { createThread } = useSearchThread();
   const { toast } = useToast();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -189,6 +192,14 @@ const Navigation = () => {
           <nav className="flex items-center space-x-2">{renderNavItems()}</nav>
 
           <div className="flex flex-1 items-center justify-end space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="New search"
+              onClick={createThread}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
             {renderUserMenu()}
           </div>
         </div>
@@ -203,7 +214,17 @@ const Navigation = () => {
         </div>
 
         {/* Mobile Right Actions */}
-        <div className="flex items-center md:hidden">{renderUserMenu()}</div>
+        <div className="flex items-center md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="New search"
+            onClick={createThread}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+          {renderUserMenu()}
+        </div>
       </div>
 
       {/* Mobile Navigation Menu */}

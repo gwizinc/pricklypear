@@ -15,4 +15,7 @@ export type Message = {
   // Read status information
   isRead?: boolean;
   readAt?: Date | null;
+
+  /** Indicates the LLM is still streaming this message */
+  isStreaming?: boolean;
 };

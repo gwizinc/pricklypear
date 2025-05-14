@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navigation from "./components/Navigation";
+import { SearchThreadProvider } from "@/contexts/search-thread-context.js";
 import Home from "./pages/Home";
 import Threads from "./pages/Threads";
 import ThreadView from "./pages/ThreadView";
@@ -27,21 +28,23 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <Navigation />
-            <main className="min-h-[calc(100vh-73px)]">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/threads" element={<Threads />} />
-                <Route path="/threads/:threadId" element={<ThreadView />} />
-                <Route path="/connections" element={<Connections />} />
-                <Route path="/documents" element={<Documents />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/preferences" element={<Preferences />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-          </BrowserRouter>
+          <SearchThreadProvider>
+            <BrowserRouter>
+              <Navigation />
+              <main className="min-h-[calc(100vh-73px)]">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/threads" element={<Threads />} />
+                  <Route path="/threads/:threadId" element={<ThreadView />} />
+                  <Route path="/connections" element={<Connections />} />
+                  <Route path="/documents" element={<Documents />} />
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/preferences" element={<Preferences />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+            </BrowserRouter>
+          </SearchThreadProvider>
         </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>
