@@ -6,6 +6,7 @@ import {
 } from "@/constants/subscription-plans";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CheckCircle2 } from "lucide-react";
 
 /**
  * Pricing / subscription options section shown on the home page.
@@ -15,7 +16,7 @@ function SubscriptionPlans() {
     <section
       id="pricing"
       aria-labelledby="pricing-heading"
-      className="w-full bg-bgLight py-16 px-4"
+      className="w-full bg-bgLight py-16 px-4 sm:px-6 lg:px-8"
     >
       <div className="container mx-auto max-w-5xl">
         <h2
@@ -25,7 +26,7 @@ function SubscriptionPlans() {
           Choose the plan that fits your family
         </h2>
 
-        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:gap-10">
           {SUBSCRIPTION_PLANS.map((plan) => (
             <PricingCard key={plan.name} plan={plan} />
           ))}
@@ -45,23 +46,21 @@ function PricingCard({ plan }: PricingCardProps) {
   return (
     <div
       className={cn(
-        "bg-white rounded-xl shadow-card hover:bg-bgLight transition-all hover-tilt flex flex-col",
+        "bg-white rounded-xl shadow-card hover:bg-bgLight transition-all hover-tilt flex flex-col h-full",
       )}
     >
       <div className="p-8 flex-1 flex flex-col">
-        <h3 className="text-xl font-bold font-rounded mb-2 text-primary text-center">
+        <h3 className="text-xl md:text-2xl font-bold font-rounded mb-2 text-primary text-center">
           {plan.name}
         </h3>
-        <p className="text-2xl font-extrabold text-center mb-6 text-accent-DEFAULT">
+        <p className="text-2xl md:text-3xl font-extrabold text-center mb-6 text-accent-DEFAULT">
           {plan.price}
         </p>
 
         <ul className="space-y-3 flex-1" role="list">
           {plan.features.map((feature) => (
             <li key={feature} className="text-textBody flex items-start">
-              <span className="material-symbols-outlined text-secondary-DEFAULT mr-2 mt-[2px]">
-                check_circle
-              </span>
+              <CheckCircle2 className="h-4 w-4 text-secondary-DEFAULT mr-2 mt-[2px] flex-shrink-0" />
               <span>{feature}</span>
             </li>
           ))}
@@ -73,7 +72,9 @@ function PricingCard({ plan }: PricingCardProps) {
           asChild
           className="w-full bg-secondary hover:bg-secondary/90 hover-rotate"
         >
-          <Link to={plan.ctaPath}>Select</Link>
+          <Link to={plan.ctaPath} aria-label={`Select ${plan.name} plan`}>
+            {`Select ${plan.name}`}
+          </Link>
         </Button>
       </div>
     </div>
