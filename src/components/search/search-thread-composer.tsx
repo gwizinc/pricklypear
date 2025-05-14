@@ -18,13 +18,13 @@ const SearchThreadComposer = () => {
   const [text, setText] = useState("");
 
   /**
-   * Sends the user’s query to the `search-thread` edge-function and appends the
-   * system’s reply (or an error message) to the current thread.
+   * Sends the user's query to the `search-thread` edge-function and appends the
+   * system's reply (or an error message) to the current thread.
    */
   const handleSend = async (): Promise<void> => {
     const trimmed = text.trim();
     if (!trimmed) return;
-    // Immediately reflect the user’s message in the UI.
+    // Immediately reflect the user's message in the UI.
     addUserMessage(trimmed);
     // Clear the composer.
     setText("");
