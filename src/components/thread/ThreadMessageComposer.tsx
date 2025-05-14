@@ -29,7 +29,7 @@ const ThreadMessageComposer = ({
   };
 
   return (
-    <div className="flex gap-2 w-1/2 max-w-[500px] mx-auto">
+    <div className="flex gap-2 w-1/2 max-w-[850px] mx-auto">
       <Textarea
         placeholder={
           isThreadClosed ? "Thread is closed" : "Type your message..."
