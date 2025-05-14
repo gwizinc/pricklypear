@@ -1,5 +1,5 @@
 import React from "react";
-import { format } from "date-fns";
+import { formatThreadTimestamp } from "@/utils/formatTimestamp";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types/message";
 
@@ -25,7 +25,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
         <div className="flex items-center gap-1 mb-1 text-xs text-gray-500">
           <span>{message.isCurrentUser ? "You" : message.sender}</span>
           <span>•</span>
-          <span>{format(message.timestamp, "h:mm a")}</span>
+          <span>{formatThreadTimestamp(message.timestamp)}</span>
         </div>
       )}
 
