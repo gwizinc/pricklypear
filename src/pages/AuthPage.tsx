@@ -139,17 +139,17 @@ const AuthPage = () => {
                   {ADMIN_MODE && (
                     <div className="space-y-2">
                       <p className="text-sm font-semibold text-red-600">
-                        Admin mode enabled – you can impersonate any user
+                        Admin mode enabled - you can impersonate any user
                       </p>
                       <select
                         className="w-full rounded-md border px-3 py-2 text-sm"
                         value={selectedUserId}
                         onChange={(e) => setSelectedUserId(e.target.value)}
                       >
-                        <option value="">🔒 Regular sign-in</option>
+                        <option value="">Regular sign-in</option>
                         {users.map((u) => (
                           <option key={u.id} value={u.id}>
-                            {u.name ?? "Unnamed"} — {u.id.slice(0, 8)}…
+                            {u.name ?? "Unnamed"} - {u.id.slice(0, 8)}...
                           </option>
                         ))}
                       </select>
