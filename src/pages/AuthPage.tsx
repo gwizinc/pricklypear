@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -15,34 +15,12 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-
-/**
- * Admin mode is enabled in the following situations:
- *  1. Local development - when the app is served by Vite's dev server
- *     (`import.meta.env.DEV` is true).
- *  2. Vercel "development" or "preview" deployments - detected via the
- *     forwarded `VERCEL_ENV` environment variable (see vite.config.ts).
- *
- * It is always disabled for Vercel "production" deployments and any other
- * environment that does not meet the above criteria.
- */
-const ADMIN_MODE = true;
-
-type Profile = {
-  id: string;
-  name: string | null;
-};
 
 const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // admin-mode only
-  const [users, setUsers] = useState<Profile[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -54,53 +32,12 @@ const AuthPage = () => {
     }
   }, [user, navigate]);
 
-  // Fetch the available user profiles when admin-mode is active
-  useEffect(() => {
-    if (!ADMIN_MODE) return;
-
-    const loadUsers = async () => {
-      const { data, error } = await supabase.functions.invoke('get-all-users');
-
-      if (error) {
-        console.error("Failed to fetch users:", error);
-        return;
-      }
-
-      setUsers(data.data as Profile[]);
-    };
-
-    void loadUsers();
-  }, [ADMIN_MODE]);
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // DEV-ONLY: admin impersonation flow
-      if (ADMIN_MODE && selectedUserId) {
-        const { data, error } = await supabase.functions.invoke("admin-login", {
-          body: { userId: selectedUserId },
-        });
-        if (error) throw error;
-
-        const { token, email: impersonatedEmail } = data as {
-          token: string;
-          email: string;
-        };
-
-        const { error: verifyError } = await supabase.auth.verifyOtp({
-          type: "magiclink",
-          email: impersonatedEmail,
-          token,
-        });
-        if (verifyError) throw verifyError;
-
-        navigate("/threads");
-      } else {
-        // Normal e-mail / password flow
-        await signIn(email, password);
-        navigate("/threads");
-      }
+      await signIn(email, password);
+      navigate("/threads");
     } catch (error) {
       console.error("Login error:", error);
     } finally {
@@ -140,52 +77,27 @@ const AuthPage = () => {
               </CardHeader>
               <form onSubmit={handleSignIn}>
                 <CardContent className="space-y-4">
-                  {ADMIN_MODE && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-semibold text-red-600">
-                        Admin mode enabled - you can impersonate any user
-                      </p>
-                      <select
-                        className="w-full rounded-md border px-3 py-2 text-sm"
-                        value={selectedUserId}
-                        onChange={(e) => setSelectedUserId(e.target.value)}
-                      >
-                        <option value="">Regular sign-in</option>
-                        {users.map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {u.name ?? "Unnamed"} - {u.id.slice(0, 8)}...
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  {/* Hide e-mail / password when impersonating */}
-                  {!selectedUserId && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="you@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" className="w-full" disabled={isLoading}>
