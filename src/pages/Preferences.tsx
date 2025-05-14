@@ -194,9 +194,7 @@ const Preferences = () => {
     }
   };
 
-  /**
-   * Store the chosen emoji in Supabase user metadata
-   */
+  // Store the chosen emoji in Supabase user metadata
   const handleEmojiSelect = async (emoji: string) => {
     if (!user) return;
 
