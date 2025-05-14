@@ -13,13 +13,13 @@
 --   • Historic + recent creation dates for timestamp rendering checks
 --
 -- All emails use example.com so we never spam real people.
--- Password for every user: "DemoPass1!" (bcrypt hash pre-computed; no pgcrypto required)
+-- Password for every user: "DemoPass1!" (bcrypt-hashed via pgcrypto → crypt())
 -- ---------------------------------------------------------------------------
 
 begin;
 
--- 1) House-keeping
-create extension if not exists "uuid-ossp";
+-- 1) House-keeping -----------------------------------------------------------
+create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------------------
 -- 2) Helper – create one auth user + identity + profile in one shot
@@ -27,7 +27,7 @@ create extension if not exists "uuid-ossp";
 create or replace function public._demo_create_user(
   in_email       text,
   in_full_name   text,
-  in_password    text default 'DemoPass1!'  -- kept for interface stability
+  in_password    text default 'DemoPass1!'
 ) returns uuid
 language plpgsql
 security definer set search_path = public, auth
@@ -55,11 +55,11 @@ begin
     updated_at
   ) values (
     '00000000-0000-0000-0000-000000000000',
-    uuid_generate_v4(),
+    gen_random_uuid(),
     'authenticated',
     'authenticated',
     in_email,
-    '$2a$10$a2QNfRKt4DWN0XucPrecHuMQIkMIYXVHCL2U7SKGGuvlNjO2YIF82', -- bcrypt("DemoPass1!")
+    crypt(in_password, gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}'::jsonb,
     jsonb_build_object('full_name', in_full_name),
@@ -79,7 +79,7 @@ begin
     updated_at,
     last_sign_in_at
   ) values (
-    uuid_generate_v4(),
+    gen_random_uuid(),
     new_uid,
     jsonb_build_object('sub', new_uid::text, 'email', in_email),
     'email',
