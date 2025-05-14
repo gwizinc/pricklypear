@@ -22,7 +22,7 @@ export {
   type ConnectionStatus,
   type Connection,
   type InviteResponse,
-} from ".";
+} from "../connections/index.js";
 
 /**
  * Search profiles by (case-insensitive) name while excluding the current user.

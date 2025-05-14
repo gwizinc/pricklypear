@@ -9,7 +9,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { CheckCircle2, XCircle, UserCheck, EyeOff } from "lucide-react";
-import { Connection } from "@/services/users/userService";
+import { Connection } from "@/services/users/userService.js";
 import DisableConnectionDialog from "./DisableConnectionDialog";
 
 interface ConnectionCardProps {
