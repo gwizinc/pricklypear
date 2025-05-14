@@ -70,9 +70,7 @@ const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // ------------------------------------------------------------------
-      // DEV-ONLY ADMIN IMPERSONATION FLOW
-      // ------------------------------------------------------------------
+      // DEV-ONLY: admin impersonation flow
       if (ADMIN_MODE && selectedUserId) {
         const { data, error } = await supabase.functions.invoke("admin-login", {
           body: { userId: selectedUserId },
