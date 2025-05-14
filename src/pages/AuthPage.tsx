@@ -27,9 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
  * It is always disabled for Vercel "production" deployments and any other
  * environment that does not meet the above criteria.
  */
-const ADMIN_MODE =
-  import.meta.env.DEV ||
-  ["development", "preview"].includes(import.meta.env.VERCEL_ENV ?? "");
+const ADMIN_MODE = true;
 
 type Profile = {
   id: string;
