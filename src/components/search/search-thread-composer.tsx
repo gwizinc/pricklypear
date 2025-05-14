@@ -16,6 +16,21 @@ const SearchThreadComposer = () => {
     setText("");
   };
 
+  /**
+   * Handles keyboard shortcuts within the textarea.
+   * Cmd/Ctrl + Enter triggers the same action as the send button.
+   *
+   * @param {React.KeyboardEvent<HTMLTextAreaElement>} event
+   */
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ): void => {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <div className="flex items-end gap-2">
       <textarea
@@ -23,6 +38,7 @@ const SearchThreadComposer = () => {
         rows={2}
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="Type your search…"
       />
       <Button size="icon" variant="ghost" onClick={handleSend}>
