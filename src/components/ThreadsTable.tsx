@@ -1,9 +1,12 @@
 import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { getThreadTopicInfo } from "@/constants/thread-topics";
 import type { Thread } from "@/types/thread";
 
 interface ThreadsTableProps {
@@ -25,6 +28,7 @@ function getInitials(name: string): string {
 
 const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
   const { threadCounts } = useUnreadMessages();
+  const navigate = useNavigate();
 
   const sortedThreads = useMemo(() => {
     const sortDesc = (a: Thread, b: Thread) =>
@@ -70,65 +74,79 @@ const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
           </tr>
         </thead>
         <tbody className="divide-y divide-muted">
-          {sortedThreads.map((thread) => (
-            <tr key={thread.id} className="hover:bg-muted/50">
-              {/* State */}
-              <td className="px-4 py-2">
-                <Badge
-                  variant={thread.status === "open" ? "secondary" : "outline"}
-                  className={
-                    thread.status === "open"
-                      ? "bg-secondary text-primary"
-                      : "text-muted-foreground"
-                  }
-                >
-                  {thread.status === "open" ? "Open" : "Closed"}
-                </Badge>
-              </td>
+          {sortedThreads.map((thread) => {
+            const topicInfo = getThreadTopicInfo(thread.topic);
+            const participants = thread.participants ?? [];
 
-              {/* Topic */}
-              <td className="px-4 py-2 capitalize">{thread.topic}</td>
-
-              {/* Title */}
-              <td className="px-4 py-2 font-medium">{thread.title}</td>
-
-              {/* Date Created */}
-              <td className="px-4 py-2 text-muted-foreground">
-                {thread.createdAt.toLocaleDateString()}
-              </td>
-
-              {/* Participants */}
-              <td className="px-4 py-2">
-                <div className="flex items-center">
-                  {thread.participants?.slice(0, 3).map((name, idx) => (
-                    <Avatar
-                      key={`${thread.id}-participant-${idx}`}
-                      className={`h-8 w-8 border-2 border-background ${
-                        idx > 0 ? "-ml-2" : ""
-                      }`}
-                    >
-                      <AvatarFallback className="text-xs">
-                        {getInitials(name)}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
-                  {thread.participants && thread.participants.length > 3 && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      +{thread.participants.length - 3}
-                    </span>
-                  )}
-                </div>
-              </td>
-
-              {/* Summary */}
-              <td
-                className="px-4 py-2 max-w-xs truncate whitespace-nowrap overflow-hidden text-ellipsis"
-                title={thread.summary ?? "No summary generated yet."}
+            return (
+              <tr
+                key={thread.id}
+                onClick={() => navigate(`/threads/${thread.id}`)}
+                className="cursor-pointer hover:bg-muted/50"
               >
-                {thread.summary ?? "No summary generated yet."}
-              </td>
-            </tr>
-          ))}
+                {/* State */}
+                <td className="px-4 py-2">
+                  <Badge
+                    variant={thread.status === "open" ? "secondary" : "outline"}
+                    className={
+                      thread.status === "open"
+                        ? "bg-secondary text-primary"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    {thread.status === "open" ? "Open" : "Closed"}
+                  </Badge>
+                </td>
+
+                {/* Topic */}
+                <td className="px-4 py-2">
+                  <Badge variant="outline">
+                    <span className="mr-1">{topicInfo.icon}</span>
+                    {topicInfo.label}
+                  </Badge>
+                </td>
+
+                {/* Title */}
+                <td className="px-4 py-2 font-medium">{thread.title}</td>
+
+                {/* Date Created */}
+                <td className="px-4 py-2 text-muted-foreground">
+                  {thread.createdAt.toLocaleDateString()}
+                </td>
+
+                {/* Participants */}
+                <td className="px-4 py-2">
+                  <div className="flex items-center">
+                    {participants.slice(0, 3).map((name, idx) => (
+                      <Avatar
+                        key={`${thread.id}-participant-${idx}`}
+                        className={`h-8 w-8 border-2 border-background ${
+                          idx > 0 ? "-ml-2" : ""
+                        }`}
+                      >
+                        <AvatarFallback className="text-xs">
+                          {getInitials(name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                    {participants.length > 3 && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        +{participants.length - 3}
+                      </span>
+                    )}
+                  </div>
+                </td>
+
+                {/* Summary */}
+                <td
+                  className="px-4 py-2 max-w-xs truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                  title={thread.summary ?? "No summary generated yet."}
+                >
+                  {thread.summary ?? "No summary generated yet."}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
