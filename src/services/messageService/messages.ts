@@ -67,7 +67,8 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
     return (messagesData || []).map((msg) => ({
       id: msg.message_id,
-      text: msg.text || "",
+      // Strip legacy wrapping quotes at read-time.
+      text: sanitizeText(msg.text || ""),
       sender: msg.is_system ? "system" : msg.profile_name || "Unknown User",
       timestamp: new Date(msg.timestamp || ""),
       threadId: msg.conversation_id || "",
