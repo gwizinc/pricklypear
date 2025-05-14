@@ -12,13 +12,20 @@ import { CheckCircle2 } from "lucide-react";
  * Pricing / subscription options section shown on the home page.
  */
 function SubscriptionPlans() {
+  const monthlyPlans = SUBSCRIPTION_PLANS.filter(
+    (plan) => plan.category === "monthly",
+  );
+  const perRequestPlans = SUBSCRIPTION_PLANS.filter(
+    (plan) => plan.category === "perRequest",
+  );
+
   return (
     <section
       id="pricing"
       aria-labelledby="pricing-heading"
       className="w-full bg-bgLight py-16 px-4 sm:px-6 lg:px-8"
     >
-      <div className="container mx-auto max-w-5xl">
+      <div className="container mx-auto max-w-7xl px-4">
         <h2
           id="pricing-heading"
           className="text-3xl md:text-4xl font-extrabold font-rounded text-center mb-12"
@@ -26,11 +33,37 @@ function SubscriptionPlans() {
           Choose the plan that fits your family
         </h2>
 
-        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:gap-10">
-          {SUBSCRIPTION_PLANS.map((plan) => (
-            <PricingCard key={plan.name} plan={plan} />
-          ))}
-        </div>
+        <section role="region" aria-labelledby="monthly-plans-heading">
+          <h2
+            id="monthly-plans-heading"
+            className="text-2xl font-semibold mb-4"
+          >
+            Monthly Plans
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {monthlyPlans.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} />
+            ))}
+          </div>
+        </section>
+
+        <section
+          role="region"
+          aria-labelledby="per-request-plans-heading"
+          className="mt-12"
+        >
+          <h2
+            id="per-request-plans-heading"
+            className="text-2xl font-semibold mb-4"
+          >
+            Per Request
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            {perRequestPlans.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} />
+            ))}
+          </div>
+        </section>
       </div>
     </section>
   );
@@ -38,11 +71,11 @@ function SubscriptionPlans() {
 
 export default SubscriptionPlans;
 
-type PricingCardProps = {
+type PlanCardProps = {
   plan: SubscriptionPlan;
 };
 
-function PricingCard({ plan }: PricingCardProps) {
+function PlanCard({ plan }: PlanCardProps) {
   return (
     <div
       className={cn(
