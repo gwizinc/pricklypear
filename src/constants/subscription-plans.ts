@@ -2,11 +2,18 @@
  * Subscription plan metadata used by the <SubscriptionPlans /> component.
  */
 
+export type SubscriptionPlanCategory = "monthly" | "perRequest";
+
+/**
+ * Metadata for a single subscription plan.
+ */
 export type SubscriptionPlan = {
   /** Public-facing name shown on the pricing card. */
   name: string;
   /** Price label shown under the name (free, monthly, per-request, etc.). */
   price: string;
+  /** Category used to group or style plans (recurring vs one-off). */
+  category: SubscriptionPlanCategory;
   /** Bulleted list of plan features. */
   features: string[];
   /** Path the user is sent to when clicking the plan's call-to-action button. */
@@ -17,6 +24,7 @@ export const SUBSCRIPTION_PLANS: readonly SubscriptionPlan[] = [
   {
     name: "Free",
     price: "$0 / mo",
+    category: "monthly",
     features: [
       "10 AI-assisted messages / month",
       "Secure, private conversations",
@@ -27,6 +35,7 @@ export const SUBSCRIPTION_PLANS: readonly SubscriptionPlan[] = [
   {
     name: "Growth",
     price: "$10 / mo",
+    category: "monthly",
     features: [
       "Unlimited AI-assisted messages",
       "Priority message processing",
@@ -38,6 +47,7 @@ export const SUBSCRIPTION_PLANS: readonly SubscriptionPlan[] = [
   {
     name: "Legal Assist",
     price: "$200 / request",
+    category: "perRequest",
     features: [
       "On-demand attorney review",
       "Detailed rewrite recommendations",
@@ -49,6 +59,7 @@ export const SUBSCRIPTION_PLANS: readonly SubscriptionPlan[] = [
   {
     name: "Custody Change",
     price: "$500 / change",
+    category: "perRequest",
     features: [
       "Dedicated legal expert",
       "Full document preparation",
