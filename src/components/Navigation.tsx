@@ -46,6 +46,11 @@ const Navigation = () => {
   };
 
   const getUserInitials = () => {
+    // Show emoji avatar preference if set
+    if (user?.user_metadata?.avatar_emoji) {
+      return user.user_metadata.avatar_emoji as string;
+    }
+
     if (!user) return "?";
 
     // Try to get name from metadata if available

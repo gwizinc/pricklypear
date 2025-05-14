@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import EmojiPicker from "emoji-picker-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,6 +53,10 @@ const Preferences = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [messageTone, setMessageTone] = useState<string>("friendly");
+  const [avatarEmoji, setAvatarEmoji] = useState<string>(
+    (user?.user_metadata?.avatar_emoji as string) ?? "",
+  );
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Form with validation
   const form = useForm<FormValues>({
@@ -103,6 +108,11 @@ const Preferences = () => {
         // Set message tone if it exists in profile
         if (profileData && profileData.message_tone) {
           setMessageTone(profileData.message_tone);
+        }
+
+        // Avatar emoji lives in user metadata, make sure local state is up-to-date
+        if (user.user_metadata?.avatar_emoji) {
+          setAvatarEmoji(user.user_metadata.avatar_emoji as string);
         }
       } catch (error) {
         console.error("Error loading user data:", error);
@@ -184,6 +194,36 @@ const Preferences = () => {
     }
   };
 
+  /**
+   * Store the chosen emoji in Supabase user metadata
+   */
+  const handleEmojiSelect = async (emoji: string) => {
+    if (!user) return;
+
+    setAvatarEmoji(emoji);
+    setShowEmojiPicker(false);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { avatar_emoji: emoji },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Avatar updated",
+        description: "Your avatar emoji has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating avatar emoji:", error);
+      toast({
+        title: "Update failed",
+        description: "There was a problem updating your avatar emoji.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -225,6 +265,31 @@ const Preferences = () => {
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
+
+                {/* Avatar emoji preference */}
+                <div className="space-y-4 pt-6">
+                  <FormLabel>Avatar Emoji</FormLabel>
+                  <div className="flex items-center gap-4">
+                    <span className="text-4xl">{avatarEmoji || "🙂"}</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    >
+                      {avatarEmoji ? "Change" : "Choose"} Emoji
+                    </Button>
+                  </div>
+                  {showEmojiPicker && (
+                    <EmojiPicker
+                      onEmojiClick={(e) => handleEmojiSelect(e.emoji)}
+                      height={350}
+                    />
+                  )}
+                  <FormDescription>
+                    The selected emoji will be used whenever you do not have a
+                    profile image.
+                  </FormDescription>
+                </div>
               </form>
             </Form>
           )}
