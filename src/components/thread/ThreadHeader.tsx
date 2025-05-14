@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Lock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Thread } from "@/types/thread";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AvatarName } from "@/components/ui/avatar-name";
 import { getThreadTopicInfo } from "@/constants/thread-topics";
 
 interface ThreadHeaderProps {
@@ -76,18 +76,16 @@ const ThreadHeader = ({
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Participants:</span>
-            <div className="flex -space-x-2 mr-2">
-              {thread.participants.slice(0, 3).map((participant, i) => (
-                <Avatar key={i} className="h-6 w-6 border-2 border-background">
-                  <AvatarFallback className="text-xs">
-                    {participant.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+            <div className="flex flex-wrap gap-4">
+              {thread.participants.map((participant) => (
+                <AvatarName
+                  key={participant}
+                  name={participant}
+                  size="xs"
+                  /* border already applied inside the component */
+                />
               ))}
             </div>
-            <span className="text-sm text-muted-foreground">
-              {thread.participants.join(", ")}
-            </span>
           </div>
         ) : (
           <div className="text-sm text-muted-foreground">
