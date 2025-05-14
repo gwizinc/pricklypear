@@ -37,7 +37,7 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, user }) => {
   };
 
   return (
-    <div className="flex-grow overflow-y-auto px-2 py-4 border rounded-md mb-4 bg-white dark:bg-transparent">
+    <div className="flex-grow overflow-y-auto px-4 py-6 border rounded-md mb-4 bg-white dark:bg-transparent">
       {messages.length > 0 ? (
         messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
