@@ -42,7 +42,7 @@ function SubscriptionPlans() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {monthlyPlans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} />
+              <PlanCard key={plan.name} plan={plan} />
             ))}
           </div>
         </section>
@@ -60,7 +60,7 @@ function SubscriptionPlans() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {perRequestPlans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} />
+              <PlanCard key={plan.name} plan={plan} />
             ))}
           </div>
         </section>
