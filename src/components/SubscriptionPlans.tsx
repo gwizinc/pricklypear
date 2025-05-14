@@ -40,7 +40,7 @@ function SubscriptionPlans() {
           >
             Monthly Plans
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          <div className="inline-grid mx-auto grid-cols-[repeat(auto-fit,_minmax(400px,_1fr))] gap-6">
             {monthlyPlans.map((plan) => (
               <PlanCard key={plan.name} plan={plan} />
             ))}
@@ -58,7 +58,7 @@ function SubscriptionPlans() {
           >
             Per-Request Items
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          <div className="inline-grid mx-auto grid-cols-[repeat(auto-fit,_minmax(400px,_1fr))] gap-6">
             {perRequestPlans.map((plan) => (
               <PlanCard key={plan.name} plan={plan} />
             ))}
@@ -79,7 +79,7 @@ function PlanCard({ plan }: PlanCardProps) {
   return (
     <div
       className={cn(
-        "bg-white rounded-xl shadow-card hover:bg-bgLight transition-all hover-tilt flex flex-col h-full",
+        "bg-white rounded-xl shadow-card hover:bg-bgLight transition-all hover-tilt flex flex-col h-full min-w-[400px]",
       )}
     >
       <div className="p-8 flex-1 flex flex-col">
