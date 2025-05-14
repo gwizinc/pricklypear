@@ -4,6 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Subscription } from "@/types/subscription";
 
 /**
+ * Row shape for the `subscriptions` table.  
+ * Extend or refine as the schema evolves.
+ */
+type SubscriptionRow = {
+  price_id: string | null;
+  plan_name: string | null;
+  interval: string | null;
+  is_active: boolean | null;
+  current_period_end: string | null;
+  status: string | null;
+};
+
+/**
  * Extracts the subscription metadata from the current Supabase user and
  * (optionally) refreshes it from the yet-to-be-implemented `subscriptions` table.
  *
@@ -53,13 +66,13 @@ export function useSubscription() {
       // 2. Future server data (ignore for now – wrapped in try/catch)
       let dbSub: Subscription | null = null;
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data } = await supabase
-          .from("subscriptions")
+          .from<SubscriptionRow>("subscriptions")
           .select("*")
           .eq("user_id", user.id)
           .maybeSingle();
-        dbSub = mapToSubscription(data as any);
+
+        dbSub = mapToSubscription(data);
       } catch {
         /* swallow silently – table may not exist yet */
       }
