@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Connection } from "@/services/connectionService";
+import { Connection } from "@/services/users/userService";
 import ConnectionCard from "./ConnectionCard";
 
 interface OutgoingConnectionsListProps {

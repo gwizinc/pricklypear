@@ -10,7 +10,7 @@ import {
   updateConnectionStatus,
   disableConnection,
   inviteByEmail,
-} from "@/services/connectionService";
+} from "@/services/users/userService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
