@@ -29,7 +29,7 @@ const ThreadMessageComposer = ({
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 w-1/2 max-w-[850px] mx-auto">
       <Textarea
         placeholder={
           isThreadClosed ? "Thread is closed" : "Type your message..."
@@ -44,7 +44,7 @@ const ThreadMessageComposer = ({
       <Button
         onClick={onSendMessage}
         disabled={!newMessage.trim() || isSending || isThreadClosed}
-        className="self-end"
+        className="self-start"
       >
         {isSending ? (
           <Loader2 className="h-4 w-4 animate-spin" />
