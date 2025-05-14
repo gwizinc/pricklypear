@@ -34,7 +34,7 @@ describe("<SubscriptionPlans />", () => {
       screen.getByRole("heading", { name: /Monthly Plans/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /Per Request/i }),
+      screen.getByRole("heading", { name: /Per-Request Items/i }),
     ).toBeInTheDocument();
   });
 });
