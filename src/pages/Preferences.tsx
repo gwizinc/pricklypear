@@ -36,6 +36,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Picker from "@emoji-mart/react";
+import emojiData from "@emoji-mart/data";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -52,6 +54,7 @@ const Preferences = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [messageTone, setMessageTone] = useState<string>("friendly");
+  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
 
   // Form with validation
   const form = useForm<FormValues>({
@@ -80,7 +83,7 @@ const Preferences = () => {
         // Get user profile from the profiles table
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("name, message_tone")
+          .select("name, message_tone, profile_emoji")
           .eq("id", user.id)
           .maybeSingle();
 
@@ -103,6 +106,11 @@ const Preferences = () => {
         // Set message tone if it exists in profile
         if (profileData && profileData.message_tone) {
           setMessageTone(profileData.message_tone);
+        }
+
+        // Set selected emoji if it exists in profile
+        if (profileData && profileData.profile_emoji) {
+          setSelectedEmoji(profileData.profile_emoji);
         }
       } catch (error) {
         console.error("Error loading user data:", error);
@@ -132,10 +140,10 @@ const Preferences = () => {
 
       if (metadataError) throw metadataError;
 
-      // Also update the profile name for consistency
+      // Also update the profile name and emoji for consistency
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ name: data.fullName })
+        .update({ name: data.fullName, profile_emoji: selectedEmoji })
         .eq("id", user.id);
 
       if (profileError) throw profileError;
@@ -184,6 +192,10 @@ const Preferences = () => {
     }
   };
 
+  const handleEmojiSelect = (emoji: { native: string }) => {
+    setSelectedEmoji(emoji.native);
+  };
+
   if (!user) return null;
 
   return (
@@ -222,6 +234,24 @@ const Preferences = () => {
                     </FormItem>
                   )}
                 />
+                <FormLabel>Avatar Emoji</FormLabel>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    {selectedEmoji ? (
+                      <span className="text-3xl">{selectedEmoji}</span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        No emoji selected
+                      </span>
+                    )}
+                  </div>
+
+                  <Picker
+                    data={emojiData}
+                    onEmojiSelect={handleEmojiSelect}
+                    theme={theme === "dark" ? "dark" : "light"}
+                  />
+                </div>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
