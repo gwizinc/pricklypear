@@ -29,7 +29,7 @@ const ThreadHeader = ({
       <div className="flex justify-between">
         <div className="space-y-1">
           {thread.topic && (
-            <Badge variant="outline" className="mb-2">
+            <Badge variant="outline" className="mb-2 bg-white">
               {topicLabel}
             </Badge>
           )}

@@ -89,7 +89,7 @@ const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
 
                 {/* Topic */}
                 <td className="px-4 py-2">
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="bg-white">
                     <span className="mr-1">{topicInfo.icon}</span>
                     {topicInfo.label}
                   </Badge>

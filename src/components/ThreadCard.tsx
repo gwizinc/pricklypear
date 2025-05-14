@@ -36,7 +36,7 @@ const ThreadCard = ({ thread, unreadCount = 0 }: ThreadCardProps) => {
           <div className="flex gap-2">
             <Badge
               variant="outline"
-              className="flex items-center gap-1 font-medium"
+              className="bg-white flex items-center gap-1 font-medium"
             >
               <span>{topicInfo.icon}</span> {topicInfo.label}
             </Badge>
