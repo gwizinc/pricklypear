@@ -10,7 +10,7 @@ export interface Subscription {
   priceId: string | null;
   /** Human-readable plan name (e.g. "Starter", "Pro") */
   planName: string | null;
-  /** Billing cadence – "month", "year", etc. */
+  /** Billing cadence - "month", "year", etc. */
   interval: string | null;
   /** `true` if the subscription is currently active / in-trial. */
   isActive: boolean;
