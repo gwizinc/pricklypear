@@ -44,7 +44,7 @@ const ThreadView = () => {
   }
 
   return (
-    <div className="container py-8 bg-white">
+    <div className="container py-8">
       {thread && (
         <div className="flex flex-col h-[calc(100vh-12rem)]">
           <ThreadHeader
