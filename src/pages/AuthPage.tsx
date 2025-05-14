@@ -16,10 +16,10 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
-// Admin mode is enabled automatically in dev as well as when the explicit
-// VITE_ADMIN_MODE="true" env var is provided at build-time.
+// Admin-mode is enabled automatically on Vercel “development” or “preview” deployments.
 const ADMIN_MODE =
-  import.meta.env.VITE_ADMIN_MODE === "true" || import.meta.env.DEV;
+  import.meta.env.VERCEL_ENV === "development" ||
+  import.meta.env.VERCEL_ENV === "preview";
 
 type Profile = {
   id: string;
