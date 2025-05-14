@@ -40,6 +40,9 @@ const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { totalUnread } = useUnreadMessages();
 
+  // Reusable flag for auth-based UI decisions
+  const isAuthenticated = Boolean(user);
+
   const handleLogout = async () => {
     await signOut();
     toast({
@@ -192,14 +195,16 @@ const Navigation = () => {
           <nav className="flex items-center space-x-2">{renderNavItems()}</nav>
 
           <div className="flex flex-1 items-center justify-end space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="New search"
-              onClick={createThread}
-            >
-              <Search className="h-4 w-4" />
-            </Button>
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="New search"
+                onClick={createThread}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            )}
             {renderUserMenu()}
           </div>
         </div>
@@ -215,14 +220,16 @@ const Navigation = () => {
 
         {/* Mobile Right Actions */}
         <div className="flex items-center md:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="New search"
-            onClick={createThread}
-          >
-            <Search className="h-4 w-4" />
-          </Button>
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="New search"
+              onClick={createThread}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          )}
           {renderUserMenu()}
         </div>
       </div>
