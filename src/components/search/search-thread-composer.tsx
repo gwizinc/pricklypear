@@ -35,9 +35,10 @@ const SearchThreadComposer = () => {
       ...existingMessages.map((m) => ({
         text: m.text,
         sender: m.isSystem ? "system" : m.isCurrentUser ? "user" : m.sender,
-        timestamp: m.timestamp instanceof Date
-          ? m.timestamp.toISOString()
-          : new Date(m.timestamp).toISOString(),
+        timestamp:
+          m.timestamp instanceof Date
+            ? m.timestamp.toISOString()
+            : new Date(m.timestamp).toISOString(),
       })),
       {
         text: trimmed,
@@ -47,15 +48,13 @@ const SearchThreadComposer = () => {
     ];
 
     try {
-      const { data, error } = await supabase.functions.invoke<SearchThreadResponse>(
-        "search-thread",
-        {
+      const { data, error } =
+        await supabase.functions.invoke<SearchThreadResponse>("search-thread", {
           body: {
             query: trimmed,
             messages: contextMessages,
           },
-        },
-      );
+        });
 
       if (error) {
         console.error("search-thread error", error);

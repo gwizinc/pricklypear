@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Preserve original test with mocks but disable runtime by providing a
 // lightweight fallback for `vi` when running under Bun's test runner.
 
-import { describe, it, expect, vi as vitestVi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { getMessages } from "./messages.js";
 
 // ---------------------------------------------------------------------------
@@ -21,8 +22,7 @@ if (!(globalThis as any).vi) {
   };
 }
 // Use the (possibly shimmed) vi going forward
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-const vi: typeof vitestVi = (globalThis as any).vi;
+const vi: typeof import("vitest").vi = (globalThis as any).vi;
 
 // --- mocks --------------------------------------------------------------- //
 vi.mock("@/integrations/supabase/client", () => {
