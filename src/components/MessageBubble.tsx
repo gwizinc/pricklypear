@@ -1,14 +1,6 @@
-import React, { useState } from "react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types/message";
-import { RotateCcw } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface MessageBubbleProps {
   message: Message;

@@ -1,7 +1,14 @@
-# 🌵 Prickly Pear
-
-A modern, **Bun + React** web application that gives separated parents a safe, structured place to communicate.  
-Threads, message re-writes, AI summaries, granular read receipts and fine-grained connection controls are all powered by **Supabase** and **OpenAI**.
+<p align="center">
+  <h1>🌵 Prickly Pear</h1>
+</p>
+<p align="center">
+  <i> AI-assisted parenting chat for prickly-past-partnerships.</i>
+  <br/>
+  <img width="1879" alt="Image" src="https://github.com/user-attachments/assets/e019f955-2f92-45aa-bb47-ec110fc83ef3" />
+</p>
+<p align="center">
+  <a href="https://charlielabs.ai"><img src="https://img.shields.io/badge/Charlie%20works%20here-ABF716?style=flat-square" alt="Charlie Labs"></a>
+</p>
 
 ---
 
@@ -152,5 +159,3 @@ Style & tooling:
 - Follow existing ESLint rules. No Prettier – keep formatting consistent.
 - Keep PRs small; large refactors should be split across multiple PRs.
 - Tests live next to the code they cover and use Vitest.
-
-Happy hacking! 🌵

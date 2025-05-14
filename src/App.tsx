@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navigation from "./components/Navigation";
+import { Footer } from "./components/Footer";
 import { SearchThreadProvider } from "@/contexts/search-thread-context.js";
 import Home from "./pages/Home";
 import Threads from "./pages/Threads";
@@ -16,7 +17,6 @@ import NotFound from "./pages/NotFound";
 import Preferences from "./pages/Preferences";
 import Documents from "./pages/Documents";
 
-// Import CSS but don't include App.css anymore
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -30,19 +30,22 @@ const App = () => (
           <Sonner />
           <SearchThreadProvider>
             <BrowserRouter>
-              <Navigation />
-              <main className="min-h-[calc(100vh-73px)]">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/threads" element={<Threads />} />
-                  <Route path="/threads/:threadId" element={<ThreadView />} />
-                  <Route path="/connections" element={<Connections />} />
-                  <Route path="/documents" element={<Documents />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/preferences" element={<Preferences />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
+              <div className="flex min-h-screen flex-col">
+                <Navigation />
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/threads" element={<Threads />} />
+                    <Route path="/threads/:threadId" element={<ThreadView />} />
+                    <Route path="/connections" element={<Connections />} />
+                    <Route path="/documents" element={<Documents />} />
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/preferences" element={<Preferences />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
             </BrowserRouter>
           </SearchThreadProvider>
         </TooltipProvider>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getConnections } from "@/services/connections";
+import { getConnections } from "@/services/users/userService.js";
 import type { Connection } from "@/types/connection";
 import type { User } from "@supabase/supabase-js";
 

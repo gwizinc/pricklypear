@@ -8,30 +8,9 @@ remains clean, maintainable, and efficient.
 
 - Write elegant, concise, and readable code
 - Prefer `const` over `let` (never use `var`)
-- Use kebab-case for file and directory names
 - Use clear, descriptive names for variables, functions, and components
 
 ## Modules
-
-### Imports & Exports
-
-- Always use ESM `import` and `export` (never use CJS `require`)
-  - File imports should end with `.js` (NOT `.ts` or `.tsx`). Module or subpath imports don't need the extension.
-  - GOOD examples:
-    - `import { Foo } from './foo.js';`
-    - `import { type Route } from './+types/root.js';`
-    - `import zod from 'zod';`
-    - `import { logger } from '@dx/core-utils';`
-  - BAD examples:
-    - `import { Foo } from './foo';` (missing `.js` extension)
-    - `import { type Route } from './+types/root';` (missing `.js` extension)
-    - `import { Foo } from './foo.ts';` (should be `.js` not `.ts`)
-    - `import { AnInternalClass } from 'zod/dist/internals';` (shouldn't import internals)
-    - `import { logger } from '@dx/core-utils/src/logger.js';` (shouldn't import source files or use `.js` for packages)
-- Always prefer named exports over default exports
-  - It's OK to use a default export in `.tsx` files (like Remix/React Router routes)
-  - It's OK to use default exports in the CLI because it is required by oclif
-- Avoid barrel exports (`export * from './foo.js';`) and instead use named exports (`export { foo } from './foo.js';`)
 
 ## TypeScript
 
@@ -153,18 +132,3 @@ updateLastMessage(message: string, createIfMissing?: boolean): Promise<M>;
   - Package readmes should focus on the package's purpose and usage.
   - Example sections for package readmes: table of contents, overview, key features, project structure, usage examples, testing, integration & dependencies, additional notes.
 - Readme files should use GitHub Flavored Markdown (GFM) for formatting.
-
-## Testing
-
-### Unit Testing
-
-- **All unit tests should [Vitest](https://vitest.dev/)**
-  - DO NOT attempt to install or use other testing libraries like Jest
-- Write unit tests for individual components and utility functions
-- Test files should be named `[target].test.ts` and placed in the same directory as the code they are testing (NOT a separate directory)
-  - Good example: `src/my-file.ts` and `src/my-file.test.ts`
-  - Bad example: `src/my-file.ts` and `src/test/my-file.test.ts` or `test/my-file.test.ts` or `src/__tests__/my-file.test.ts`
-- Tests should be run with `bun run test` (you can't do just `bun test`)
-- **NEVER** add custom timeouts to individual tests or suites (e.g., `jest.setTimeout`, `test.setTimeout`, `vi.setTimeout`, or similar). This restriction applies to all test types—including unit, integration, and snapshot tests. Timeouts slow the suite and can hide performance regressions—fix the underlying issue instead of increasing the timeout.
-- It's acceptable to use `any`/`unknown` in test files (such as `*.test.ts`) or test fixtures (like `**/test-data.ts`) to facilitate mocking or stubbing external modules or partial function arguments, referencing the usage guidelines in the TypeScript section. However, do not use `any` or `unknown` in production code.
-  - `any` is particularly useful for unit testing functions that accept complex arguments yet only use some of them. For example, rather than correctly type out every property of a GitHub event for a function that just reads the `action` property, just pass in an object typed `any` with only the properties that get used.

@@ -16,26 +16,29 @@ type Action =
 
 const initialState: State = { thread: null };
 
+/**
+ * Creates a new, empty search thread object.
+ *
+ * @returns {EphemeralThread} Newly-initialised thread
+ */
+function createNewThread(): EphemeralThread {
+  return {
+    id: uuidv4(),
+    createdAt: new Date(),
+    title: "Search",
+    messages: [],
+  };
+}
+
 export function searchThreadReducer(state: State, action: Action): State {
   switch (action.type) {
     case "CREATE_THREAD": {
       if (state.thread) return state;
-      const newThread: EphemeralThread = {
-        id: uuidv4(),
-        createdAt: new Date(),
-        title: "Search",
-        messages: [],
-      };
-      return { thread: newThread };
+      return { thread: createNewThread() };
     }
 
     case "ADD_USER_MESSAGE": {
-      const baseThread = state.thread ?? {
-        id: uuidv4(),
-        createdAt: new Date(),
-        title: "Search",
-        messages: [],
-      };
+      const baseThread = state.thread ?? createNewThread();
       const userMsg: Message = {
         id: uuidv4(),
         text: action.text,
@@ -68,6 +71,7 @@ export function searchThreadReducer(state: State, action: Action): State {
 
     case "CLOSE_THREAD":
       return { thread: null };
+
     default:
       return state;
   }
