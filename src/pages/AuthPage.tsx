@@ -14,12 +14,23 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import supabase from "@/integrations/supabase"; // existing singleton client
 
 const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [profiles, setProfiles] = useState<{ id: string; full_name: string }[]>(
+    [],
+  );
 
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +41,20 @@ const AuthPage = () => {
       navigate("/threads");
     }
   }, [user, navigate]);
+
+  React.useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .order("full_name", { ascending: true });
+      if (!error && data) {
+        setProfiles(data);
+      } else {
+        console.error("Failed to fetch profiles:", error);
+      }
+    })();
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,9 +82,43 @@ const AuthPage = () => {
     }
   };
 
+  const handleAdminSelect = async (value: string) => {
+    const selected = profiles.find((p) => p.id === value);
+    if (!selected) return;
+
+    const firstWord = selected.full_name.trim().split(/\s+/)[0].toLowerCase();
+    const derivedEmail = `${firstWord}@example.com`;
+
+    setIsLoading(true);
+    try {
+      await signIn(derivedEmail, "DemoPass1!");
+      navigate("/threads");
+    } catch (error) {
+      console.error("Admin login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-73px)]">
       <div className="w-full max-w-md">
+        {/* Admin-mode Select */}
+        <div>
+          <Label className="mb-1 block">Sign in as… (admin mode)</Label>
+          <Select onValueChange={handleAdminSelect} disabled={isLoading}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Choose a user…" />
+            </SelectTrigger>
+            <SelectContent>
+              {profiles.map((profile) => (
+                <SelectItem key={profile.id} value={profile.id}>
+                  {profile.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
