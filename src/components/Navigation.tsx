@@ -12,6 +12,7 @@ import {
   UserRound,
   Settings,
   FileText,
+  CreditCard,
   Bell,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +21,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import NotificationBadge from "@/components/ui/notification-badge";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +34,7 @@ import {
 const Navigation = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { subscription } = useSubscription();
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -136,6 +139,30 @@ const Navigation = () => {
             {user.user_metadata?.username || user.email || "My Account"}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {subscription && (
+            <>
+              <DropdownMenuLabel>Subscription</DropdownMenuLabel>
+              <DropdownMenuItem disabled className="justify-between">
+                <span>
+                  {subscription.planName ?? "Unknown plan"}
+                  {subscription.isActive ? "" : " (Inactive)"}
+                </span>
+                <span className="text-muted-foreground text-xs capitalize">
+                  {subscription.status}
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  to="/preferences#subscription"
+                  className="flex w-full items-center"
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  <span>Manage subscription</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <DropdownMenuItem asChild>
             <Link
               to="/threads"

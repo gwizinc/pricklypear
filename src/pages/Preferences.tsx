@@ -29,6 +29,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sun, Moon, ScreenShare, MessageSquareText } from "lucide-react";
+import { CreditCard, Loader2 } from "lucide-react";
+import { format } from "date-fns";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   Select,
   SelectContent,
@@ -52,6 +55,7 @@ const Preferences = () => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [messageTone, setMessageTone] = useState<string>("friendly");
+  const { subscription, loading: subLoading, refresh: refreshSub } = useSubscription();
 
   // Form with validation
   const form = useForm<FormValues>({
@@ -293,6 +297,75 @@ const Preferences = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* ----------  Subscription Card  ---------- */}
+      {subscription && (
+        <Card id="subscription" className="mb-8 scroll-mt-24">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Subscription
+              </CardTitle>
+              <CardDescription>Manage your billing and plan</CardDescription>
+            </div>
+            {subLoading && (
+              <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <p className="font-medium text-muted-foreground">Plan</p>
+                <p>{subscription.planName ?? "Unknown"} </p>
+
+                <p className="font-medium text-muted-foreground">Interval</p>
+                <p className="capitalize">{subscription.interval ?? "—"}</p>
+
+                <p className="font-medium text-muted-foreground">Next renewal</p>
+                <p>
+                  {subscription.currentPeriodEnd
+                    ? format(new Date(subscription.currentPeriodEnd), "PPP")
+                    : "—"}
+                </p>
+
+                <p className="font-medium text-muted-foreground">Status</p>
+                <p className="capitalize">{subscription.status ?? "—"}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    toast({ title: "Coming soon", description: "Plan change flow" });
+                    void refreshSub();
+                  }}
+                >
+                  Upgrade / Downgrade
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    toast({ title: "Coming soon", description: "Cancel flow" });
+                    void refreshSub();
+                  }}
+                >
+                  Cancel subscription
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    toast({ title: "Coming soon", description: "Billing history" });
+                    void refreshSub();
+                  }}
+                >
+                  Billing history
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
