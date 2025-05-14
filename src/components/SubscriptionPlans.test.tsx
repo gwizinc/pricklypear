@@ -29,15 +29,12 @@ describe("<SubscriptionPlans />", () => {
       expect(screen.getByText(features[0])).toBeInTheDocument();
     });
 
-    // Verify section headings are present
+    // Verify updated section headings are present
     expect(
-      screen.getByRole("heading", { name: /Plans and Pricing/i }),
+      screen.getByRole("heading", { name: /Monthly Plans/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /Choose a plan/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /Included in every plan/i }),
+      screen.getByRole("heading", { name: /Per Request/i }),
     ).toBeInTheDocument();
   });
 });
