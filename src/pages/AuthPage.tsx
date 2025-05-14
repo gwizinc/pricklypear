@@ -105,10 +105,10 @@ const AuthPage = () => {
       <div className="w-full max-w-md">
         {/* Admin-mode Select */}
         <div>
-          <Label className="mb-1 block">Sign in as… (admin mode)</Label>
+          <Label className="mb-1 block">Sign in as... (admin mode)</Label>
           <Select onValueChange={handleAdminSelect} disabled={isLoading}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Choose a user…" />
+              <SelectValue placeholder="Choose a user..." />
             </SelectTrigger>
             <SelectContent>
               {profiles.map((profile) => (
