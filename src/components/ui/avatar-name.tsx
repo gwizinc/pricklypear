@@ -64,7 +64,7 @@ export function AvatarName({
     <span
       className={cn(
         "inline-flex items-center",
-        showAvatar && showName && "gap-2",
+        showAvatar && showName && "gap-1",
         className,
       )}
     >
