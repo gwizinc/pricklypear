@@ -9,6 +9,21 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+/** Removes matching leading & trailing single or double quotes and trims the
+ *  remaining text. Mirrors src/utils/sanitizeText for edge-functions. */
+function sanitizeText(text: string): string {
+  const trimmed = text.trim();
+  if (trimmed.length < 2) return trimmed;
+
+  const first = trimmed.at(0);
+  const last = trimmed.at(-1);
+
+  if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+    return trimmed.slice(1, -1).trim();
+  }
+  return trimmed;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -61,7 +76,7 @@ serve(async (req) => {
       .map((msg) => {
         const sender = msg.is_system ? "SYSTEM" : msg.profile_name;
         const timestamp = new Date(msg.timestamp).toLocaleString();
-        return `[${timestamp}] ${sender}: ${msg.text}`;
+        return `[${timestamp}] ${sender}: ${sanitizeText(msg.text ?? "")}`;
       })
       .join("\n\n");
 
