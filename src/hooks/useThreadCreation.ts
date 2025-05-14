@@ -69,6 +69,8 @@ export const useThreadCreation = (
       setSelectedContact("");
       setSelectedTopic("other");
       onClose();
+      // Redirect the user to the newly-created thread
+      navigate(`/threads/${newThread.id}`);
 
       toast({
         title: "Thread created",
