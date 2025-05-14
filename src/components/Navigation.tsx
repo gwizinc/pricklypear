@@ -28,6 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -35,7 +36,28 @@ const Navigation = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [profileEmoji, setProfileEmoji] = React.useState<string | null>(null);
   const { totalUnread } = useUnreadMessages();
+
+  React.useEffect(() => {
+    const loadEmoji = async () => {
+      if (!user) {
+        setProfileEmoji(null);
+        return;
+      }
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("profile_emoji")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!error && data) {
+        setProfileEmoji(data.profile_emoji ?? null);
+      }
+    };
+
+    loadEmoji();
+  }, [user]);
 
   const handleLogout = async () => {
     await signOut();
@@ -122,11 +144,19 @@ const Navigation = () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage
-                src={user.user_metadata?.avatar_url}
-                alt="User avatar"
-              />
-              <AvatarFallback>{getUserInitials()}</AvatarFallback>
+              {profileEmoji ? (
+                <span className="text-xl flex items-center justify-center w-full h-full">
+                  {profileEmoji}
+                </span>
+              ) : (
+                <>
+                  <AvatarImage
+                    src={user.user_metadata?.avatar_url}
+                    alt="User avatar"
+                  />
+                  <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                </>
+              )}
             </Avatar>
             {totalUnread > 0 && <NotificationBadge count={totalUnread} />}
           </Button>
