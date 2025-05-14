@@ -2,7 +2,7 @@
  * Sanitises user-generated text by
  * 1. trimming leading/trailing whitespace
  * 2. removing one matching pair of leading & trailing quotes
- *    – works for both single (') and double (") quotes
+ *    - works for both single (') and double (") quotes
  * 3. trimming once more in case inner whitespace was exposed
  *
  * If the string is shorter than two characters, or is **not**
