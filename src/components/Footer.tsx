@@ -26,7 +26,7 @@ export const Footer = () => {
   return (
     <footer className="border-t bg-white py-4 text-sm">
       <div className="container mx-auto relative flex items-center justify-center">
-        <span className="absolute left-0">🌵 Prickly Pear</span>
+        <span className="absolute left-4">🌵 Prickly Pear</span>
         <span className="italic">{phrase}</span>
       </div>
     </footer>
