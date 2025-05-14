@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus } from "lucide-react";
-import { Connection } from "@/services/connectionService";
+import { Connection } from "@/services/users/userService.js";
 import ConnectionCard from "./ConnectionCard";
 
 interface AcceptedConnectionsListProps {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Connection, ConnectionStatus } from "@/services/connectionService";
+import { Connection, ConnectionStatus } from "@/services/users/userService.js";
 import ConnectionCard from "./ConnectionCard";
 
 interface PendingConnectionsListProps {
