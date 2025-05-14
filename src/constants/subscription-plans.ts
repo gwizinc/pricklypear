@@ -33,16 +33,15 @@ export const SUBSCRIPTION_PLANS: readonly SubscriptionPlan[] = [
     ctaPath: "/signup?plan=free",
   },
   {
-    name: "Growth",
+    name: "Full Access",
     price: "$10 / mo",
     category: "monthly",
     features: [
       "Unlimited AI-assisted messages",
       "Priority message processing",
-      "Conversation sentiment analysis",
-      "Email support <24 h",
+      "Email support",
     ],
-    ctaPath: "/signup?plan=growth",
+    ctaPath: "/signup?plan=full-access",
   },
   {
     name: "Legal Assist",

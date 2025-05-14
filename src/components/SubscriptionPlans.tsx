@@ -30,15 +30,15 @@ function SubscriptionPlans() {
           id="pricing-heading"
           className="text-3xl md:text-4xl font-extrabold font-rounded text-center mb-12"
         >
-          Choose the plan that fits your family
+          Plans
         </h2>
 
         <section role="region" aria-labelledby="monthly-plans-heading">
           <h2
             id="monthly-plans-heading"
-            className="text-2xl font-semibold mb-4"
+            className="text-2xl font-semibold mb-4 text-center"
           >
-            Monthly Plans
+            Monthly
           </h2>
           <div className="flex flex-wrap justify-center gap-6 mx-auto">
             {monthlyPlans.map((plan) => (
@@ -54,9 +54,9 @@ function SubscriptionPlans() {
         >
           <h2
             id="per-request-plans-heading"
-            className="text-2xl font-semibold mb-4"
+            className="text-2xl font-semibold mb-4 text-center"
           >
-            Per-Request Items
+            Per-Request
           </h2>
           <div className="flex flex-wrap justify-center gap-6 mx-auto">
             {perRequestPlans.map((plan) => (
