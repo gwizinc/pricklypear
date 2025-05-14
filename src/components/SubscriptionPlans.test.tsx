@@ -28,5 +28,16 @@ describe("<SubscriptionPlans />", () => {
       // Check the first feature only; sufficient for smoke test.
       expect(screen.getByText(features[0])).toBeInTheDocument();
     });
+
+    // Verify section headings are present
+    expect(
+      screen.getByRole("heading", { name: /Plans and Pricing/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Choose a plan/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Included in every plan/i }),
+    ).toBeInTheDocument();
   });
 });
