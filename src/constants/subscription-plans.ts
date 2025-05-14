@@ -9,7 +9,7 @@ export type SubscriptionPlan = {
   price: string;
   /** Bulleted list of plan features. */
   features: string[];
-  /** Path the user is sent to when clicking the plan’s call-to-action button. */
+  /** Path the user is sent to when clicking the plan's call-to-action button. */
   ctaPath: string;
 };
 
