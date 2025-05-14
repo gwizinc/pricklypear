@@ -59,16 +59,14 @@ const AuthPage = () => {
     if (!ADMIN_MODE) return;
 
     const loadUsers = async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, name")
-        .order("name");
+      const { data, error } = await supabase.functions.invoke('get-all-users');
 
       if (error) {
         console.error("Failed to fetch users:", error);
         return;
       }
-      setUsers(data as Profile[]);
+
+      setUsers(data.data as Profile[]);
     };
 
     void loadUsers();
