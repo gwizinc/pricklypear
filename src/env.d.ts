@@ -5,9 +5,9 @@
  * exposed by Vercel at build-time.
  *
  * Possible values:
- *  • "development" – local `vercel dev`
- *  • "preview"     – preview deployments / PR builds
- *  • "production"  – production deployment
+ *  - "development" - local `vercel dev`
+ *  - "preview"     - preview deployments / PR builds
+ *  - "production"  - production deployment
  */
 interface ImportMetaEnv {
   readonly VERCEL_ENV?: "development" | "preview" | "production";
