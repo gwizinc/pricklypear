@@ -24,9 +24,8 @@ export const Footer = () => {
   }, []); // run once per full page load
 
   return (
-    <footer className="border-t bg-white py-4 text-sm">
-      <div className="container mx-auto relative flex items-center justify-center">
-        <span className="absolute left-4">🌵 Prickly Pear</span>
+    <footer className="border-t bg-white py-8 md:py-12 text-sm text-center">
+      <div className="container mx-auto relative flex items-center justify-center px-6 py-4">
         <span className="italic">{phrase}</span>
       </div>
     </footer>
