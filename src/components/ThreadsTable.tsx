@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AvatarName } from "@/components/ui/avatar-name";
+import { cn } from "@/lib/utils";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { getThreadTopicInfo } from "@/constants/thread-topics";
 import type { Thread } from "@/types/thread";
@@ -12,18 +13,6 @@ import type { Thread } from "@/types/thread";
 interface ThreadsTableProps {
   threads: Thread[];
   isLoading: boolean;
-}
-
-/**
- * Returns the first up to two initials of a participant name.
- */
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
@@ -114,20 +103,18 @@ const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
                   {thread.createdAt.toLocaleDateString()}
                 </td>
 
-                {/* Participants */}
                 <td className="px-4 py-2">
                   <div className="flex items-center">
                     {participants.slice(0, 3).map((name, idx) => (
-                      <Avatar
+                      <AvatarName
+                        // key guarantees stable list rendering
                         key={`${thread.id}-participant-${idx}`}
-                        className={`h-8 w-8 border-2 border-background ${
-                          idx > 0 ? "-ml-2" : ""
-                        }`}
-                      >
-                        <AvatarFallback className="text-xs">
-                          {getInitials(name)}
-                        </AvatarFallback>
-                      </Avatar>
+                        name={name}
+                        size="sm"
+                        showName={false}
+                        // negative margin on every avatar *after* the first
+                        className={cn(idx > 0 && "-ml-2")}
+                      />
                     ))}
                     {participants.length > 3 && (
                       <span className="ml-2 text-xs text-muted-foreground">
