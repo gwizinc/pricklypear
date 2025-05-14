@@ -28,7 +28,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Sun, Moon, ScreenShare, MessageSquareText } from "lucide-react";
+import {
+  CreditCard,
+  Sun,
+  Moon,
+  ScreenShare,
+  MessageSquareText,
+} from "lucide-react";
+import { createCheckoutSession } from "@/services/billingService/createCheckoutSession";
 import {
   Select,
   SelectContent,
@@ -50,6 +57,7 @@ const Preferences = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [billingLoading, setBillingLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [messageTone, setMessageTone] = useState<string>("friendly");
 
@@ -184,6 +192,33 @@ const Preferences = () => {
     }
   };
 
+  /** Starts the Stripe Checkout flow */
+  const handleManageBilling = async () => {
+    if (!user) return;
+    setBillingLoading(true);
+    try {
+      const url = await createCheckoutSession();
+      if (url) {
+        window.location.href = url;
+      } else {
+        toast({
+          title: "Billing error",
+          description: "Unable to start a checkout session.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Billing error:", error);
+      toast({
+        title: "Billing error",
+        description: "An error occurred while initiating billing.",
+        variant: "destructive",
+      });
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -291,6 +326,26 @@ const Preferences = () => {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* -------- Billing ------------------------------------------------ */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Billing</CardTitle>
+          <CardDescription>Manage your subscription</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={handleManageBilling} disabled={billingLoading}>
+            {billingLoading ? (
+              "Loading…"
+            ) : (
+              <span className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Manage Billing
+              </span>
+            )}
+          </Button>
         </CardContent>
       </Card>
 

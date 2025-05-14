@@ -113,6 +113,25 @@ $ supabase functions serve summarize-thread
 
 > **Pro tip:** The published `SUPABASE_URL` and public key in `src/integrations/supabase/client.ts` point to a demo backend. Swap them for your own project when you are ready.
 
+### Environment variables
+
+Add the following keys to your Supabase/Edge Function secrets **and** local `.env` when running functions locally:
+
+| key                     | description                                  |
+| ----------------------- | -------------------------------------------- |
+| `STRIPE_SECRET_KEY`     | Stripe secret API key                        |
+| `STRIPE_PRICE_ID`       | Price ID for the subscription                |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret from Stripe dashboard |
+| `STRIPE_SUCCESS_URL`    | URL users land on after successful checkout  |
+| `STRIPE_CANCEL_URL`     | URL users land on when checkout is cancelled |
+
+### Local webhook testing
+
+```bash
+# Forward Stripe events to your local Edge Function
+stripe listen --forward-to localhost:54321/functions/v1/stripe-webhooks
+```
+
 ---
 
 ## Project scripts
