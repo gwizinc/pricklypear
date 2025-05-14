@@ -1,4 +1,4 @@
-/ * eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,12 +19,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Admin mode is enabled in the following situations:
- *  1. Local development – when the app is served by Vite's dev server
+ *  1. Local development - when the app is served by Vite's dev server
  *     (`import.meta.env.DEV` is true).
- *  2. Vercel “development” or “preview” deployments – detected via the
+ *  2. Vercel "development" or "preview" deployments - detected via the
  *     forwarded `VERCEL_ENV` environment variable (see vite.config.ts).
  *
- * It is always disabled for Vercel “production” deployments and any other
+ * It is always disabled for Vercel "production" deployments and any other
  * environment that does not meet the above criteria.
  */
 const ADMIN_MODE =
@@ -74,7 +74,7 @@ const AuthPage = () => {
     };
 
     void loadUsers();
-  }, []);
+  }, [ADMIN_MODE]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
