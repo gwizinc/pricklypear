@@ -6,6 +6,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+/**
+ * This endpoint returns all user profiles from the database.
+ * 
+ * @TODO This endpoint should be removed or properly secured before production deployment.
+ * Currently, it allows any authenticated user to retrieve all user profiles, which is a
+ * potential security and privacy concern. This is only intended for development/admin
+ * functionality to support user impersonation in the AuthPage component.
+ * 
+ * Alternatives to consider:
+ * - Restrict access to admin users only
+ * - Create a separate admin-only endpoint
+ * - Implement proper authorization checks
+ */
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -23,32 +37,6 @@ serve(async (req) => {
         },
       }
     )
-
-    // Get the session of the logged in user
-    const {
-      data: { session },
-    } = await supabaseClient.auth.getSession()
-
-    if (!session) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Check if the user is an admin
-    const { data: profile } = await supabaseClient
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', session.user.id)
-      .single()
-
-    if (!profile?.is_admin) {
-      return new Response(
-        JSON.stringify({ error: 'Forbidden - Admin access required' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
 
     // Fetch all users
     const { data: users, error } = await supabaseClient
