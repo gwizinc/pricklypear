@@ -36,7 +36,7 @@ export interface AvatarNameProps {
 }
 
 /**
- * Reusable “avatar + username” component.
+ * Reusable "avatar + username" component.
  *
  * Renders nothing if both `showAvatar` and `showName` are disabled.
  */
@@ -49,14 +49,16 @@ export function AvatarName({
   className,
   avatarClassName,
 }: AvatarNameProps) {
-  if (!showAvatar && !showName) return null;
-
+  // Compute user initials once per `name` change.
   const initials = React.useMemo(() => {
     const parts = name.trim().split(/\s+/);
     if (parts.length === 0) return "?";
     if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? "?";
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }, [name]);
+
+  // Bail out early if nothing should be rendered
+  if (!showAvatar && !showName) return null;
 
   return (
     <span
