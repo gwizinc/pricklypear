@@ -1,28 +1,13 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import OpenAI from "https://esm.sh/openai@4.28.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { sanitizeText } from "../../../src/utils/sanitizeText.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
-
-/** Removes matching leading & trailing single or double quotes and trims the
- *  remaining text. Mirrors src/utils/sanitizeText for edge-functions. */
-function sanitizeText(text: string): string {
-  const trimmed = text.trim();
-  if (trimmed.length < 2) return trimmed;
-
-  const first = trimmed.at(0);
-  const last = trimmed.at(-1);
-
-  if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
-    return trimmed.slice(1, -1).trim();
-  }
-  return trimmed;
-}
 
 serve(async (req) => {
   // Handle CORS preflight requests
