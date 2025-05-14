@@ -1,3 +1,4 @@
+/ * eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,14 +18,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Admin mode is automatically enabled when the app runs on a Vercel
- * "development" or "preview" deployment. The decision is based solely
- * on the `VERCEL_ENV` environment variable, which is forwarded to the
- * client bundle by Vite (see vite.config.ts).
+ * Admin mode is enabled in the following situations:
+ *  1. Local development – when the app is served by Vite's dev server
+ *     (`import.meta.env.DEV` is true).
+ *  2. Vercel “development” or “preview” deployments – detected via the
+ *     forwarded `VERCEL_ENV` environment variable (see vite.config.ts).
+ *
+ * It is always disabled for Vercel “production” deployments and any other
+ * environment that does not meet the above criteria.
  */
-const ADMIN_MODE = ["development", "preview"].includes(
-  import.meta.env.VERCEL_ENV ?? "",
-);
+const ADMIN_MODE =
+  import.meta.env.DEV ||
+  ["development", "preview"].includes(import.meta.env.VERCEL_ENV ?? "");
 
 type Profile = {
   id: string;
