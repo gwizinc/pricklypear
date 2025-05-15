@@ -57,7 +57,7 @@ const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
             <th className="px-4 py-2 font-semibold">State</th>
             <th className="px-4 py-2 font-semibold">Topic</th>
             <th className="px-4 py-2 font-semibold">Title</th>
-            <th className="px-4 py-2 font-semibold">Date Created</th>
+            <th className="px-4 py-2 font-semibold">Created</th>
             <th className="px-4 py-2 font-semibold">Participants</th>
             <th className="px-4 py-2 font-semibold">Summary</th>
           </tr>

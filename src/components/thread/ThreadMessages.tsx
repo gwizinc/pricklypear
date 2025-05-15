@@ -4,6 +4,7 @@ import type { Message } from "@/types/message";
 import { useAuth } from "@/contexts/AuthContext";
 import { markMessagesAsRead } from "@/services/messageService";
 import type { User } from "@supabase/supabase-js";
+import { MessageCircle } from "lucide-react";
 
 interface ThreadMessagesProps {
   messages: Message[];
@@ -43,8 +44,11 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({ messages, user }) => {
           <MessageBubble key={message.id} message={message} />
         ))
       ) : (
-        <div className="text-center text-muted-foreground py-8">
-          No messages yet. Start the conversation!
+        <div className="text-center text-muted-foreground/60 py-8">
+          <div className="flex flex-col items-center gap-2">
+            <MessageCircle className="h-12 w-12" />
+            <p className="italic">No messages yet. Start the conversation below.</p>
+          </div>
         </div>
       )}
       <div ref={messagesEndRef} />
