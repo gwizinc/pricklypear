@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Plus, Mic } from "lucide-react";
 
 interface ThreadMessageComposerProps {
   newMessage: string;
@@ -29,7 +29,7 @@ const ThreadMessageComposer = ({
   };
 
   return (
-    <div className="flex gap-2 w-1/2 max-w-[850px] mx-auto">
+    <div className="relative bg-white dark:bg-transparent border rounded-md">
       <Textarea
         placeholder={
           isThreadClosed ? "Thread is closed" : "Type your message..."
@@ -38,21 +38,41 @@ const ThreadMessageComposer = ({
         onChange={(e) => setNewMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={isSending || isThreadClosed}
-        className="flex-grow min-h-[80px]"
-        rows={3}
+        className="w-full min-h-[60px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-4 pt-4"
+        rows={1}
       />
-      <Button
-        onClick={onSendMessage}
-        disabled={!newMessage.trim() || isSending || isThreadClosed}
-        className="self-start"
-      >
-        {isSending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Send className="h-4 w-4" />
-        )}
-        <span className="ml-2">Send</span>
-      </Button>
+      <div className="flex justify-between items-center px-4 pb-4">
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            disabled={isThreadClosed}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            disabled={isThreadClosed}
+          >
+            <Mic className="h-4 w-4" />
+          </Button>
+        </div>
+        <Button
+          onClick={onSendMessage}
+          disabled={!newMessage.trim() || isSending || isThreadClosed}
+          size="icon"
+          className="shrink-0"
+        >
+          {isSending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
