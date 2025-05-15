@@ -20,7 +20,7 @@ export const createThread = async (
         id: threadId,
         title,
         created_at: new Date().toISOString(),
-        owner_id: user.id,
+        // TODO actually have a status of the thread saved
         status: "open",
         summary: null,
         topic,
@@ -91,7 +91,6 @@ export const createThread = async (
       participants: participantNames, // Return the names for UI display
       status: threadData.status,
       summary: threadData.summary,
-      owner_id: threadData.owner_id,
       topic: threadData.topic,
     };
   } catch (error) {

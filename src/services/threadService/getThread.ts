@@ -49,12 +49,9 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
       id: threadData.id,
       title: threadData.title,
       createdAt: new Date(threadData.created_at),
-      participants: (participants as string[]) || [],
-      status: threadData.status,
+      participants: participants || [],
       summary: threadData.summary,
-      closeRequestedBy: threadData.close_requested_by,
-      owner_id: threadData.owner_id,
-      topic: threadData.topic || "other", // Ensure topic is properly mapped
+      topic: threadData.topic,
     };
   } catch (error) {
     console.error("Exception fetching thread:", error);

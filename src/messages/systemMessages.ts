@@ -4,46 +4,55 @@
  * replaced at runtime via `formatSystemMessage`.
  */
 
-export type SystemMessageKey =
-  | "closeRequested"
-  | "closeApproved"
-  | "closeRejected"
-  | "closeApprovedWithRequester"
-  | "closeRejectedWithRequester";
+import { z } from "zod";
 
-interface SystemMessageDefinition {
+export const systemMessageSchema = z.union([
+  z.literal("userJoined"),
+  z.literal("userLeft"),
+  z.literal("threadCreated"),
+  z.literal("threadClosed"),
+  z.literal("messageEdited"),
+  z.literal("messageDeleted"),
+]);
+
+export type SystemMessageKey = z.infer<typeof systemMessageSchema>;
+
+export interface SystemMessageDefinition {
   /**
    * Text containing `{placeholder}` tokens that must be supplied when calling
    * `formatSystemMessage`.
    */
   text: string;
   /** List of placeholders that are required for this message. */
-  placeholders: readonly string[];
+  placeholders: string[];
 }
 
-export const systemMessages: Record<SystemMessageKey, SystemMessageDefinition> =
-  {
-    closeRequested: {
-      text: "{actor} has requested to close this thread.",
-      placeholders: ["actor"],
-    },
-    closeApproved: {
-      text: "{actor} approved closing this thread. The thread is now closed.",
-      placeholders: ["actor"],
-    },
-    closeRejected: {
-      text: "{actor} rejected the request to close this thread.",
-      placeholders: ["actor"],
-    },
-    closeApprovedWithRequester: {
-      text: "{actor} approved {requester}'s request to close this thread.",
-      placeholders: ["actor", "requester"],
-    },
-    closeRejectedWithRequester: {
-      text: "{actor} rejected {requester}'s request to close this thread.",
-      placeholders: ["actor", "requester"],
-    },
-  };
+export const systemMessages: Record<SystemMessageKey, SystemMessageDefinition> = {
+  userJoined: {
+    text: "{actor} joined the conversation.",
+    placeholders: ["actor"],
+  },
+  userLeft: {
+    text: "{actor} left the conversation.",
+    placeholders: ["actor"],
+  },
+  threadCreated: {
+    text: "{actor} created this conversation.",
+    placeholders: ["actor"],
+  },
+  threadClosed: {
+    text: "This conversation has been closed.",
+    placeholders: [],
+  },
+  messageEdited: {
+    text: "{actor} edited their message.",
+    placeholders: ["actor"],
+  },
+  messageDeleted: {
+    text: "{actor} deleted their message.",
+    placeholders: ["actor"],
+  },
+};
 
 /**
  * Replace all placeholders in a system message definition with concrete values.

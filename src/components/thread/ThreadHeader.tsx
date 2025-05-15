@@ -1,6 +1,4 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Loader2, Lock, Users } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Thread } from "@/types/thread";
 import { AvatarName } from "@/components/ui/avatar-name";
@@ -8,17 +6,11 @@ import { getThreadTopicInfo } from "@/constants/thread-topics";
 
 interface ThreadHeaderProps {
   thread: Thread;
-  isThreadClosed: boolean;
-  isRequestingClose: boolean;
-  onRequestClose: () => void;
   isGeneratingSummary: boolean;
 }
 
 const ThreadHeader = ({
   thread,
-  isThreadClosed,
-  isRequestingClose,
-  onRequestClose,
   isGeneratingSummary,
 }: ThreadHeaderProps) => {
   const { label, icon } = getThreadTopicInfo(thread.topic);
@@ -51,23 +43,6 @@ const ThreadHeader = ({
               <Loader2 className="h-3 w-3 animate-spin" />
               Generating summary...
             </p>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          {!isThreadClosed && !thread.closeRequestedBy && (
-            <Button
-              variant="outline"
-              onClick={onRequestClose}
-              disabled={isRequestingClose}
-            >
-              {isRequestingClose ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Lock className="h-4 w-4 mr-2" />
-              )}
-              Request Close
-            </Button>
           )}
         </div>
       </div>

@@ -51,11 +51,9 @@ export const getThreads = async (): Promise<Thread[]> => {
           id: thread.id,
           title: thread.title,
           createdAt: new Date(thread.created_at),
-          participants: participants.filter(Boolean) as string[],
+          participants,
           status: thread.status,
           summary: thread.summary,
-          closeRequestedBy: thread.close_requested_by,
-          owner_id: thread.owner_id,
           topic: thread.topic || "other", // Ensure topic is properly mapped
         };
       }),

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useThreadState } from "./useThreadState";
 import { useThreadMessages } from "./useThreadMessages";
-import { useThreadActions } from "./useThreadActions";
 
 export const useThreadDetails = (threadId: string | undefined) => {
   // Get thread state management
@@ -25,14 +24,6 @@ export const useThreadDetails = (threadId: string | undefined) => {
     loadMessages,
     addSystemMessage,
   } = useThreadMessages(threadId, thread, setThread);
-
-  // Get thread action handlers
-  const {
-    isRequestingClose,
-    handleRequestClose,
-    handleApproveClose,
-    handleRejectClose,
-  } = useThreadActions(threadId, thread, messages, addSystemMessage, setThread);
 
   // Initialize thread and messages
   useEffect(() => {
@@ -67,11 +58,5 @@ export const useThreadDetails = (threadId: string | undefined) => {
     handleSendMessage,
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
-
-    // From useThreadActions
-    isRequestingClose,
-    handleRequestClose,
-    handleApproveClose,
-    handleRejectClose,
   };
 };

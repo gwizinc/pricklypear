@@ -236,7 +236,6 @@ export type Database = {
           close_requested_by: string | null;
           created_at: string | null;
           id: string;
-          owner_id: string | null;
           status: string;
           summary: string | null;
           title: string;
@@ -246,7 +245,6 @@ export type Database = {
           close_requested_by?: string | null;
           created_at?: string | null;
           id?: string;
-          owner_id?: string | null;
           status?: string;
           summary?: string | null;
           title: string;
@@ -256,7 +254,6 @@ export type Database = {
           close_requested_by?: string | null;
           created_at?: string | null;
           id?: string;
-          owner_id?: string | null;
           status?: string;
           summary?: string | null;
           title?: string;

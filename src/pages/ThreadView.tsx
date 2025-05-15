@@ -5,7 +5,6 @@ import { useThreadDetails } from "@/hooks/useThreadDetails";
 import ThreadHeader from "@/components/thread/ThreadHeader";
 import ThreadMessages from "@/components/thread/ThreadMessages";
 import ThreadMessageComposer from "@/components/thread/ThreadMessageComposer";
-import ThreadCloseRequestManager from "@/components/thread/ThreadCloseRequestManager";
 import MessageReviewDialog from "@/components/MessageReviewDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -27,10 +26,6 @@ const ThreadView = () => {
     handleSendMessage,
     handleSendReviewedMessage,
     setIsReviewDialogOpen,
-    isRequestingClose,
-    handleRequestClose,
-    handleApproveClose,
-    handleRejectClose,
   } = useThreadDetails(threadId);
 
   const isThreadClosed = thread?.status === "closed";
@@ -49,20 +44,13 @@ const ThreadView = () => {
         <div className="flex flex-col h-[calc(100vh-12rem)]">
           <ThreadHeader
             thread={thread}
-            isThreadClosed={isThreadClosed}
-            isRequestingClose={isRequestingClose}
-            onRequestClose={handleRequestClose}
-            isGeneratingSummary={isGeneratingSummary}
           />
 
-          <ThreadCloseRequestManager
+          <ThreadMessages 
+            messages={messages} 
+            user={user} 
             thread={thread}
-            user={user}
-            onApproveClose={handleApproveClose}
-            onRejectClose={handleRejectClose}
           />
-
-          <ThreadMessages messages={messages} user={user} />
 
           <ThreadMessageComposer
             newMessage={newMessage}
