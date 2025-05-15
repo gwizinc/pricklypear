@@ -30,7 +30,7 @@ export default {
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#2CCED2",
+          DEFAULT: "#F2C4A7",
           foreground: "#1E2A44",
         },
         accent: {
