@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { sanitizeText } from "@/utils/sanitizeText";
 import { handleError } from "./utils.js";
 import { getOrCreateSystemProfile } from "./utils.js";
 import { createReadReceipts } from "./readReceipts.js";
@@ -20,11 +19,10 @@ export const saveSystemMessage = async (
     const systemProfileId = await getOrCreateSystemProfile();
     if (!systemProfileId) return false;
 
-    const sanitizedText = sanitizeText(text);
     const { data: messageData, error } = await supabase
       .from("messages")
       .insert({
-        text: sanitizedText,
+        text: text.trim(),
         sender_profile_id: systemProfileId,
         conversation_id: threadId,
         timestamp: new Date().toISOString(),

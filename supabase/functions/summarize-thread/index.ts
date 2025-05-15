@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import OpenAI from "https://esm.sh/openai@4.28.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { sanitizeText } from "../../../src/utils/sanitizeText.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,7 +60,7 @@ serve(async (req) => {
       .map((msg) => {
         const sender = msg.is_system ? "SYSTEM" : msg.profile_name;
         const timestamp = new Date(msg.timestamp).toLocaleString();
-        return `[${timestamp}] ${sender}: ${sanitizeText(msg.text ?? "")}`;
+        return `[${timestamp}] ${sender}: ${(msg.text ?? "").trim()}`;
       })
       .join("\n\n");
 

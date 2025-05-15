@@ -67,7 +67,7 @@ serve(async (req) => {
         },
         {
           role: "user",
-          content: `Rephrase this message: "${message}"`,
+          content: `Rephrase this message: ${message}`,
         },
       ],
       temperature: 0.7,

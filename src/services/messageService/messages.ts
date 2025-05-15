@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { sanitizeText } from "@/utils/sanitizeText";
 import { requireCurrentUser } from "@/utils/authCache";
 import { Message } from "@/types/message";
 import { handleError } from "./utils.js";
@@ -19,7 +18,7 @@ export const saveMessage = async (
     }
 
     const user = await requireCurrentUser();
-    const messageText = sanitizeText(selected || text);
+    const messageText = (selected || text).trim();
 
     const { data: messageData, error } = await supabase
       .from("messages")
@@ -67,8 +66,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
 
     return (messagesData || []).map((msg) => ({
       id: msg.message_id,
-      // Strip legacy wrapping quotes at read-time.
-      text: sanitizeText(msg.text || ""),
+      text: (msg.text || "").trim(),
       sender: msg.is_system ? "system" : msg.profile_name || "Unknown User",
       timestamp: new Date(msg.timestamp || ""),
       threadId: msg.conversation_id || "",
