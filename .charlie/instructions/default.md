@@ -1,3 +1,7 @@
+# MOST IMPORTANT
+BEFORE you start work, update the Linear ticket (use your Linear CLI) as "In Progress".
+AFTER you are done with your work, update the Linear ticket as "In Review".
+
 # Coding Instructions
 
 This documentation is intended to provide comprehensive guidelines for contributing to the codebase.
