@@ -56,31 +56,24 @@ export type Database = {
           created_at: string
           id: string
           message_id: string
-          profile_id: string
           read_at: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           message_id: string
-          profile_id: string
           read_at?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string
           id?: string
           message_id?: string
-          profile_id?: string
           read_at?: string | null
+          user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "message_read_receipts_message_id_fkey"
-            columns: ["message_id"]
-            isOneToOne: false
-            referencedRelation: "message_profiles"
-            referencedColumns: ["message_id"]
-          },
           {
             foreignKeyName: "message_read_receipts_message_id_fkey"
             columns: ["message_id"]
@@ -89,8 +82,8 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "message_read_receipts_profile_id_fkey"
-            columns: ["profile_id"]
+            foreignKeyName: "message_read_receipts_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -101,40 +94,40 @@ export type Database = {
         Row: {
           id: string
           is_system: boolean | null
-          sender_profile_id: string | null
           text: string | null
           thread_id: string | null
           timestamp: string | null
+          user_id: string | null
         }
         Insert: {
           id?: string
           is_system?: boolean | null
-          sender_profile_id?: string | null
           text?: string | null
           thread_id?: string | null
           timestamp?: string | null
+          user_id?: string | null
         }
         Update: {
           id?: string
           is_system?: boolean | null
-          sender_profile_id?: string | null
           text?: string | null
           thread_id?: string | null
           timestamp?: string | null
+          user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "messages_sender_profile_id_fkey"
-            columns: ["sender_profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "messages_thread_id_fkey"
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -167,34 +160,34 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          profile_id: string | null
           thread_id: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
-          profile_id?: string | null
           thread_id?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
-          profile_id?: string | null
           thread_id?: string | null
+          user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "thread_participants_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "thread_participants_thread_id_fkey"
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thread_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -203,7 +196,6 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          owner_id: string | null
           status: string
           summary: string | null
           title: string
@@ -212,7 +204,6 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
-          owner_id?: string | null
           status?: string
           summary?: string | null
           title: string
@@ -221,7 +212,6 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
-          owner_id?: string | null
           status?: string
           summary?: string | null
           title?: string
@@ -231,33 +221,7 @@ export type Database = {
       }
     }
     Views: {
-      message_profiles: {
-        Row: {
-          conversation_id: string | null
-          is_system: boolean | null
-          message_id: string | null
-          profile_id: string | null
-          profile_name: string | null
-          text: string | null
-          timestamp: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_sender_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_thread_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       get_profile_id_by_name: {

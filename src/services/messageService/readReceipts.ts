@@ -14,11 +14,11 @@ export const createReadReceipts = async (
   try {
     const query = supabase
       .from("thread_participants")
-      .select("profile_id")
+      .select("user_id")
       .eq("thread_id", threadId);
 
     if (senderProfileId) {
-      query.neq("profile_id", senderProfileId);
+      query.neq("user_id", senderProfileId);
     }
 
     const { data: participants, error: participantsError } = await query;
@@ -28,16 +28,16 @@ export const createReadReceipts = async (
       return;
     }
 
-    const readReceipts: ReadReceipt[] = participants.map(({ profile_id }) => ({
+    const readReceipts: ReadReceipt[] = participants.map(({ user_id }) => ({
       message_id: messageId,
-      profile_id,
+      user_id,
       read_at: null,
     }));
 
     if (senderProfileId) {
       readReceipts.push({
         message_id: messageId,
-        profile_id: senderProfileId,
+        user_id: senderProfileId,
         read_at: new Date().toISOString(),
       });
     }
@@ -65,14 +65,14 @@ export const markMessagesAsRead = async (
     const user = await requireCurrentUser();
     const readReceipts: ReadReceipt[] = messageIds.map((messageId) => ({
       message_id: messageId,
-      profile_id: user.id,
+      user_id: user.id,
       read_at: new Date().toISOString(),
     }));
 
     const { error } = await supabase
       .from("message_read_receipts")
       .upsert(readReceipts, {
-        onConflict: "message_id,profile_id",
+        onConflict: "message_id,user_id",
         ignoreDuplicates: false,
       });
 
@@ -101,9 +101,9 @@ export const getUnreadMessageCount = async (
 
       const { data, error } = await supabase
         .from("messages")
-        .select("id, sender_profile_id, is_system")
+        .select("id, user_id, is_system")
         .eq("thread_id", threadId)
-        .neq("sender_profile_id", user.id)
+        .neq("user_id", user.id)
         .eq("is_system", false);
 
       if (error || !data?.length) return 0;
@@ -111,7 +111,7 @@ export const getUnreadMessageCount = async (
       const { data: readReceipts, error: readReceiptsError } = await supabase
         .from("message_read_receipts")
         .select("message_id, read_at")
-        .eq("profile_id", user.id)
+        .eq("user_id", user.id)
         .not("read_at", "is", null);
 
       if (readReceiptsError) return 0;
@@ -144,14 +144,14 @@ export const getAllUnreadCounts = async (): Promise<Record<string, number>> => {
         message_id,
         messages!inner (
           thread_id,
-          sender_profile_id,
+          user_id,
           is_system
         )
       `,
       )
-      .eq("profile_id", user.id)
+      .eq("user_id", user.id)
       .is("read_at", null)
-      .neq("messages.sender_profile_id", user.id)
+      .neq("messages.user_id", user.id)
       .eq("messages.is_system", false);
 
     if (error) {

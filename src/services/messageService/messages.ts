@@ -75,7 +75,7 @@ export const saveMessage = async (
     const { data: messageData, error } = await supabase
       .from("messages")
       .insert({
-        sender_profile_id: user.id,
+        user_id: user.id,
         text: messageText,
         thread_id: threadId,
         timestamp: new Date().toISOString(),
@@ -121,11 +121,11 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       (messagesData || []).map(async (msg) => ({
         id: msg.id,
         text: (msg.text || "").trim(),
-        sender: msg.is_system ? "system" : await lookupProfileName(msg.sender_profile_id) || "Unknown User",
+        sender: msg.is_system ? "system" : await lookupProfileName(msg.user_id) || "Unknown User",
         timestamp: new Date(msg.timestamp || ""),
         threadId: msg.thread_id || "",
         isSystem: Boolean(msg.is_system),
-        isCurrentUser: msg.sender_profile_id === user.id,
+        isCurrentUser: msg.user_id === user.id,
       }))
     );
 

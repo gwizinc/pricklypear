@@ -13,7 +13,7 @@ vi.mock("@/integrations/supabase/client", () => {
         profile_name: "Alice",
         timestamp: new Date().toISOString(),
         thread_id: "thread-1",
-        profile_id: "alice-id",
+        user_id: "alice-id",
       },
     ],
     error: null,

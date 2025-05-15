@@ -36,9 +36,9 @@ export const createThread = async (
     const allParticipantIds = [...new Set([...participantIds, user.id])];
     
     // Add all participants to the thread_participants table
-    const participantsToInsert = allParticipantIds.map((profileId) => ({
+    const participantsToInsert = allParticipantIds.map((user_id) => ({
       thread_id: threadId,
-      profile_id: profileId,
+      user_id,
     }));
 
     const { error: participantsError } = await supabase

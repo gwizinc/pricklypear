@@ -25,7 +25,7 @@ export const getThreads = async (): Promise<Thread[]> => {
           .from("thread_participants")
           .select(
             `
-          profiles:profile_id (
+          profiles:user_id (
             id, name
           )
         `,

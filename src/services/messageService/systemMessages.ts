@@ -23,7 +23,7 @@ export const saveSystemMessage = async (
       .from("messages")
       .insert({
         text: text.trim(),
-        sender_profile_id: systemProfileId,
+        user_id: systemProfileId,
         thread_id: threadId,
         timestamp: new Date().toISOString(),
         is_system: true,
