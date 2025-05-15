@@ -29,9 +29,14 @@ const ThreadHeader = ({
       <div className="flex justify-between">
         <div className="space-y-1">
           {thread.topic && (
-            <Badge variant="outline" className="mb-2 bg-white">
-              {topicLabel}
-            </Badge>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="outline" className="bg-white">
+                {topicLabel}
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                Created {thread.createdAt.toLocaleDateString()}
+              </span>
+            </div>
           )}
           <h1 className="text-2xl font-bold">{thread.title}</h1>
           {thread.summary ? (
@@ -68,10 +73,6 @@ const ThreadHeader = ({
       </div>
 
       <div className="flex flex-col space-y-2">
-        <p className="text-sm text-muted-foreground">
-          Created {thread.createdAt.toLocaleDateString()}
-        </p>
-
         {thread.participants && thread.participants.length > 0 ? (
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
