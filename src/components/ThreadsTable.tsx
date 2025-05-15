@@ -72,7 +72,8 @@ const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
                 key={thread.id}
                 onClick={() => navigate(`/threads/${thread.id}`)}
                 className={cn(
-                  "cursor-pointer hover:bg-muted/50",
+                  // Base background depends on thread status; yellow highlight on hover
+                  "cursor-pointer hover:bg-yellow-50",
                   thread.status === "open" ? "bg-white" : "bg-gray-100",
                 )}
               >
