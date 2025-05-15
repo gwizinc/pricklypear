@@ -24,7 +24,7 @@ export const saveSystemMessage = async (
       .insert({
         text: text.trim(),
         sender_profile_id: systemProfileId,
-        conversation_id: threadId,
+        thread_id: threadId,
         timestamp: new Date().toISOString(),
         is_system: true,
       })

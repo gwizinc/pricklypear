@@ -8,7 +8,7 @@ export interface MessageData {
   id: string;
   text: string;
   sender_profile_id: string;
-  conversation_id: string;
+  thread_id: string;
   timestamp: string;
   is_system?: boolean;
 }
