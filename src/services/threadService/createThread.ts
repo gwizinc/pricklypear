@@ -1,12 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Thread } from "@/types/thread";
+import { Thread, ThreadStatus } from "@/types/thread";
 import type { ThreadTopic } from "@/constants/thread-topics";
 import { v4 as uuidv4 } from "uuid";
 import { requireCurrentUser } from "@/utils/authCache";
 
 export const createThread = async (
   title: string,
-  participantNames: string[],
+  participantIds: string[],
   topic: ThreadTopic = "other",
 ): Promise<Thread | null> => {
   try {
@@ -20,8 +20,7 @@ export const createThread = async (
         id: threadId,
         title,
         created_at: new Date().toISOString(),
-        // TODO actually have a status of the thread saved
-        status: "open",
+        status: "open" as ThreadStatus,
         summary: null,
         topic,
       })
@@ -33,54 +32,22 @@ export const createThread = async (
       return null;
     }
 
-    // Get profile IDs for all participants
-    const participantPromises = participantNames.map(async (name) => {
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("name", name)
-        .single();
+    // Ensure the thread creator is included in participants
+    const allParticipantIds = [...new Set([...participantIds, user.id])];
+    
+    // Add all participants to the thread_participants table
+    const participantsToInsert = allParticipantIds.map((profileId) => ({
+      thread_id: threadId,
+      profile_id: profileId,
+    }));
 
-      return profileData?.id;
-    });
-
-    const participantIds = (await Promise.all(participantPromises)).filter(
-      Boolean,
-    );
-
-    // Add participants to the thread_participants table
-    if (participantIds.length > 0) {
-      const participantsToInsert = participantIds.map((profileId) => ({
-        thread_id: threadId,
-        profile_id: profileId,
-      }));
-
-      const { error: participantsError } = await supabase
-        .from("thread_participants")
-        .insert(participantsToInsert);
-
-      if (participantsError) {
-        console.error("Error adding thread participants:", participantsError);
-      }
-    }
-
-    // Also add the thread owner as a participant if they're not already included
-    const { error: ownerParticipantError } = await supabase
+    const { error: participantsError } = await supabase
       .from("thread_participants")
-      .insert({
-        thread_id: threadId,
-        profile_id: user.id,
-      })
-      .select();
+      .insert(participantsToInsert);
 
-    if (
-      ownerParticipantError &&
-      !ownerParticipantError.message.includes("duplicate")
-    ) {
-      console.error(
-        "Error adding owner as participant:",
-        ownerParticipantError,
-      );
+    if (participantsError) {
+      console.error("Error adding thread participants:", participantsError);
+      return null;
     }
 
     // Return the thread with participant names
@@ -88,13 +55,13 @@ export const createThread = async (
       id: threadData.id,
       title: threadData.title,
       createdAt: new Date(threadData.created_at),
-      participants: participantNames, // Return the names for UI display
-      status: threadData.status,
+      status: threadData.status as ThreadStatus,
+      participants: allParticipantIds,
       summary: threadData.summary,
       topic: threadData.topic,
     };
   } catch (error) {
-    console.error("Exception creating thread:", error);
+    console.error("Error creating thread:", error);
     return null;
   }
 };

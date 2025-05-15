@@ -14,6 +14,7 @@ import { useThreadCreation } from "@/hooks/useThreadCreation";
 import CreateThreadForm from "./CreateThreadForm";
 import type { Thread } from "@/types/thread";
 import type { User } from "@supabase/supabase-js";
+import type { ThreadTopic } from "@/constants/thread-topics";
 
 interface CreateThreadDialogProps {
   onThreadCreated: (newThread: Thread) => void;
@@ -45,8 +46,8 @@ const CreateThreadDialog = ({
   const {
     newThreadTitle,
     setNewThreadTitle,
-    selectedContact,
-    setSelectedContact,
+    selectedContactId,
+    setSelectedContactId,
     selectedTopic,
     setSelectedTopic,
     isCreating,
@@ -58,8 +59,8 @@ const CreateThreadDialog = ({
     if (open) {
       loadConnections();
       setNewThreadTitle("");
-      setSelectedContact("");
-      setSelectedTopic("other");
+      setSelectedContactId("");
+      setSelectedTopic("other" as ThreadTopic);
     }
   };
 
@@ -83,8 +84,8 @@ const CreateThreadDialog = ({
         <CreateThreadForm
           newThreadTitle={newThreadTitle}
           setNewThreadTitle={setNewThreadTitle}
-          selectedContact={selectedContact}
-          setSelectedContact={setSelectedContact}
+          selectedContactId={selectedContactId}
+          setSelectedContactId={setSelectedContactId}
           selectedTopic={selectedTopic}
           setSelectedTopic={setSelectedTopic}
           connections={connections}

@@ -17,8 +17,8 @@ import type { Connection } from "@/types/connection";
 interface CreateThreadFormProps {
   newThreadTitle: string;
   setNewThreadTitle: (title: string) => void;
-  selectedContact: string;
-  setSelectedContact: (contact: string) => void;
+  selectedContactId: string;
+  setSelectedContactId: (contactId: string) => void;
   selectedTopic?: ThreadTopic;
   setSelectedTopic?: (topic: ThreadTopic) => void;
   connections: Connection[];
@@ -31,8 +31,8 @@ interface CreateThreadFormProps {
 const CreateThreadForm = ({
   newThreadTitle,
   setNewThreadTitle,
-  selectedContact,
-  setSelectedContact,
+  selectedContactId,
+  setSelectedContactId,
   selectedTopic = "other",
   setSelectedTopic,
   connections,
@@ -69,7 +69,7 @@ const CreateThreadForm = ({
             </Button>
           </div>
         ) : (
-          <Select value={selectedContact} onValueChange={setSelectedContact}>
+          <Select value={selectedContactId} onValueChange={setSelectedContactId}>
             <SelectTrigger className="normal-case">
               <SelectValue placeholder="Select a contact" />
             </SelectTrigger>
@@ -77,7 +77,7 @@ const CreateThreadForm = ({
               {connections.map((connection) => (
                 <SelectItem
                   key={connection.otherUserId}
-                  value={connection.username}
+                  value={connection.otherUserId}
                   className="normal-case"
                 >
                   {connection.username}
@@ -126,7 +126,7 @@ const CreateThreadForm = ({
         </Button>
         <Button
           onClick={onSubmit}
-          disabled={!newThreadTitle.trim() || !selectedContact || isCreating}
+          disabled={!newThreadTitle.trim() || !selectedContactId || isCreating}
         >
           {isCreating ? (
             <>

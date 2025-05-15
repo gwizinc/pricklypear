@@ -4,22 +4,15 @@ import { useToast } from "@/hooks/use-toast";
 import { createThread } from "@/services/threadService";
 import type { User } from "@supabase/supabase-js";
 import type { Thread } from "@/types/thread";
+import type { ThreadTopic } from "@/constants/thread-topics";
 
 export const useThreadCreation = (
   onThreadCreated: (thread: Thread) => void,
   onClose: () => void,
 ) => {
   const [newThreadTitle, setNewThreadTitle] = useState("");
-  const [selectedContact, setSelectedContact] = useState<string>("");
-  const [selectedTopic, setSelectedTopic] = useState<
-    | "travel"
-    | "parenting_time"
-    | "health"
-    | "education"
-    | "activity"
-    | "legal"
-    | "other"
-  >("other");
+  const [selectedContactId, setSelectedContactId] = useState<string>("");
+  const [selectedTopic, setSelectedTopic] = useState<ThreadTopic>("other");
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -44,7 +37,7 @@ export const useThreadCreation = (
       return;
     }
 
-    if (!selectedContact) {
+    if (!selectedContactId) {
       toast({
         title: "Contact required",
         description: "Please select a contact for the thread",
@@ -57,7 +50,7 @@ export const useThreadCreation = (
 
     const newThread = await createThread(
       newThreadTitle,
-      [selectedContact],
+      [selectedContactId],
       selectedTopic,
     );
 
@@ -66,7 +59,7 @@ export const useThreadCreation = (
     if (newThread) {
       onThreadCreated(newThread);
       setNewThreadTitle("");
-      setSelectedContact("");
+      setSelectedContactId("");
       setSelectedTopic("other");
       onClose();
       // Redirect the user to the newly-created thread
@@ -88,8 +81,8 @@ export const useThreadCreation = (
   return {
     newThreadTitle,
     setNewThreadTitle,
-    selectedContact,
-    setSelectedContact,
+    selectedContactId,
+    setSelectedContactId,
     selectedTopic,
     setSelectedTopic,
     isCreating,
