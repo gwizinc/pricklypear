@@ -69,7 +69,10 @@ const CreateThreadForm = ({
             </Button>
           </div>
         ) : (
-          <Select value={selectedContactId} onValueChange={setSelectedContactId}>
+          <Select
+            value={selectedContactId}
+            onValueChange={setSelectedContactId}
+          >
             <SelectTrigger className="normal-case">
               <SelectValue placeholder="Select a contact" />
             </SelectTrigger>

@@ -6,18 +6,20 @@ import { requireCurrentUser } from "@/utils/authCache";
 export const createThread = async (
   title: string,
   participantIds: string[],
-  topic: ThreadTopic = "other"
+  topic: ThreadTopic = "other",
 ): Promise<Thread | null> => {
   try {
     const user = await requireCurrentUser();
 
     // Call the database function to create the thread and add participants
-    const { data: threadId, error: threadError } = await supabase
-      .rpc('create_thread', {
+    const { data: threadId, error: threadError } = await supabase.rpc(
+      "create_thread",
+      {
         title,
         topic,
-        participant_ids: participantIds
-      });
+        participant_ids: participantIds,
+      },
+    );
 
     if (threadError || !threadId) {
       console.error("Error creating thread:", threadError);

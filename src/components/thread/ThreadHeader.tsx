@@ -9,10 +9,7 @@ interface ThreadHeaderProps {
   isGeneratingSummary: boolean;
 }
 
-const ThreadHeader = ({
-  thread,
-  isGeneratingSummary,
-}: ThreadHeaderProps) => {
+const ThreadHeader = ({ thread, isGeneratingSummary }: ThreadHeaderProps) => {
   const { label, icon } = getThreadTopicInfo(thread.topic);
   const topicLabel = `${icon} ${label}`;
 
