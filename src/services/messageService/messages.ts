@@ -11,11 +11,13 @@ const profileNameCache = new Map<string, string>();
 /**
  * Looks up a profile name by ID using the user's connections.
  * First checks the cache, then queries the database if needed.
- * 
+ *
  * @param {string} profileId - The ID of the profile to look up
  * @returns {Promise<string | undefined>} The profile name if found, undefined otherwise
  */
-const lookupProfileName = async (profileId: string): Promise<string | undefined> => {
+const lookupProfileName = async (
+  profileId: string,
+): Promise<string | undefined> => {
   // Check cache first
   if (profileNameCache.has(profileId)) {
     return profileNameCache.get(profileId);
@@ -24,10 +26,10 @@ const lookupProfileName = async (profileId: string): Promise<string | undefined>
   try {
     // Get all connections for the current user
     const connections = await getConnections();
-    
+
     // Find the connection with matching profile ID
     const connection = connections.find(
-      conn => conn.otherUserId === profileId && conn.status === "accepted"
+      (conn) => conn.otherUserId === profileId && conn.status === "accepted",
     );
 
     if (connection) {
@@ -119,12 +121,14 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
       (messagesData || []).map(async (msg) => ({
         id: msg.id,
         text: (msg.text || "").trim(),
-        sender: msg.is_system ? "system" : await lookupProfileName(msg.user_id) || "Unknown User",
+        sender: msg.is_system
+          ? "system"
+          : (await lookupProfileName(msg.user_id)) || "Unknown User",
         timestamp: new Date(msg.timestamp || ""),
         threadId: msg.thread_id || "",
         isSystem: Boolean(msg.is_system),
         isCurrentUser: msg.user_id === user.id,
-      }))
+      })),
     );
 
     return messages;

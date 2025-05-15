@@ -13,9 +13,9 @@ interface ThreadMessagesProps {
   thread: Thread;
 }
 
-const ThreadMessages: React.FC<ThreadMessagesProps> = ({ 
-  messages, 
-  user, 
+const ThreadMessages: React.FC<ThreadMessagesProps> = ({
+  messages,
+  user,
   thread,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -55,7 +55,9 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({
         <div className="text-center text-muted-foreground/60 py-8">
           <div className="flex flex-col items-center gap-2">
             <MessageCircle className="h-12 w-12" />
-            <p className="italic">No messages yet. Start the conversation below.</p>
+            <p className="italic">
+              No messages yet. Start the conversation below.
+            </p>
           </div>
         </div>
       )}

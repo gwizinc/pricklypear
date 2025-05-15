@@ -27,32 +27,33 @@ export interface SystemMessageDefinition {
   placeholders: string[];
 }
 
-export const systemMessages: Record<SystemMessageKey, SystemMessageDefinition> = {
-  userJoined: {
-    text: "{actor} joined the conversation.",
-    placeholders: ["actor"],
-  },
-  userLeft: {
-    text: "{actor} left the conversation.",
-    placeholders: ["actor"],
-  },
-  threadCreated: {
-    text: "{actor} created this conversation.",
-    placeholders: ["actor"],
-  },
-  threadClosed: {
-    text: "This conversation has been closed.",
-    placeholders: [],
-  },
-  messageEdited: {
-    text: "{actor} edited their message.",
-    placeholders: ["actor"],
-  },
-  messageDeleted: {
-    text: "{actor} deleted their message.",
-    placeholders: ["actor"],
-  },
-};
+export const systemMessages: Record<SystemMessageKey, SystemMessageDefinition> =
+  {
+    userJoined: {
+      text: "{actor} joined the conversation.",
+      placeholders: ["actor"],
+    },
+    userLeft: {
+      text: "{actor} left the conversation.",
+      placeholders: ["actor"],
+    },
+    threadCreated: {
+      text: "{actor} created this conversation.",
+      placeholders: ["actor"],
+    },
+    threadClosed: {
+      text: "This conversation has been closed.",
+      placeholders: [],
+    },
+    messageEdited: {
+      text: "{actor} edited their message.",
+      placeholders: ["actor"],
+    },
+    messageDeleted: {
+      text: "{actor} deleted their message.",
+      placeholders: ["actor"],
+    },
+  };
 
 /**
  * Replace all placeholders in a system message definition with concrete values.
