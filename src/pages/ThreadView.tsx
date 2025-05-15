@@ -42,7 +42,11 @@ const ThreadView = () => {
     <div className="container py-8">
       {thread && (
         <div className="flex flex-col h-[calc(100vh-12rem)]">
-          <ThreadHeader thread={thread} />
+          <ThreadHeader
+            thread={thread}
+            messageCount={messages.length}
+            isGeneratingSummary={isGeneratingSummary}
+          />
 
           <ThreadMessages messages={messages} user={user} thread={thread} />
 

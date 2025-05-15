@@ -21,7 +21,8 @@ export const addParticipants = async (
     const { error } = await supabase.from("thread_participants").insert(
       participantIds.map((id) => ({
         thread_id: threadId,
-        profile_id: id,
+        // Column name corrected per schema review
+        user_id: id,
       })),
     );
 

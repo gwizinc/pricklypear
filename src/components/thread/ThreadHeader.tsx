@@ -1,17 +1,31 @@
-import { Loader2, Users } from "lucide-react";
+import React, { useState } from "react";
+import { Loader2, Plus, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { Thread } from "@/types/thread";
 import { AvatarName } from "@/components/ui/avatar-name";
 import { getThreadTopicInfo } from "@/constants/thread-topics";
+import AddParticipantsDialog from "./AddParticipantsDialog";
 
 interface ThreadHeaderProps {
   thread: Thread;
-  isGeneratingSummary: boolean;
+  /** Number of messages in the thread. Determines whether participants can be added */
+  messageCount: number;
+  /** Indicates if a summary is currently being generated (spinner) */
+  isGeneratingSummary?: boolean;
 }
 
-const ThreadHeader = ({ thread, isGeneratingSummary }: ThreadHeaderProps) => {
+const ThreadHeader = ({
+  thread,
+  messageCount,
+  isGeneratingSummary = false,
+}: ThreadHeaderProps) => {
   const { label, icon } = getThreadTopicInfo(thread.topic);
   const topicLabel = `${icon} ${label}`;
+
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+  const canAddParticipants = messageCount === 0;
 
   return (
     <div className="space-y-4 mb-6">
@@ -51,18 +65,49 @@ const ThreadHeader = ({ thread, isGeneratingSummary }: ThreadHeaderProps) => {
             <span className="text-sm font-medium">Participants:</span>
             <div className="flex flex-wrap gap-4">
               {thread.participants.map((participant) => (
-                <AvatarName
-                  key={participant}
-                  name={participant}
-                  size="xs"
-                  /* border already applied inside the component */
-                />
+                <AvatarName key={participant} name={participant} size="xs" />
               ))}
             </div>
+            {canAddParticipants && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsAddDialogOpen(true)}
+                  aria-label="Add participants"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+                <AddParticipantsDialog
+                  thread={thread}
+                  open={isAddDialogOpen}
+                  onOpenChange={setIsAddDialogOpen}
+                />
+              </>
+            )}
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">
-            No other participants
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-muted-foreground">
+              No other participants
+            </div>
+            {canAddParticipants && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsAddDialogOpen(true)}
+                  aria-label="Add participants"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+                <AddParticipantsDialog
+                  thread={thread}
+                  open={isAddDialogOpen}
+                  onOpenChange={setIsAddDialogOpen}
+                />
+              </>
+            )}
           </div>
         )}
       </div>
