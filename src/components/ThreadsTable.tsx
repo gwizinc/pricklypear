@@ -71,7 +71,10 @@ const ThreadsTable: React.FC<ThreadsTableProps> = ({ threads, isLoading }) => {
               <tr
                 key={thread.id}
                 onClick={() => navigate(`/threads/${thread.id}`)}
-                className="cursor-pointer hover:bg-muted/50"
+                className={cn(
+                  "cursor-pointer hover:bg-muted/50",
+                  thread.status === "open" ? "bg-white" : "bg-gray-100",
+                )}
               >
                 {/* State */}
                 <td className="px-4 py-2">
