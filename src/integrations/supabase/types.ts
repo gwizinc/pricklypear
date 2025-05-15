@@ -224,16 +224,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_profile_id_by_name: {
-        Args: { profile_name: string }
+      create_thread: {
+        Args: {
+          title: string
+          topic: Database["public"]["Enums"]["thread_topic"]
+          participant_ids?: string[]
+        }
         Returns: string
       }
       is_thread_participant: {
         Args: { thread_id: string; user_id: string }
-        Returns: boolean
-      }
-      is_thread_recent: {
-        Args: { thread_created_at: string }
         Returns: boolean
       }
     }

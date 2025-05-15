@@ -13,7 +13,8 @@
     "test": "bun test",
     "fix": "eslint --fix --quiet . && prettier --ignore-path='../../.prettierignore' --log-level=silent --write .",
     "typecheck": "tsc --noEmit",
-    "ci": "bun run lint && bun run typecheck && bun run build"
+    "ci": "bun run lint && bun run typecheck && bun run build",
+    "gen": "supabase gen types --project-id vgddrhyjttyrathqhefb > src/integrations/supabase/types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "5.0.1",

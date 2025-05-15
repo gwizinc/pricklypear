@@ -57,11 +57,9 @@ const lookupProfileName = async (profileId: string): Promise<string | undefined>
 };
 
 export const saveMessage = async (
-  sender: string,
   text: string,
   threadId: string,
   selected?: string,
-  kind?: string,
 ): Promise<boolean> => {
   try {
     if (!text || !threadId) {
