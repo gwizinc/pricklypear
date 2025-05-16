@@ -18,6 +18,9 @@ export const useThreadCreation = (
   const navigate = useNavigate();
 
   const handleCreateThread = async (user: User) => {
+    // Always work with a trimmed version of the title
+    const trimmedTitle = newThreadTitle.trim();
+
     if (!user) {
       toast({
         title: "Authentication required",
@@ -28,7 +31,7 @@ export const useThreadCreation = (
       return;
     }
 
-    if (!newThreadTitle.trim()) {
+    if (!trimmedTitle) {
       toast({
         title: "Title required",
         description: "Please enter a title for the thread",
@@ -38,7 +41,7 @@ export const useThreadCreation = (
     }
 
     // DD-55: enforce 50-character limit before service call
-    if (newThreadTitle.trim().length > 50) {
+    if (trimmedTitle.length > 50) {
       toast({
         title: "Title too long",
         description: "Thread titles must be 50 characters or fewer.",
@@ -59,7 +62,7 @@ export const useThreadCreation = (
     setIsCreating(true);
 
     const newThread = await createThread(
-      newThreadTitle,
+      trimmedTitle,
       [selectedContactId],
       selectedTopic,
     );
@@ -77,7 +80,7 @@ export const useThreadCreation = (
 
       toast({
         title: "Thread created",
-        description: `"${newThreadTitle}" has been created successfully.`,
+        description: `"${trimmedTitle}" has been created successfully.`,
       });
     } else {
       toast({

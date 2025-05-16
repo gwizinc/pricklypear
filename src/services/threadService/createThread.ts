@@ -8,8 +8,11 @@ export const createThread = async (
   participantIds: string[],
   topic: ThreadTopic = "other",
 ): Promise<Thread | null> => {
+  // Trim as soon as we receive the input to ensure consistent handling
+  const trimmedTitle = title.trim();
+
   // DD-55: guard at service layer as a final back-stop
-  if (title.trim().length > 50) {
+  if (trimmedTitle.length > 50) {
     console.error("createThread aborted: title exceeds 50 characters");
     return null;
   }
@@ -20,7 +23,7 @@ export const createThread = async (
     const { data: threadId, error: threadError } = await supabase.rpc(
       "create_thread",
       {
-        title,
+        title: trimmedTitle,
         topic,
         participant_ids: participantIds,
       },
@@ -34,7 +37,7 @@ export const createThread = async (
     // Return the thread with participant names
     return {
       id: threadId,
-      title,
+      title: trimmedTitle,
       createdAt: new Date(),
       status: "open" as ThreadStatus,
       participants: participantIds,
