@@ -58,7 +58,7 @@ const ThreadHeader = ({
           {isGeneratingSummary && (
             <p className="text-xs text-muted-foreground flex items-center gap-2">
               <Loader2 className="h-3 w-3 animate-spin" />
-              Generating summary…
+              Generating summary...
             </p>
           )}
         </div>

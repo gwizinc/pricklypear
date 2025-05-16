@@ -20,12 +20,10 @@ export const addParticipantsToThread = async (
       user_id: userId,
     }));
 
-    const { error } = await supabase
-      .from("thread_participants")
-      .upsert(rows, {
-        onConflict: "thread_id,user_id",
-        ignoreDuplicates: true,
-      });
+    const { error } = await supabase.from("thread_participants").upsert(rows, {
+      onConflict: "thread_id,user_id",
+      ignoreDuplicates: true,
+    });
 
     if (error) {
       console.error("Error adding participants:", error);

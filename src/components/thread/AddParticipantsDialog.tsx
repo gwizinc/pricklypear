@@ -71,7 +71,11 @@ const AddParticipantsDialog = ({
   const toggleUser = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -142,7 +146,7 @@ const AddParticipantsDialog = ({
             </DialogHeader>
 
             <Input
-              placeholder="Search users…"
+              placeholder="Search users..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -166,7 +170,9 @@ const AddParticipantsDialog = ({
                   </label>
                 ))}
                 {query && results.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No users found</p>
+                  <p className="text-sm text-muted-foreground">
+                    No users found
+                  </p>
                 )}
               </div>
             )}
@@ -176,9 +182,7 @@ const AddParticipantsDialog = ({
                 disabled={selectedIds.size === 0 || isAdding}
                 onClick={handleAdd}
               >
-                {isAdding && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
+                {isAdding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Add
               </Button>
             </DialogFooter>
