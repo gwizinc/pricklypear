@@ -26,11 +26,7 @@ export const createThread = async (
       return null;
     }
 
-    /**
-     * ------------------------------------------------------------------
-     * Persist a default summary so that callers immediately see context.
-     * ------------------------------------------------------------------
-     */
+    // Persist a default summary so that callers immediately see context.
     const userName =
       (user.user_metadata?.name as string | undefined)?.trim() || user.email;
     const summary = `New thread created by ${userName}`;
