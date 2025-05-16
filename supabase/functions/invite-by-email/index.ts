@@ -77,13 +77,12 @@ async function fetchInviterName({ supabase, userId }) {
  * @throws {Error} On query error
  */
 async function fetchInviteeUser({ supabase, email }) {
-  const { data, error } = await supabase
-    .from("users", { schema: "auth" })
-    .select("id, email, user_metadata")
-    .ilike("email", email)
-    .maybeSingle();
+  const { data, error } = await supabase.auth.admin.listUsers({ email });
   if (error) throw error;
-  return data;
+  const user = data.users.find(
+    (u) => u.email && u.email.toLowerCase() === email.toLowerCase()
+  );
+  return user ?? null;
 }
 
 /**
