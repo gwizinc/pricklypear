@@ -56,12 +56,10 @@ function computeStrength(pw: string): number {
 }
 
 export default function SecuritySettingsCard() {
-  // Feature-flag gate
   const enabled = useFeatureFlag("enablePasswordChange");
-  if (!enabled) return null;
 
+  // ----- all hooks must be called unconditionally -----
   const [expanded, setExpanded] = useState(false);
-
   const { toast } = useToast();
   const { signOut } = useAuth();
   const navigate = useNavigate();
@@ -78,6 +76,12 @@ export default function SecuritySettingsCard() {
   const newPassword = form.watch("newPassword");
   const strength = useMemo(() => computeStrength(newPassword), [newPassword]);
   const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
+
+  // Stable keys for the strength-meter segments
+  const strengthKeys = ["seg-0", "seg-1", "seg-2", "seg-3"];
+
+  // Feature-flag gate (placed AFTER hooks are called)
+  if (!enabled) return null;
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -145,10 +149,9 @@ export default function SecuritySettingsCard() {
                     {/* Strength meter */}
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex flex-1 gap-1">
-                        {[0, 1, 2, 3].map((i) => (
+                        {strengthKeys.map((key, i) => (
                           <span
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={i}
+                            key={key}
                             className={`h-1 flex-1 rounded-full ${
                               strength > i ? "bg-primary" : "bg-muted"
                             }`}
