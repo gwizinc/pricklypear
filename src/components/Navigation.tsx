@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import { handleError } from "@/services/messageService/utils";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
@@ -67,7 +68,7 @@ const Navigation = () => {
       });
       navigate("/"); // redirect to homepage
     } catch (error) {
-      /* signOut failed—keep user on the current page */
+      handleError(error, "signing out");
     }
   };
 
