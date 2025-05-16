@@ -9,14 +9,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { searchUsers } from "@/services/users/userService";
+import {
+  getConnections,
+  type Connection,
+} from "@/services/users/userService";
 import { addParticipantsToThread } from "@/services/threadService";
 
-interface UserSearchResult {
+interface ConnectionItem {
   id: string;
   username: string;
 }
@@ -36,46 +38,64 @@ const AddParticipantsDialog = ({
   onAdded,
 }: AddParticipantsDialogProps) => {
   const [open, setOpen] = React.useState(false);
-  const [query, setQuery] = React.useState("");
-  const [isSearching, setIsSearching] = React.useState(false);
-  const [results, setResults] = React.useState<UserSearchResult[]>([]);
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+
+  const [connections, setConnections] = React.useState<ConnectionItem[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(
+    new Set(),
+  );
   const [isAdding, setIsAdding] = React.useState(false);
 
-  /* debounced user search */
+  /* ────────────────────────────────────────────────────────────────────────── *
+   * Load connections when the dialog is opened
+   * ────────────────────────────────────────────────────────────────────────── */
   React.useEffect(() => {
     if (!open || disabled) return;
-    if (query.trim() === "") {
-      setResults([]);
-      return;
-    }
 
-    let active = true;
-    setIsSearching(true);
-    const t = setTimeout(() => {
-      searchUsers(query).then((users) => {
-        if (!active) return;
-        setResults(
-          users.filter((u) => !currentParticipantNames.includes(u.username)),
+    const loadConnections = async () => {
+      setIsLoading(true);
+      try {
+        const all = await getConnections();
+        const accepted = all.filter(
+          (c: Connection) =>
+            c.status === "accepted" &&
+            c.otherUserId &&
+            !currentParticipantNames.includes(c.username),
         );
-        setIsSearching(false);
-      });
-    }, 300);
 
-    return () => {
-      active = false;
-      clearTimeout(t);
+        setConnections(
+          accepted.map((c) => ({
+            id: c.otherUserId as string,
+            username: c.username,
+          })),
+        );
+      } catch (err) {
+        console.error("Error loading connections:", err);
+        toast({
+          title: "Error",
+          description: "Failed to load your connections.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [query, open, disabled, currentParticipantNames]);
+
+    loadConnections();
+  }, [open, disabled, currentParticipantNames]);
+
+  /* Clear selections + list when dialog closes */
+  React.useEffect(() => {
+    if (open) return;
+    setSelectedIds(new Set());
+    setConnections([]);
+  }, [open]);
 
   const toggleUser = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   };
@@ -96,18 +116,15 @@ const AddParticipantsDialog = ({
       return;
     }
 
-    const addedNames = results
-      .filter((u) => selectedIds.has(u.id))
-      .map((u) => u.username);
+    const addedNames = connections
+      .filter((c) => selectedIds.has(c.id))
+      .map((c) => c.username);
 
     toast({ title: "Participants added." });
     onAdded?.(addedNames);
 
     /* reset & close */
     setOpen(false);
-    setQuery("");
-    setResults([]);
-    setSelectedIds(new Set());
   };
 
   return (
@@ -141,37 +158,33 @@ const AddParticipantsDialog = ({
             <DialogHeader>
               <DialogTitle>Add Participants</DialogTitle>
               <DialogDescription>
-                Search and select people to add to this thread.
+                Select people from your accepted connections.
               </DialogDescription>
             </DialogHeader>
 
-            <Input
-              placeholder="Search users..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-
-            {isSearching ? (
+            {isLoading ? (
               <div className="flex justify-center py-4">
                 <Loader2 className="h-4 w-4 animate-spin" />
               </div>
             ) : (
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {results.map((u) => (
+                {connections.map((c) => (
                   <label
-                    key={u.id}
+                    key={c.id}
                     className="flex items-center gap-2 cursor-pointer text-sm"
                   >
                     <Checkbox
-                      checked={selectedIds.has(u.id)}
-                      onCheckedChange={() => toggleUser(u.id)}
+                      aria-label={`select ${c.username}`}
+                      checked={selectedIds.has(c.id)}
+                      onCheckedChange={() => toggleUser(c.id)}
                     />
-                    {u.username}
+                    {c.username}
                   </label>
                 ))}
-                {query && results.length === 0 && (
+
+                {connections.length === 0 && (
                   <p className="text-sm text-muted-foreground">
-                    No users found
+                    No connections
                   </p>
                 )}
               </div>
@@ -182,7 +195,9 @@ const AddParticipantsDialog = ({
                 disabled={selectedIds.size === 0 || isAdding}
                 onClick={handleAdd}
               >
-                {isAdding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isAdding && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 Add
               </Button>
             </DialogFooter>
