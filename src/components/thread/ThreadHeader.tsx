@@ -32,7 +32,7 @@ const ThreadHeader = ({ thread, isGeneratingSummary }: ThreadHeaderProps) => {
             <p className="text-muted-foreground text-sm">{thread.summary}</p>
           ) : (
             <p className="text-muted-foreground/70 text-sm italic">
-              No summary provided
+              New thread created
             </p>
           )}
           {isGeneratingSummary && (
