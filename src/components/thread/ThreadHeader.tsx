@@ -1,17 +1,37 @@
+import React from "react";
 import { Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Thread } from "@/types/thread";
 import { AvatarName } from "@/components/ui/avatar-name";
 import { getThreadTopicInfo } from "@/constants/thread-topics";
+import AddParticipantsDialog from "./AddParticipantsDialog";
 
 interface ThreadHeaderProps {
   thread: Thread;
   isGeneratingSummary: boolean;
+  /** Number of messages in the thread (used to disable participant-adding) */
+  messageCount: number;
 }
 
-const ThreadHeader = ({ thread, isGeneratingSummary }: ThreadHeaderProps) => {
+const ThreadHeader = ({
+  thread,
+  isGeneratingSummary,
+  messageCount,
+}: ThreadHeaderProps) => {
   const { label, icon } = getThreadTopicInfo(thread.topic);
   const topicLabel = `${icon} ${label}`;
+
+  const [participants, setParticipants] = React.useState<string[]>(
+    thread.participants,
+  );
+  React.useEffect(
+    () => setParticipants(thread.participants),
+    [thread.participants],
+  );
+
+  const handleAdded = (names: string[]) => {
+    setParticipants((prev) => Array.from(new Set([...prev, ...names])));
+  };
 
   return (
     <div className="space-y-4 mb-6">
@@ -38,33 +58,33 @@ const ThreadHeader = ({ thread, isGeneratingSummary }: ThreadHeaderProps) => {
           {isGeneratingSummary && (
             <p className="text-xs text-muted-foreground flex items-center gap-2">
               <Loader2 className="h-3 w-3 animate-spin" />
-              Generating summary...
+              Generating summary…
             </p>
           )}
         </div>
       </div>
 
       <div className="flex flex-col space-y-2">
-        {thread.participants && thread.participants.length > 0 ? (
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Participants:</span>
-            <div className="flex flex-wrap gap-4">
-              {thread.participants.map((participant) => (
-                <AvatarName
-                  key={participant}
-                  name={participant}
-                  size="xs"
-                  /* border already applied inside the component */
-                />
-              ))}
-            </div>
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Participants:</span>
+          <div className="flex flex-wrap items-center gap-4">
+            {participants.length ? (
+              participants.map((p) => <AvatarName key={p} name={p} size="xs" />)
+            ) : (
+              <span className="text-sm text-muted-foreground">
+                No other participants
+              </span>
+            )}
+
+            <AddParticipantsDialog
+              threadId={thread.id}
+              currentParticipantNames={participants}
+              disabled={messageCount > 0}
+              onAdded={handleAdded}
+            />
           </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">
-            No other participants
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

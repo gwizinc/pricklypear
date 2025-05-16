@@ -44,6 +44,7 @@ const ThreadView = () => {
           <ThreadHeader
             thread={thread}
             isGeneratingSummary={isGeneratingSummary}
+            messageCount={messages.length}
           />
 
           <ThreadMessages messages={messages} user={user} thread={thread} />
