@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { SecurityPanel } from "@/components/Preferences/SecurityPanel";
 import {
   Form,
   FormControl,
@@ -323,6 +324,9 @@ const Preferences = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Security & Password Settings */}
+      <SecurityPanel />
 
       <Card>
         <CardHeader>
