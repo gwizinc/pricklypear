@@ -106,12 +106,11 @@ export const useThreadMessages = (
 
     setIsSending(true);
 
-    // Save the final message with kind version
+    // Save the final message (original + reviewed text)
     const success = await saveMessage(
-      user.id,
       newMessage,
       threadId,
-      selectedMessage, // Using the reviewed/selected text as the final text
+      selectedMessage, // reviewed / selected text
     );
 
     if (success) {
