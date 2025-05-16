@@ -42,7 +42,7 @@ const Navigation = () => {
   const { totalUnread } = useUnreadMessages();
 
   /**
-   * Creates a new “Search” thread and navigates to it.
+   * Creates a new "Search" thread and navigates to it.
    * Shows an error toast on failure.
    */
   const handleCreateSearchThread = async () => {
