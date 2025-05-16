@@ -11,13 +11,21 @@ export const createThread = async (
   try {
     const user = await requireCurrentUser();
 
-    // Call the database function to create the thread and add participants
+    // Build default summary so it is available immediately after creation
+    const userName =
+      (user.user_metadata?.name as string | undefined)?.trim() || user.email;
+    const summary = `New thread created by ${userName}`;
+
+    // Call the database function to create the thread and add participants.
+    // The backend function has been updated to accept `summary` so we can
+    // persist it in the same INSERT operation.
     const { data: threadId, error: threadError } = await supabase.rpc(
       "create_thread",
       {
         title,
         topic,
         participant_ids: participantIds,
+        summary,
       },
     );
 
@@ -26,31 +34,7 @@ export const createThread = async (
       return null;
     }
 
-    // Persist a default summary so that callers immediately see context.
-    const userName =
-      (user.user_metadata?.name as string | undefined)?.trim() || user.email;
-    const summary = `New thread created by ${userName}`;
-
-    try {
-      const { error: updateError } = await supabase
-        .from("threads")
-        .update({ summary })
-        .eq("id", threadId)
-        .single();
-
-      if (updateError) {
-        console.error(
-          `Failed to save default summary for thread ${threadId}:`,
-          updateError,
-        );
-      }
-    } catch (updateException) {
-      // Network / unexpected runtime error
-      console.error(
-        `Unexpected error while saving summary for thread ${threadId}:`,
-        updateException,
-      );
-    }
+    // No additional update call needed; summary is already saved.
 
     // Return the thread with participant names
     return {
