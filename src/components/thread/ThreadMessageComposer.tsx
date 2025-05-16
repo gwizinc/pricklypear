@@ -38,7 +38,7 @@ const ThreadMessageComposer = ({
         onChange={(e) => setNewMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={isSending || isThreadClosed}
-        className="w-full min-h-[60px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-4 pt-4"
+        className="w-full min-h-[60px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent px-4 pt-4"
         rows={1}
       />
       <div className="flex justify-between items-center px-4 pb-4">
