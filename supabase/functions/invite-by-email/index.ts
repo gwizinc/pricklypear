@@ -45,7 +45,8 @@ async function sendEmail(args: { to: string; subject: string; html: string }) {
 function getSupabaseClient() {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseUrl || !supabaseKey) throw new Error("Missing Supabase credentials");
+  if (!supabaseUrl || !supabaseKey)
+    throw new Error("Missing Supabase credentials");
   return createClient(supabaseUrl, supabaseKey);
 }
 
@@ -176,7 +177,7 @@ serve(async (req) => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
     const supabase = getSupabaseClient();
@@ -199,7 +200,7 @@ serve(async (req) => {
             success: false,
             message: "Connection already exists",
           }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
       const connection = await createPendingConnection({
@@ -225,16 +226,37 @@ serve(async (req) => {
             isUserSender: true,
           },
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    // Invitee not yet a user: email sent, nothing else to do
+    // Invitee not yet a user: email sent, create pending connection with NULL connected_user_id
+    const { data: connection, error } = await supabase
+      .from("connections")
+      .insert({
+        user_id: userId,
+        connected_user_id: null,
+        status: "pending",
+        invitee_email: email,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: `Failed to create pending invitation: ${error.message}`,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Invitation email sent to ${email}`,
+        message: `Invitation email sent to ${email} and pending connection created`,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (error) {
     console.error("invite-by-email error:", error);
@@ -246,7 +268,7 @@ serve(async (req) => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 });
