@@ -34,6 +34,7 @@
         "@radix-ui/react-toggle": "1.1.7",
         "@radix-ui/react-toggle-group": "1.1.8",
         "@radix-ui/react-tooltip": "1.2.5",
+        "@sentry/cli": "2.45.0",
         "@sentry/react": "9.19.0",
         "@sentry/tracing": "7.120.3",
         "@supabase/supabase-js": "2.49.4",
@@ -284,6 +285,24 @@
     "@sentry-internal/tracing": ["@sentry-internal/tracing@7.120.3", "", { "dependencies": { "@sentry/core": "7.120.3", "@sentry/types": "7.120.3", "@sentry/utils": "7.120.3" } }, "sha512-Ausx+Jw1pAMbIBHStoQ6ZqDZR60PsCByvHdw/jdH9AqPrNE9xlBSf9EwcycvmrzwyKspSLaB52grlje2cRIUMg=="],
 
     "@sentry/browser": ["@sentry/browser@9.19.0", "", { "dependencies": { "@sentry-internal/browser-utils": "9.19.0", "@sentry-internal/feedback": "9.19.0", "@sentry-internal/replay": "9.19.0", "@sentry-internal/replay-canvas": "9.19.0", "@sentry/core": "9.19.0" } }, "sha512-efKfPQ0yQkdIkC7qJ5TIHxnecLNENGUYl1YD/TC8yyzW2JRf/3OYo5yg1hY2rhsP5RwQShXlT7uA03ABVIkA4A=="],
+
+    "@sentry/cli": ["@sentry/cli@2.45.0", "", { "dependencies": { "https-proxy-agent": "^5.0.0", "node-fetch": "^2.6.7", "progress": "^2.0.3", "proxy-from-env": "^1.1.0", "which": "^2.0.2" }, "optionalDependencies": { "@sentry/cli-darwin": "2.45.0", "@sentry/cli-linux-arm": "2.45.0", "@sentry/cli-linux-arm64": "2.45.0", "@sentry/cli-linux-i686": "2.45.0", "@sentry/cli-linux-x64": "2.45.0", "@sentry/cli-win32-arm64": "2.45.0", "@sentry/cli-win32-i686": "2.45.0", "@sentry/cli-win32-x64": "2.45.0" }, "bin": { "sentry-cli": "bin/sentry-cli" } }, "sha512-4sWu7zgzgHAjIxIjXUA/66qgeEf5ZOlloO+/JaGD5qXNSW0G7KMTR6iYjReNKMgdBCTH6bUUt9qiuA+Ex9Masw=="],
+
+    "@sentry/cli-darwin": ["@sentry/cli-darwin@2.45.0", "", { "os": "darwin" }, "sha512-p4Uxfv/L2fQdP3/wYnKVVz9gzZJf/1Xp9D+6raax/3Bu5y87yHYUqcdt98y/VAXQD4ofp2QgmhGUVPofvQNZmg=="],
+
+    "@sentry/cli-linux-arm": ["@sentry/cli-linux-arm@2.45.0", "", { "os": [ "linux", "freebsd", ], "cpu": "arm" }, "sha512-6sEskFLlFKJ+e0MOYgIclBTUX5jYMyYhHIxXahEkI/4vx6JO0uvpyRAkUJRpJkRh/lPog0FM+tbP3so+VxB2qQ=="],
+
+    "@sentry/cli-linux-arm64": ["@sentry/cli-linux-arm64@2.45.0", "", { "os": [ "linux", "freebsd", ], "cpu": "arm64" }, "sha512-gUcLoEjzg7AIc4QQGEZwRHri+EHf3Gcms9zAR1VHiNF3/C/jL4WeDPJF2YiWAQt6EtH84tHiyhw1Ab/R8XFClg=="],
+
+    "@sentry/cli-linux-i686": ["@sentry/cli-linux-i686@2.45.0", "", { "os": [ "linux", "freebsd", ], "cpu": "ia32" }, "sha512-VmmOaEAzSW23YdGNdy/+oQjCNAMY+HmOGA77A25/ep/9AV7PQB6FI7xO5Y1PVvlkxZFJ23e373njSsEeg4uDZw=="],
+
+    "@sentry/cli-linux-x64": ["@sentry/cli-linux-x64@2.45.0", "", { "os": [ "linux", "freebsd", ], "cpu": "x64" }, "sha512-a0Oj68mrb25a0WjX/ShZ6AAd4PPiuLcgyzQr7bl2+DvYxIOajwkGbR+CZFEhOVZcfhTnixKy/qIXEzApEPHPQg=="],
+
+    "@sentry/cli-win32-arm64": ["@sentry/cli-win32-arm64@2.45.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-vn+CwS4p+52pQSLNPoi20ZOrQmv01ZgAmuMnjkh1oUZfTyBAwWLrAh6Cy4cztcN8DfL5dOWKQBo8DBKURE4ttg=="],
+
+    "@sentry/cli-win32-i686": ["@sentry/cli-win32-i686@2.45.0", "", { "os": "win32", "cpu": "ia32" }, "sha512-8mMoDdlwxtcdNIMtteMK7dbi7054jak8wKSHJ5yzMw8UmWxC5thc/gXBc1uPduiaI56VjoJV+phWHBKCD+6I4w=="],
+
+    "@sentry/cli-win32-x64": ["@sentry/cli-win32-x64@2.45.0", "", { "os": "win32", "cpu": "x64" }, "sha512-ZvK9cIqFaq7vZ0jkHJ/xh5au6902Dr+AUxSk6L6vCL7JCe2p93KGL/4d8VFB5PD/P7Y9b+105G/e0QIFKzpeOw=="],
 
     "@sentry/core": ["@sentry/core@9.19.0", "", {}, "sha512-I41rKpMJHHZb0z0Nja+Lxto6IkEEmX3uWjnECypF8Z1HIjeJB0+PXl8p/7TeaKYqw2J2GYcRTg7jQZDmvKle1w=="],
 
@@ -855,9 +874,13 @@
 
     "pretty-format": ["pretty-format@27.5.1", "", { "dependencies": { "ansi-regex": "^5.0.1", "ansi-styles": "^5.0.0", "react-is": "^17.0.1" } }, "sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ=="],
 
+    "progress": ["progress@2.0.3", "", {}, "sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA=="],
+
     "prop-types": ["prop-types@15.8.1", "", { "dependencies": { "loose-envify": "^1.4.0", "object-assign": "^4.1.1", "react-is": "^16.13.1" } }, "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="],
 
     "proxy-addr": ["proxy-addr@2.0.7", "", { "dependencies": { "forwarded": "0.2.0", "ipaddr.js": "1.9.1" } }, "sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg=="],
+
+    "proxy-from-env": ["proxy-from-env@1.1.0", "", {}, "sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg=="],
 
     "punycode": ["punycode@2.3.1", "", {}, "sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg=="],
 
@@ -1063,6 +1086,8 @@
 
     "@sentry-internal/tracing/@sentry/core": ["@sentry/core@7.120.3", "", { "dependencies": { "@sentry/types": "7.120.3", "@sentry/utils": "7.120.3" } }, "sha512-vyy11fCGpkGK3qI5DSXOjgIboBZTriw0YDx/0KyX5CjIjDDNgp5AGgpgFkfZyiYiaU2Ww3iFuKo4wHmBusz1uA=="],
 
+    "@sentry/cli/https-proxy-agent": ["https-proxy-agent@5.0.1", "", { "dependencies": { "agent-base": "6", "debug": "4" } }, "sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA=="],
+
     "@supabase/node-fetch/whatwg-url": ["whatwg-url@5.0.0", "", { "dependencies": { "tr46": "~0.0.3", "webidl-conversions": "^3.0.0" } }, "sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw=="],
 
     "@typescript-eslint/typescript-estree/minimatch": ["minimatch@9.0.5", "", { "dependencies": { "brace-expansion": "^2.0.1" } }, "sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow=="],
@@ -1092,6 +1117,8 @@
     "prop-types/react-is": ["react-is@16.13.1", "", {}, "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="],
 
     "react-promise-suspense/fast-deep-equal": ["fast-deep-equal@2.0.1", "", {}, "sha512-bCK/2Z4zLidyB4ReuIsvALH6w31YfAQDmXMqMx6FyfHqvBxtjC0eRumeSu4Bs3XtXwpyIywtSTrVT99BxY1f9w=="],
+
+    "@sentry/cli/https-proxy-agent/agent-base": ["agent-base@6.0.2", "", { "dependencies": { "debug": "4" } }, "sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ=="],
 
     "@supabase/node-fetch/whatwg-url/tr46": ["tr46@0.0.3", "", {}, "sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw=="],
 
