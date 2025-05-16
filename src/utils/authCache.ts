@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import * as Sentry from "@sentry/react";
 
 let cachedUser: User | null | undefined; // undefined = not yet fetched
 let inFlightRequest: Promise<User | null> | null = null; // Track in-flight request
@@ -46,4 +47,16 @@ supabase.auth.onAuthStateChange((_event, session) => {
   cachedUser = session?.user ?? null;
   // Clear any in-flight request since the auth state has changed
   inFlightRequest = null;
+
+  // Update Sentry user context on login/logout
+  if (session?.user) {
+    const { id, email, user_metadata } = session.user;
+    Sentry.setUser({
+      id,
+      email: email ?? undefined,
+      ...user_metadata,
+    });
+  } else {
+    Sentry.setUser(null); // Clear Sentry user on logout
+  }
 });
