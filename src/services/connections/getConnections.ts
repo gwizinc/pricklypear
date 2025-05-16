@@ -44,7 +44,7 @@ export const getConnections = async (): Promise<Connection[]> => {
             status: connection.status as ConnectionStatus,
             createdAt: connection.created_at,
             updatedAt: connection.updated_at,
-            isUserSender: false, // The current user is not the sender in this case
+            isUserSender: true,
           };
         }
 
