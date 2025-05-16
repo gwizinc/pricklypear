@@ -28,9 +28,8 @@ const ThreadView = () => {
     setIsReviewDialogOpen,
   } = useThreadDetails(threadId);
 
-  /* -------------------------------------------------------------
-   * Scroll handling
-   * ----------------------------------------------------------- */
+  // Scroll handling
+  // Holds a reference to the scrollable messages container
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   /**
