@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Resend } from "https://esm.sh/resend@2.2.0"; // official SDK
+import { Resend } from "https://esm.sh/resend@4.5.0";
 
 const APP_CONNECTIONS_URL = "https://pricklypear-three.vercel.app/connections";
 
@@ -44,7 +44,11 @@ async function sendEmail(args: { to: string; subject: string; html: string }) {
   }
 
   const resend = new Resend(apiKey);
-  const from = Deno.env.get("RESEND_FROM_EMAIL") ?? "onboarding@resend.dev";
+  const from = Deno.env.get("RESEND_FROM_EMAIL");
+  if (!from) {
+    console.warn("RESEND_FROM_EMAIL missing – skipping email send");
+    return;
+  }
 
   const { error } = await resend.emails.send({
     from,
