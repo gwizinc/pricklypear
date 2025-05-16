@@ -77,7 +77,7 @@ serve(async (req) => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
+        }
       );
     }
 
@@ -89,20 +89,15 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // ── Fetch inviter (sender)
-    const { data: inviterUser, error: inviterErr } = await supabase
-      .from("users", { schema: "auth" })
-      .select("id, email, user_metadata")
+    const { data: inviterProfile, error: inviterProfileErr } = await supabase
+      .from("profiles")
+      .select("name")
       .eq("id", userId)
       .maybeSingle();
-    if (inviterErr || !inviterUser) throw new Error("Inviter user not found");
+    if (inviterProfileErr || !inviterProfile)
+      throw new Error("Inviter profile not found");
 
-    const inviterName = getDisplayName({
-      user_metadata: inviterUser.user_metadata as Record<
-        string,
-        unknown
-      > | null,
-      email: inviterUser.email,
-    });
+    const inviterName = inviterProfile.name;
 
     // ── Attempt invitee lookup (case-insensitive)
     const { data: inviteeUser, error: inviteeErr } = await supabase
@@ -154,7 +149,7 @@ serve(async (req) => {
             success: false,
             message: "Connection already exists",
           }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
@@ -189,7 +184,7 @@ serve(async (req) => {
             isUserSender: true,
           },
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -199,7 +194,7 @@ serve(async (req) => {
         success: true,
         message: `Invitation email sent to ${email}`,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("invite-by-email error:", error);
@@ -211,7 +206,7 @@ serve(async (req) => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+      }
     );
   }
 });
