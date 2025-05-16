@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import OpenAI from "https://esm.sh/openai@4.28.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,13 +9,13 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS pre-flight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, tone = "friendly" } = await req.json();
+    const { message, tone = "friendly", threadId } = await req.json();
 
     if (!message) {
       return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -23,12 +24,97 @@ serve(async (req) => {
       });
     }
 
-    // Initialize OpenAI with the API key from Supabase Secrets
+    // Initialise OpenAI once for both classification & rewrite
     const openai = new OpenAI({
       apiKey: Deno.env.get("OPENAI_API_KEY"),
     });
 
-    // Customize the system message based on the selected tone
+    /**
+     * 1️⃣  OPTIONAL ON-TOPIC CLASSIFICATION
+     * Runs only when a valid threadId is supplied *and* all DB calls succeed.
+     * Any failure falls through to the rewrite step (back-compat behaviour).
+     */
+    if (threadId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL");
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+        if (supabaseUrl && supabaseServiceKey) {
+          const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+          // Fetch topic
+          const { data: thread, error: threadErr } = await supabase
+            .from("threads")
+            .select("topic")
+            .eq("id", threadId)
+            .maybeSingle();
+          if (threadErr) throw threadErr;
+
+          // Fetch latest 20 messages (newest→oldest then reverse)
+          const { data: messages, error: msgErr } = await supabase
+            .from("message_profiles")
+            .select("text, profile_name, is_system, timestamp")
+            .eq("thread_id", threadId)
+            .order("timestamp", { ascending: false })
+            .limit(20);
+          if (msgErr) throw msgErr;
+
+          const recent = (messages ?? []).reverse().map((m) => {
+            const sender = m.is_system
+              ? "SYSTEM"
+              : (m.profile_name ?? "Unknown");
+            const ts = new Date(m.timestamp).toLocaleString();
+            const text = (m.text ?? "").trim().replace(/\s+/g, " ");
+            return `[${ts}] ${sender}: ${text}`;
+          });
+
+          // Build classification prompt
+          const classificationResponse = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            temperature: 0, // deterministic
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a strict classifier that decides if a proposed message belongs in a thread. " +
+                  "Respond with EXACTLY one of the two words: ON_TOPIC or OFF_TOPIC. No other text.",
+              },
+              {
+                role: "user",
+                content: `Thread Topic: ${
+                  thread?.topic ?? "None"
+                }\n\nRecent Messages (chronological):\n${recent.join(
+                  "\n",
+                )}\n\nProposed Message:\n${message}`,
+              },
+            ],
+          });
+
+          const verdict = classificationResponse.choices[0]?.message?.content
+            ?.trim()
+            .toUpperCase();
+
+          if (verdict === "OFF_TOPIC") {
+            return new Response(
+              JSON.stringify({ ok: false, reason: "off_topic" }),
+              {
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              },
+            );
+          }
+          // Any other result (including undefined) is treated as ON_TOPIC
+        }
+      } catch (classificationErr) {
+        // Log but do not block the rewrite flow
+        console.error(
+          "Classification skipped due to error:",
+          classificationErr,
+        );
+      }
+    }
+
+    /**
+     * 2️⃣  MESSAGE REWRITE (previous behaviour, tone-aware)
+     */
     let systemPrompt =
       "You are a helpful assistant that rephrases messages to be kinder and more constructive.";
 
@@ -56,33 +142,31 @@ serve(async (req) => {
         break;
     }
 
-    const response = await openai.chat.completions.create({
+    const rewriteResponse = await openai.chat.completions.create({
       model: "gpt-4o-mini",
+      temperature: 0.7,
       messages: [
         {
           role: "system",
-          content:
-            systemPrompt +
-            " Keep responses very concise and similar in length to the original message.",
+          content: `${systemPrompt} Keep responses very concise and similar in length to the original message.`,
         },
-        {
-          role: "user",
-          content: `Rephrase this message: ${message}`,
-        },
+        { role: "user", content: `Rephrase this message: ${message}` },
       ],
-      temperature: 0.7,
     });
 
-    const kindMessage = response.choices[0]?.message?.content || message;
+    const rephrased =
+      rewriteResponse.choices[0]?.message?.content?.trim() ?? message;
 
-    return new Response(JSON.stringify({ kindMessage }), {
+    return new Response(JSON.stringify({ ok: true, text: rephrased }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error reviewing message:", error);
-
     return new Response(
-      JSON.stringify({ error: error.message, kindMessage: null }),
+      JSON.stringify({
+        ok: false,
+        reason: error instanceof Error ? error.message : "Unexpected error",
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
