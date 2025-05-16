@@ -1,5 +1,11 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, Plus, Mic } from "lucide-react";
 
@@ -43,14 +49,22 @@ const ThreadMessageComposer = ({
       />
       <div className="flex justify-between items-center px-4 pb-4">
         <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="shrink-0"
-            disabled={isThreadClosed}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label="Add photo or document"
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0"
+                  disabled={isThreadClosed}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add photo or document</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Button
             variant="ghost"
             size="icon"
