@@ -38,11 +38,11 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // ── 1. Locate invited user by “name” (stores email)
+    // ── 1. Locate invited user in auth.users by email (case-insensitive)
     const { data: invitedUser, error: invitedErr } = await supabase
-      .from("profiles")
-      .select("id, name, avatar_url")
-      .eq("name", email)
+      .from("users", { schema: "auth" })
+      .select("id, email, user_metadata")
+      .ilike("email", email)
       .maybeSingle();
 
     if (invitedErr || !invitedUser) {
@@ -100,16 +100,20 @@ serve(async (req) => {
       throw insertErr;
     }
 
-    // ── 4. Return response compatible with previous InviteResponse
+    // ── 4. Build response (use email & avatar from user_metadata)
+    const avatarUrl =
+      (invitedUser.user_metadata as { avatar_url?: string } | null)
+        ?.avatar_url ?? undefined;
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Connection request sent to ${invitedUser.name}`,
+        message: `Connection request sent to ${invitedUser.email}`,
         connection: {
           id: connection.id,
           otherUserId: invitedUser.id,
-          username: invitedUser.name ?? "Unknown User",
-          avatarUrl: invitedUser.avatar_url ?? undefined,
+          username: invitedUser.email ?? "Unknown User",
+          avatarUrl,
           status: connection.status,
           createdAt: connection.created_at,
           updatedAt: connection.updated_at,
