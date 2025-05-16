@@ -164,6 +164,14 @@ const result = await build({
     ...(process.env.APP_VERSION
       ? { "process.env.APP_VERSION": JSON.stringify(process.env.APP_VERSION) }
       : {}),
+
+    // Browser-side replacements consumed through `import.meta.env`
+    "import.meta.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? ""),
+    "import.meta.env.SENTRY_DSN": JSON.stringify(process.env.SENTRY_DSN ?? ""),
+    "import.meta.env.APP_VERSION": JSON.stringify(
+      process.env.APP_VERSION ?? "",
+    ),
+
     // Allow CLI-supplied --define values to override if explicitly provided
     ...(cliConfig.define ?? {}),
   },

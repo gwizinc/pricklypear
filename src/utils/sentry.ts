@@ -19,15 +19,17 @@ declare global {
  *
  * @param tracesSampleRate - Fraction (0 – 1) of transactions that should be
  *                           sent to Sentry. Defaults to 0.1 (10 %).
+ * @returns {void} Nothing
  */
 export function initSentry(args: { tracesSampleRate?: number } = {}): void {
   const { tracesSampleRate = 0.1 } = args;
 
-  // Prefer build-time injected constants, then runtime env vars.
-  const env = import.meta.env ?? {};
-  const dsn = env["SENTRY_DSN"] ?? process.env.SENTRY_DSN;
-  const release = env["APP_VERSION"] ?? process.env.APP_VERSION;
-  const mode = env["NODE_ENV"] ?? process.env.NODE_ENV ?? "production";
+  // All values are provided at build-time via `import.meta.env` (see build.ts).
+  // Avoid using `process` in the browser to prevent ReferenceErrors.
+  const env = (import.meta as ImportMeta).env ?? {};
+  const dsn = env.SENTRY_DSN;
+  const release = env.APP_VERSION;
+  const mode = env.NODE_ENV ?? "production";
 
   if (!dsn) {
     // Nothing to do if the project isn’t configured with a DSN.
