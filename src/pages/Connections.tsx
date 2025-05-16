@@ -9,6 +9,7 @@ import {
   getConnections,
   updateConnectionStatus,
   disableConnection,
+  InviteResponse,
 } from "@/services/users/userService.js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -65,7 +66,7 @@ const Connections = () => {
       const { data, error } = await supabase.functions.invoke(
         "invite-by-email",
         {
-          body: { userId: user?.id, email },
+          body: { userId: user.id, email },
         },
       );
 
