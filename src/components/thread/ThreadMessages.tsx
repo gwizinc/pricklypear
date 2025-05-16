@@ -25,6 +25,16 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({
   // additional messages arrive *after* the first render.
   const prevMessagesLength = useRef<number>(0);
 
+  /**
+   * Reset the message-length tracker whenever the user navigates to a
+   * different thread.  This must run BEFORE the scroll-handling effect
+   * so that the first render of the new thread is not mistaken for an
+   * update containing new messages.
+   */
+  useEffect(() => {
+    prevMessagesLength.current = messages.length;
+  }, [thread.id]); // runs only when the thread itself changes
+
   useEffect(() => {
     const hasRenderedBefore = prevMessagesLength.current > 0;
     const hasNewMessages = messages.length > prevMessagesLength.current;
