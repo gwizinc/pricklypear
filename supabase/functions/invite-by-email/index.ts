@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { Resend } from "https://esm.sh/resend@2.2.0"; // official SDK
 
-const RESEND_API_URL = "https://api.resend.com/emails";
 const APP_CONNECTIONS_URL = "https://pricklypear-three.vercel.app/connections";
 
 const corsHeaders = {
@@ -34,39 +34,26 @@ function getDisplayName(args: {
 }
 
 /**
- * Send an email via the Resend REST API.  Logs on failure but never throws.
+ * Send an email via the Resend SDK.  Logs on failure but never throws.
  */
-async function sendEmail(opts: { to: string; subject: string; html: string }) {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
+async function sendEmail(args: { to: string; subject: string; html: string }) {
+  const apiKey = Deno.env.get("RESEND_API_KEY") ?? "";
   if (!apiKey) {
     console.warn("RESEND_API_KEY missing – skipping email send");
     return;
   }
 
+  const resend = new Resend(apiKey);
   const from = Deno.env.get("RESEND_FROM_EMAIL") ?? "onboarding@resend.dev";
 
-  try {
-    const res = await fetch(RESEND_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: opts.to,
-        subject: opts.subject,
-        html: opts.html,
-      }),
-    });
+  const { error } = await resend.emails.send({
+    from,
+    to: args.to,
+    subject: args.subject,
+    html: args.html,
+  });
 
-    if (!res.ok) {
-      const txt = await res.text();
-      console.error(`Resend error (${res.status}):`, txt);
-    }
-  } catch (err) {
-    console.error("Resend fetch failed:", err);
-  }
+  if (error) console.error("Resend error:", error);
 }
 
 serve(async (req) => {
