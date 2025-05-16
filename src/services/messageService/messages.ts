@@ -70,9 +70,8 @@ export const saveMessage = async (
     }
 
     const user = await requireCurrentUser();
-    // Use the explicit `text` argument first; if it's an empty string, fall back
-    // to `selected`, and finally default to an empty string to ensure `.trim()`
-    const messageText = (text || selected || "").trim();
+    // Prefer the reviewed/selected text when present, otherwise use the original
+    const messageText = (selected || text).trim();
 
     const { data: messageData, error } = await supabase
       .from("messages")
