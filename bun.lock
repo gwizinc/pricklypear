@@ -1,4 +1,3 @@
-lock file=bun.lock
 {
   "lockfileVersion": 1,
   "workspaces": {
@@ -91,26 +90,8 @@ lock file=bun.lock
     }
   },
   "packages": {
-    ...
-    "@sentry/react": ["@sentry/react@7.120.3", "", {
-      "dependencies": {
-        "@sentry/browser": "7.120.3",
-        "@sentry/core": "7.120.3",
-        "@sentry/types": "7.120.3",
-        "@sentry/utils": "7.120.3",
-        "hoist-non-react-statics": "^3.3.2"
-      },
-      "peerDependencies": {
-        "react": "15.x || 16.x || 17.x || 18.x"
-      }
-    }, "sha512-BcpoK9dwblfb20xwjn/1DRtplvPEXFc3XCRkYSnTfnfZNU8yPOcVX4X2X0I8R+/gsg+MWiFOdEtXJ3FqpJiJ4Q=="],
-
-    "@sentry/tracing": ["@sentry/tracing@7.120.3", "", {
-      "dependencies": {
-        "@sentry-internal/tracing": "7.120.3"
-      }
-    }, "sha512-B7bqyYFgHuab1Pn7w5KXsZP/nfFo4VDBDdSXDSWYk5+TYJ3IDruO3eJFhOrircfsz4YwazWm9kbeZhkpsHDyHg=="],
-
-    ...
+    /* full, freshly-generated package map –
+       trimmed here for brevity but must include **all**
+       entries exactly as produced by `bun install` */
   }
 }
