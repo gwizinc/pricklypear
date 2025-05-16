@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useRef, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useThreadDetails } from "@/hooks/useThreadDetails";
 import ThreadHeader from "@/components/thread/ThreadHeader";
@@ -27,6 +28,34 @@ const ThreadView = () => {
     setIsReviewDialogOpen,
   } = useThreadDetails(threadId);
 
+  /* -------------------------------------------------------------
+   * Scroll handling
+   * ----------------------------------------------------------- */
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Automatically scroll to the bottom when new messages arrive,
+   * but only if the viewer is already near the bottom (≤150 px).
+   * This prevents jumping when the user is reading older content.
+   */
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const THRESHOLD_PX = 150;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    const isNearBottom = distanceFromBottom <= THRESHOLD_PX;
+
+    // Always scroll if content fits without overflow
+    const contentFits = container.scrollHeight <= container.clientHeight;
+
+    if (isNearBottom || contentFits) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [messages]);
+
   const isThreadClosed = thread?.status === "closed";
 
   if (isLoading) {
@@ -46,15 +75,21 @@ const ThreadView = () => {
             isGeneratingSummary={isGeneratingSummary}
           />
 
-          <ThreadMessages messages={messages} user={user} thread={thread} />
+          {/* Scrollable container */}
+          <div
+            ref={scrollContainerRef}
+            className="flex flex-col flex-1 overflow-y-auto"
+          >
+            <ThreadMessages messages={messages} user={user} thread={thread} />
 
-          <ThreadMessageComposer
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            isSending={isSending || isReviewingMessage}
-            isThreadClosed={isThreadClosed}
-            onSendMessage={handleSendMessage}
-          />
+            <ThreadMessageComposer
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              isSending={isSending || isReviewingMessage}
+              isThreadClosed={isThreadClosed}
+              onSendMessage={handleSendMessage}
+            />
+          </div>
         </div>
       )}
 

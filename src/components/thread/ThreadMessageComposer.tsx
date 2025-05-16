@@ -29,7 +29,7 @@ const ThreadMessageComposer = ({
   };
 
   return (
-    <div className="relative bg-white dark:bg-transparent border rounded-md">
+    <div className="sticky bottom-0 z-10 shrink-0 bg-white dark:bg-transparent border rounded-md">
       <Textarea
         placeholder={
           isThreadClosed ? "Thread is closed" : "Type your message..."
