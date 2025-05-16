@@ -32,11 +32,9 @@ const ThreadView = () => {
   // Holds a reference to the scrollable messages container
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  /**
-   * Automatically scroll to the bottom when new messages arrive,
-   * but only if the viewer is already near the bottom (≤150 px).
-   * This prevents jumping when the user is reading older content.
-   */
+  // Automatically scroll to the bottom when new messages arrive,
+  // but only if the viewer is already near the bottom (≤150 px).
+  // This prevents jumping when the user is reading older content.
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
