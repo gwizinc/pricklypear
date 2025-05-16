@@ -20,7 +20,7 @@ import { useMemo } from "react";
  */
 export function useFeatureFlag(flagName: string): boolean {
   return useMemo(() => {
-    /* normalise `flagName` → ENABLE_PASSWORD_CHANGE */
+    // normalise `flagName` → ENABLE_PASSWORD_CHANGE
     const constantName = flagName
       .replace(/[-\s]/g, "_") // kebab / space → underscore
       .replace(/([a-z0-9])([A-Z])/g, "$1_$2") // camel → snake
