@@ -106,12 +106,12 @@ export const useThreadMessages = (
 
     setIsSending(true);
 
-    // Save the final message with kind version
+    // Persist the reviewed message.  saveMessage(text, threadId, selected?)
+    // NOTE: Do **not** pass user.id – the service derives sender from auth context.
     const success = await saveMessage(
-      user.id,
-      newMessage,
+      selectedMessage, // final text to store
       threadId,
-      selectedMessage, // Using the reviewed/selected text as the final text
+      newMessage, // keep original (pre-review) text for reference
     );
 
     if (success) {

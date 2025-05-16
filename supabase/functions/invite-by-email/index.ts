@@ -80,7 +80,7 @@ async function fetchInviteeUser({ supabase, email }) {
   const { data, error } = await supabase.auth.admin.listUsers({ email });
   if (error) throw error;
   const user = data.users.find(
-    (u) => u.email && u.email.toLowerCase() === email.toLowerCase()
+    (u) => u.email && u.email.toLowerCase() === email.toLowerCase(),
   );
   return user ?? null;
 }
