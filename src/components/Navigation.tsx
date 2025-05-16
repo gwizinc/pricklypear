@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -32,6 +32,7 @@ const Navigation = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate(); // enables navigation after logout
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [profileEmoji, setProfileEmoji] = React.useState<string | null>(null);
@@ -58,11 +59,16 @@ const Navigation = () => {
   }, [user]);
 
   const handleLogout = async () => {
-    await signOut();
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
+    try {
+      await signOut();
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+      navigate("/"); // redirect to homepage
+    } catch (error) {
+      /* signOut failed—keep user on the current page */
+    }
   };
 
   const getUserInitials = () => {
