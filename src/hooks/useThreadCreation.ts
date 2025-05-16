@@ -37,6 +37,16 @@ export const useThreadCreation = (
       return;
     }
 
+    // DD-55: enforce 50-character limit before service call
+    if (newThreadTitle.trim().length > 50) {
+      toast({
+        title: "Title too long",
+        description: "Thread titles must be 50 characters or fewer.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!selectedContactId) {
       toast({
         title: "Contact required",

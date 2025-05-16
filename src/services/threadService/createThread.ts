@@ -8,6 +8,11 @@ export const createThread = async (
   participantIds: string[],
   topic: ThreadTopic = "other",
 ): Promise<Thread | null> => {
+  // DD-55: guard at service layer as a final back-stop
+  if (title.trim().length > 50) {
+    console.error("createThread aborted: title exceeds 50 characters");
+    return null;
+  }
   try {
     const user = await requireCurrentUser();
 
