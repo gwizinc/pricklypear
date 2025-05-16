@@ -9,8 +9,8 @@ import {
   getConnections,
   updateConnectionStatus,
   disableConnection,
-  inviteByEmail,
 } from "@/services/users/userService.js";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -62,7 +62,18 @@ const Connections = () => {
 
     setIsInviting(true);
     try {
-      const response = await inviteByEmail(email);
+      const { data, error } = await supabase.functions.invoke(
+        "invite-by-email",
+        {
+          body: { userId: user?.id, email },
+        },
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      const response = data as InviteResponse;
 
       if (response.success) {
         setIsDialogOpen(false);

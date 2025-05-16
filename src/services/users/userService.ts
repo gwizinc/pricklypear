@@ -18,7 +18,6 @@ export {
   getConnections,
   updateConnectionStatus,
   disableConnection,
-  inviteByEmail,
   type ConnectionStatus,
   type Connection,
   type InviteResponse,
