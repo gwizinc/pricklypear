@@ -29,11 +29,9 @@ serve(async (req) => {
       apiKey: Deno.env.get("OPENAI_API_KEY"),
     });
 
-    /**
-     * 1️⃣  OPTIONAL ON-TOPIC CLASSIFICATION
-     * Runs only when a valid threadId is supplied *and* all DB calls succeed.
-     * Any failure falls through to the rewrite step (back-compat behaviour).
-     */
+    // OPTIONAL ON-TOPIC CLASSIFICATION
+    // Runs only when a valid threadId is supplied *and* all DB calls succeed.
+    // Any failure falls through to the rewrite step (back-compat behaviour).
     if (threadId) {
       try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -112,9 +110,7 @@ serve(async (req) => {
       }
     }
 
-    /**
-     * 2️⃣  MESSAGE REWRITE (previous behaviour, tone-aware)
-     */
+    // MESSAGE REWRITE (previous behaviour, tone-aware)
     let systemPrompt =
       "You are a helpful assistant that rephrases messages to be kinder and more constructive.";
 
