@@ -21,8 +21,22 @@ const ThreadMessages: React.FC<ThreadMessagesProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user: authUser } = useAuth();
 
+  // Track the previous number of messages so we can detect when
+  // additional messages arrive *after* the first render.
+  const prevMessagesLength = useRef<number>(0);
+
   useEffect(() => {
-    scrollToBottom();
+    const hasRenderedBefore = prevMessagesLength.current > 0;
+    const hasNewMessages = messages.length > prevMessagesLength.current;
+
+    // Only auto-scroll when the user is already viewing the thread
+    // and one or more new messages have been appended.
+    if (hasRenderedBefore && hasNewMessages) {
+      scrollToBottom();
+    }
+
+    // Store the current length for the next comparison.
+    prevMessagesLength.current = messages.length;
   }, [messages]);
 
   // Mark messages as read when they are displayed
