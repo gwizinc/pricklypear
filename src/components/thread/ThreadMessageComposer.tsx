@@ -53,6 +53,7 @@ export default function ThreadMessageComposer(
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const initialTextRef = useRef<string>("");
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const SpeechRecognitionCtor = getSpeechRecognitionCtor();
   const isSpeechSupported = Boolean(SpeechRecognitionCtor);
@@ -79,7 +80,9 @@ export default function ThreadMessageComposer(
    *  – Else, request mic permission then start recognition
    */
   const handleMicClick = async () => {
-    if (!isSpeechSupported) {
+    // Guard again inside the handler to satisfy TypeScript without assertions
+    const SpeechCtor = SpeechRecognitionCtor;
+    if (!SpeechCtor) {
       toast.error("Speech recognition is not supported in this browser.");
       return;
     }
@@ -98,36 +101,73 @@ export default function ThreadMessageComposer(
       return;
     }
 
-    const recognition = new SpeechRecognitionCtor!(); // ctor existence guaranteed by earlier guard
+    const recognition = new SpeechCtor();
     recognitionRef.current = recognition;
 
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-US";
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interimTranscript = "";
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
-        interimTranscript += event.results[i][0].transcript;
-      }
-      setNewMessage(initialTextRef.current + interimTranscript);
+    /**
+     * Fired **after** the microphone is live. We update UI state here
+     * so the blue caret / mic overlay only show once speech recognition
+     * is truly running, then focus the textarea for a seamless experience.
+     */
+    recognition.onstart = () => {
+      setIsDictating(true);
+      textareaRef.current?.focus({ preventScroll: true });
     };
 
-    recognition.onerror = () => {
+    /**
+     * Accumulate transcripts intelligently:
+     *  • Interim words are shown live but replaced on every tick
+     *  • Finalised text is appended permanently (tracked in `initialTextRef`)
+     */
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let interimTranscript = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        const transcript = result[0].transcript;
+
+        if (result.isFinal) {
+          // Persist the finished text so future interim words append to it
+          initialTextRef.current =
+            `${initialTextRef.current}${transcript.trim()} `.replace(
+              /\s+/g,
+              " ",
+            );
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      setNewMessage(`${initialTextRef.current}${interimTranscript}`);
+    };
+
+    /**
+     * Ignore benign errors that Chromium emits while still operating.
+     * Fatal errors stop recognition and notify the user.
+     */
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      if (event.error === "no-speech" || event.error === "aborted") {
+        return;
+      }
       toast.error("Speech recognition error");
       stopRecognition();
       setIsDictating(false);
     };
 
+    /**
+     * When the user stops talking or the session naturally ends.
+     */
     recognition.onend = () => {
-      // When the user stops speaking or microphone permission changes
-      setIsDictating(false);
       stopRecognition();
+      setIsDictating(false);
     };
 
     initialTextRef.current = newMessage;
     recognition.start();
-    setIsDictating(true);
   };
 
   /**
@@ -167,6 +207,7 @@ export default function ThreadMessageComposer(
       {/* Textarea + overlay mic icon */}
       <div className="relative">
         <Textarea
+          ref={textareaRef}
           placeholder={
             isThreadClosed ? "Thread is closed" : "Type your message..."
           }
