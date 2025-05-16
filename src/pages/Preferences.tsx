@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/select";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
+import SecuritySettingsCard from "@/components/preferences/SecuritySettingsCard";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -323,6 +324,9 @@ const Preferences = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Security / Change-Password (feature-flagged) */}
+      <SecuritySettingsCard />
 
       <Card>
         <CardHeader>
