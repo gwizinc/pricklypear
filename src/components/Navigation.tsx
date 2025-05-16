@@ -11,6 +11,7 @@ import {
   X,
   Settings,
   FileText,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -27,15 +28,37 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import { createThread } from "@/services/threadService/createThread";
+import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [profileEmoji, setProfileEmoji] = React.useState<string | null>(null);
   const { totalUnread } = useUnreadMessages();
+
+  /**
+   * Creates a new “Search” thread and navigates to it.
+   * Shows an error toast on failure.
+   */
+  const handleCreateSearchThread = async () => {
+    if (!user) return;
+
+    const newThread = await createThread("Search", [], "other");
+    if (newThread) {
+      navigate(`/threads/${newThread.id}`);
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to start search.",
+        variant: "destructive",
+      });
+    }
+  };
 
   React.useEffect(() => {
     const loadEmoji = async () => {
@@ -217,6 +240,16 @@ const Navigation = () => {
           <nav className="flex items-center space-x-2">{renderNavItems()}</nav>
 
           <div className="flex flex-1 items-center justify-end space-x-2">
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCreateSearchThread}
+              >
+                <Search className="h-4 w-4" />
+                <span className="sr-only">Search</span>
+              </Button>
+            )}
             {renderUserMenu()}
           </div>
         </div>
@@ -231,7 +264,19 @@ const Navigation = () => {
         </div>
 
         {/* Mobile Right Actions */}
-        <div className="flex items-center md:hidden">{renderUserMenu()}</div>
+        <div className="flex items-center space-x-2 md:hidden">
+          {user && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCreateSearchThread}
+            >
+              <Search className="h-4 w-4" />
+              <span className="sr-only">Search</span>
+            </Button>
+          )}
+          {renderUserMenu()}
+        </div>
       </div>
 
       {/* Mobile Navigation Menu */}
