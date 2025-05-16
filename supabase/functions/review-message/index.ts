@@ -15,7 +15,8 @@ serve(async (req) => {
   }
 
   try {
-    const { message, tone = "friendly", threadId } = await req.json();
+    // `topic` is optional but, when provided, takes precedence over the DB value.
+    const { message, tone = "friendly", threadId, topic } = await req.json();
 
     if (!message) {
       return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -30,77 +31,90 @@ serve(async (req) => {
     });
 
     // OPTIONAL ON-TOPIC CLASSIFICATION
-    // Runs only when a valid threadId is supplied *and* all DB calls succeed.
+    // Runs when either `topic` OR `threadId` is provided.
+    // Precedence:
+    //   1. Use the supplied `topic` param if truthy.
+    //   2. Otherwise, fetch the topic from DB when `threadId` is available.
+    // Recent messages are fetched only when `threadId` exists (for extra context).
     // Any failure falls through to the rewrite step (back-compat behaviour).
-    if (threadId) {
+    const shouldClassify = Boolean(topic || threadId);
+    if (shouldClassify) {
       try {
-        const supabaseUrl = Deno.env.get("SUPABASE_URL");
-        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-        if (supabaseUrl && supabaseServiceKey) {
-          const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        let threadTopic: string | null | undefined = topic ?? null;
+        let recent: string[] = [];
 
-          // Fetch topic
-          const { data: thread, error: threadErr } = await supabase
-            .from("threads")
-            .select("topic")
-            .eq("id", threadId)
-            .maybeSingle();
-          if (threadErr) throw threadErr;
+        if (threadId) {
+          const supabaseUrl = Deno.env.get("SUPABASE_URL");
+          const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+          if (supabaseUrl && supabaseServiceKey) {
+            const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-          // Fetch latest 20 messages (newest→oldest then reverse)
-          const { data: messages, error: msgErr } = await supabase
-            .from("message_profiles")
-            .select("text, profile_name, is_system, timestamp")
-            .eq("thread_id", threadId)
-            .order("timestamp", { ascending: false })
-            .limit(20);
-          if (msgErr) throw msgErr;
+            // Fetch topic from DB ONLY when not provided in request.
+            if (!threadTopic) {
+              const { data: thread, error: threadErr } = await supabase
+                .from("threads")
+                .select("topic")
+                .eq("id", threadId)
+                .maybeSingle();
+              if (threadErr) throw threadErr;
+              threadTopic = thread?.topic ?? null;
+            }
 
-          const recent = (messages ?? []).reverse().map((m) => {
-            const sender = m.is_system
-              ? "SYSTEM"
-              : (m.profile_name ?? "Unknown");
-            const ts = new Date(m.timestamp).toLocaleString();
-            const text = (m.text ?? "").trim().replace(/\s+/g, " ");
-            return `[${ts}] ${sender}: ${text}`;
-          });
+            // Fetch latest 20 messages (newest → oldest then reverse for chronology)
+            const { data: messages, error: msgErr } = await supabase
+              .from("message_profiles")
+              .select("text, profile_name, is_system, timestamp")
+              .eq("thread_id", threadId)
+              .order("timestamp", { ascending: false })
+              .limit(20);
+            if (msgErr) throw msgErr;
 
-          // Build classification prompt
-          const classificationResponse = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            temperature: 0, // deterministic
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are a strict classifier that decides if a proposed message belongs in a thread. " +
-                  "Respond with EXACTLY one of the two words: ON_TOPIC or OFF_TOPIC. No other text.",
-              },
-              {
-                role: "user",
-                content: `Thread Topic: ${
-                  thread?.topic ?? "None"
-                }\n\nRecent Messages (chronological):\n${recent.join(
-                  "\n",
-                )}\n\nProposed Message:\n${message}`,
-              },
-            ],
-          });
-
-          const verdict = classificationResponse.choices[0]?.message?.content
-            ?.trim()
-            .toUpperCase();
-
-          if (verdict === "OFF_TOPIC") {
-            return new Response(
-              JSON.stringify({ ok: false, reason: "off_topic" }),
-              {
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-              },
-            );
+            recent = (messages ?? []).reverse().map((m) => {
+              const sender = m.is_system
+                ? "SYSTEM"
+                : (m.profile_name ?? "Unknown");
+              const ts = new Date(m.timestamp).toLocaleString();
+              const text = (m.text ?? "").trim().replace(/\s+/g, " ");
+              return `[${ts}] ${sender}: ${text}`;
+            });
           }
-          // Any other result (including undefined) is treated as ON_TOPIC
         }
+
+        // Build classification prompt
+        const classificationResponse = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          temperature: 0, // deterministic
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a strict classifier that decides if a proposed message belongs in a thread. " +
+                "Respond with EXACTLY one of the two words: ON_TOPIC or OFF_TOPIC. No other text.",
+            },
+            {
+              role: "user",
+              content: `Thread Topic: ${
+                threadTopic ?? "None"
+              }\n\nRecent Messages (chronological):\n${
+                recent.length ? recent.join("\n") : "None"
+              }\n\nProposed Message:\n${message}`,
+            },
+          ],
+        });
+
+        const verdict = classificationResponse.choices[0]?.message?.content
+          ?.trim()
+          .toUpperCase();
+
+        if (verdict === "OFF_TOPIC") {
+          return new Response(
+            JSON.stringify({ ok: false, reason: "off_topic" }),
+            {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+        // Any other result (including undefined) is treated as ON_TOPIC
       } catch (classificationErr) {
         // Log but do not block the rewrite flow
         console.error(
