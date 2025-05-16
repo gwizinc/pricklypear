@@ -55,6 +55,8 @@ const Preferences = () => {
   const [mounted, setMounted] = useState(false);
   const [messageTone, setMessageTone] = useState<string>("friendly");
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
+  // Toggle state for the avatar-emoji picker
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   // Form with validation
   const form = useForm<FormValues>({
@@ -237,20 +239,27 @@ const Preferences = () => {
                 <FormLabel>Avatar Emoji</FormLabel>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    {selectedEmoji ? (
-                      <span className="text-3xl">{selectedEmoji}</span>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        No emoji selected
-                      </span>
-                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-3xl w-12 h-12 flex items-center justify-center p-0"
+                      aria-label="Change avatar emoji"
+                      onClick={() => setIsPickerOpen((prev) => !prev)}
+                    >
+                      {selectedEmoji ?? "😊"}
+                    </Button>
                   </div>
-
-                  <Picker
-                    data={emojiData}
-                    onEmojiSelect={handleEmojiSelect}
-                    theme={theme === "dark" ? "dark" : "light"}
-                  />
+                  {isPickerOpen && (
+                    <Picker
+                      data={emojiData}
+                      onEmojiSelect={(emoji) => {
+                        handleEmojiSelect(emoji as { native: string });
+                        setIsPickerOpen(false);
+                      }}
+                      onClickOutside={() => setIsPickerOpen(false)}
+                      theme={theme === "dark" ? "dark" : "light"}
+                    />
+                  )}
                 </div>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Saving..." : "Save Changes"}
