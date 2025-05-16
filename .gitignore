@@ -23,3 +23,6 @@ dist-ssr
 .env.local
 .supabase/
 supabase/.temp/
+
+# Sentry Config File
+.sentryclirc

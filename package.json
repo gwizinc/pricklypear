@@ -7,16 +7,19 @@
     "bun": "1"
   },
   "scripts": {
-    "build": "bun run build.ts",
+    "build": "bun run build.ts && bun run sentry:sourcemaps",
     "dev": "bun run --hot src/index.tsx",
-    "lint": "eslint . && prettier --ignore-path='../../.prettierignore' --check .",
+    "lint": "eslint . && prettier --check .",
     "test": "bun test",
-    "fix": "eslint --fix --quiet . && prettier --ignore-path='../../.prettierignore' --log-level=silent --write .",
+    "fix": "eslint --fix --quiet . && prettier --log-level=silent --write .",
     "typecheck": "tsc --noEmit",
     "ci": "bun run lint && bun run typecheck && bun run build",
-    "gen": "supabase gen types --project-id vgddrhyjttyrathqhefb > src/integrations/supabase/types.ts"
+    "gen": "supabase gen types --project-id vgddrhyjttyrathqhefb > src/integrations/supabase/types.ts",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org gwiz --project pricklypear ./dist && sentry-cli sourcemaps upload --org gwiz --project pricklypear ./dist"
   },
   "dependencies": {
+    "@emoji-mart/data": "1.1.0",
+    "@emoji-mart/react": "1.1.1",
     "@hookform/resolvers": "5.0.1",
     "@radix-ui/react-accordion": "1.2.9",
     "@radix-ui/react-alert-dialog": "1.1.12",
@@ -45,6 +48,9 @@
     "@radix-ui/react-toggle": "1.1.7",
     "@radix-ui/react-toggle-group": "1.1.8",
     "@radix-ui/react-tooltip": "1.2.5",
+    "@sentry/cli": "2.45.0",
+    "@sentry/react": "9.19.0",
+    "@sentry/tracing": "7.120.3",
     "@supabase/supabase-js": "2.49.4",
     "@swc/core": "1.11.24",
     "@tanstack/react-query": "5.75.2",
@@ -55,6 +61,7 @@
     "cmdk": "1.1.1",
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.6.0",
+    "history": "5.3.0",
     "input-otp": "1.4.2",
     "lucide-react": "0.507.0",
     "next-themes": "0.4.6",
@@ -66,14 +73,13 @@
     "react-resizable-panels": "3.0.1",
     "react-router-dom": "7.5.3",
     "recharts": "2.15.3",
+    "resend": "4.5.1",
     "sonner": "2.0.3",
     "tailwind-merge": "3.2.0",
     "tailwindcss-animate": "1.0.7",
     "uuid": "11.1.0",
     "vaul": "1.1.2",
-    "zod": "3.24.4",
-    "@emoji-mart/data": "1.1.0",
-    "@emoji-mart/react": "1.1.1"
+    "zod": "3.24.4"
   },
   "devDependencies": {
     "@eslint/js": "9.26.0",

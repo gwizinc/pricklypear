@@ -58,8 +58,7 @@ const InviteConnectionDialog: React.FC<InviteConnectionDialogProps> = ({
         </div>
 
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          Enter your friend's email address to send them a connection
-          invitation.
+          Enter the email of the person you would like to add as a connection.
         </div>
 
         <DialogFooter>

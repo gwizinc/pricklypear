@@ -1,19 +1,17 @@
 export type ConnectionStatus = "pending" | "accepted" | "declined" | "disabled";
 
-export interface Connection {
-  id: string;
-  otherUserId: string;
-  username: string;
-  avatarUrl?: string;
-  status: ConnectionStatus;
-  createdAt: string;
-  updatedAt: string;
-  isUserSender: boolean;
-}
-
 export interface InviteResponse {
-  connection?: Connection;
   error?: Error;
   success: boolean;
   message: string;
+}
+
+export interface Connection {
+  id: string;
+  user_id: string | null;
+  connected_user_id: string | null;
+  invitee_email?: string;
+  status: ConnectionStatus;
+  created_at: string;
+  updated_at: string;
 }

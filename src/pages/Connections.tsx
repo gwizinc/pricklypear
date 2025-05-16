@@ -9,8 +9,9 @@ import {
   getConnections,
   updateConnectionStatus,
   disableConnection,
-  inviteByEmail,
+  InviteResponse,
 } from "@/services/users/userService.js";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -20,9 +21,20 @@ import OutgoingConnectionsList from "@/components/connections/OutgoingConnection
 import AcceptedConnectionsList from "@/components/connections/AcceptedConnectionsList";
 import DisabledConnectionsList from "@/components/connections/DisabledConnectionsList";
 import InviteConnectionDialog from "@/components/connections/InviteConnectionDialog";
+import { deleteConnection } from "@/services/connections/manageConnections.js";
+
+import { Connection as ConnectionType } from "@/types/connection";
+
+type FormattedConnection = ConnectionType & {
+  isUserSender: boolean;
+  username?: string;
+  avatarUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 const Connections = () => {
-  const [connections, setConnections] = useState<Connection[]>([]);
+  const [connections, setConnections] = useState<FormattedConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInviting, setIsInviting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -36,7 +48,7 @@ const Connections = () => {
   const loadConnections = async () => {
     setIsLoading(true);
     try {
-      const fetchedConnections = await getConnections();
+      const fetchedConnections: FormattedConnection[] = await getConnections();
       setConnections(fetchedConnections);
     } catch (error) {
       console.error("Error loading connections:", error);
@@ -62,7 +74,18 @@ const Connections = () => {
 
     setIsInviting(true);
     try {
-      const response = await inviteByEmail(email);
+      const { data, error } = await supabase.functions.invoke(
+        "invite-by-email",
+        {
+          body: { userId: user.id, email },
+        },
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      const response = data as InviteResponse;
 
       if (response.success) {
         setIsDialogOpen(false);
@@ -132,6 +155,24 @@ const Connections = () => {
     }
   };
 
+  const handleDeleteConnection = async (connectionId: string) => {
+    try {
+      await deleteConnection(connectionId);
+      loadConnections();
+      toast({
+        title: "Request cancelled",
+        description: "The connection request has been cancelled.",
+      });
+    } catch (error) {
+      console.error("Error deleting connection:", error);
+      toast({
+        title: "Error",
+        description: "Failed to cancel connection request.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Filter connections by status and relation to current user
   const pendingIncomingConnections = connections.filter(
     (c) => c.status === "pending" && !c.isUserSender,
@@ -189,7 +230,10 @@ const Connections = () => {
         onOpenInviteDialog={() => setIsDialogOpen(true)}
       />
 
-      <OutgoingConnectionsList connections={pendingOutgoingConnections} />
+      <OutgoingConnectionsList
+        connections={pendingOutgoingConnections}
+        onDelete={handleDeleteConnection}
+      />
 
       <DisabledConnectionsList
         connections={disabledConnections}

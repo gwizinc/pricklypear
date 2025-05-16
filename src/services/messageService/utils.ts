@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
+import * as Sentry from "@sentry/react";
 
 export const handleError = (error: unknown, context: string): boolean => {
+  const err = new Error(`🐞 ${context}: ${error.message}`, error);
+  Sentry.captureException(err, { extra: error });
   console.error(`Error in ${context}:`, error);
   return false;
 };
