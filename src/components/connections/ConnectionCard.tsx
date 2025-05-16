@@ -20,6 +20,7 @@ interface ConnectionCardProps {
   ) => void;
   onDisable?: (connectionId: string) => void;
   variant: "pending-incoming" | "pending-outgoing" | "accepted" | "disabled";
+  onDelete?: (connectionId: string) => void;
 }
 
 const ConnectionCard: React.FC<ConnectionCardProps> = ({
@@ -27,6 +28,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
   onUpdateStatus,
   onDisable,
   variant,
+  onDelete,
 }) => {
   const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
 
@@ -94,7 +96,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onUpdateStatus?.(connection.id, "declined")}
+            onClick={() => onDelete?.(connection.id)}
           >
             <XCircle className="h-4 w-4 mr-1" />
             Cancel
