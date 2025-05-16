@@ -155,10 +155,23 @@ const result = await build({
   target: "browser",
   sourcemap: "linked",
   publicPath: "/",
+  // Base definitions always included in the bundle
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
+    ...(process.env.SENTRY_DSN
+      ? { "process.env.SENTRY_DSN": JSON.stringify(process.env.SENTRY_DSN) }
+      : {}),
+    ...(process.env.APP_VERSION
+      ? { "process.env.APP_VERSION": JSON.stringify(process.env.APP_VERSION) }
+      : {}),
+    // Allow CLI-supplied --define values to override if explicitly provided
+    ...(cliConfig.define ?? {}),
   },
-  ...cliConfig, // Merge in any CLI-provided options
+  // Spread the remaining CLI flags (with `define` already merged above)
+  ...(() => {
+    const { define, ...rest } = cliConfig;
+    return rest;
+  })(),
 });
 
 // Print the results
