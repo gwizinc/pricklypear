@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import AddParticipantsDialog from "./AddParticipantsDialog";
 
 const mockGetConnections = vi.fn();
@@ -11,13 +10,15 @@ vi.mock("@/services/users/userService", () => ({
 }));
 
 vi.mock("@/services/threadService", () => ({
-  addParticipantsToThread: (...args: unknown[]) =>
-    mockAddParticipants(...args),
+  addParticipantsToThread: (...args: unknown[]) => mockAddParticipants(...args),
 }));
 
 const threadId = "thread-1";
 
-function renderDialog(currentParticipantNames: string[] = [], onAdded?: (n: string[]) => void) {
+function renderDialog(
+  currentParticipantNames: string[] = [],
+  onAdded?: (n: string[]) => void,
+) {
   render(
     <AddParticipantsDialog
       threadId={threadId}
@@ -35,15 +36,20 @@ describe("<AddParticipantsDialog />", () => {
 
   it("shows connections list without current participants", async () => {
     mockGetConnections.mockResolvedValue([
-      { id: "c-1", otherUserId: "u-alice", username: "alice", status: "accepted" },
-      { id: "c-2", otherUserId: "u-bob",   username: "bob",   status: "accepted" },
-      { id: "c-3", otherUserId: "u-eve",   username: "eve",   status: "pending" },
+      {
+        id: "c-1",
+        otherUserId: "u-alice",
+        username: "alice",
+        status: "accepted",
+      },
+      { id: "c-2", otherUserId: "u-bob", username: "bob", status: "accepted" },
+      { id: "c-3", otherUserId: "u-eve", username: "eve", status: "pending" },
     ]);
 
     renderDialog(["alice"]);
 
     // open the dialog
-    await userEvent.click(screen.getByLabelText(/add participant/i));
+    fireEvent.click(screen.getByLabelText(/add participant/i));
 
     expect(mockGetConnections).toHaveBeenCalledTimes(1);
 
@@ -54,22 +60,27 @@ describe("<AddParticipantsDialog />", () => {
 
   it("adds selected participants and invokes callbacks", async () => {
     mockGetConnections.mockResolvedValue([
-      { id: "c-1", otherUserId: "u-bob",   username: "bob",   status: "accepted" },
-      { id: "c-2", otherUserId: "u-carol", username: "carol", status: "accepted" },
+      { id: "c-1", otherUserId: "u-bob", username: "bob", status: "accepted" },
+      {
+        id: "c-2",
+        otherUserId: "u-carol",
+        username: "carol",
+        status: "accepted",
+      },
     ]);
     mockAddParticipants.mockResolvedValue(true);
     const onAdded = vi.fn();
 
     renderDialog([], onAdded);
 
-    await userEvent.click(screen.getByLabelText(/add participant/i));
+    fireEvent.click(screen.getByLabelText(/add participant/i));
 
     // select both connections
-    await userEvent.click(await screen.findByText("bob"));
-    await userEvent.click(screen.getByText("carol"));
+    fireEvent.click(await screen.findByText("bob"));
+    fireEvent.click(screen.getByText("carol"));
 
     // click Add
-    await userEvent.click(screen.getByRole("button", { name: /^add$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^add$/i }));
 
     await waitFor(() =>
       expect(mockAddParticipants).toHaveBeenCalledWith(threadId, [
@@ -89,14 +100,14 @@ describe("<AddParticipantsDialog />", () => {
     renderDialog();
 
     // open
-    await userEvent.click(screen.getByLabelText(/add participant/i));
-    await userEvent.click(await screen.findByText("bob")); // select
+    fireEvent.click(screen.getByLabelText(/add participant/i));
+    fireEvent.click(await screen.findByText("bob")); // select
 
     // close (click trigger again toggles)
-    await userEvent.click(screen.getByLabelText(/add participant/i));
+    fireEvent.click(screen.getByLabelText(/add participant/i));
 
     // reopen
-    await userEvent.click(screen.getByLabelText(/add participant/i));
+    fireEvent.click(screen.getByLabelText(/add participant/i));
 
     // checkbox should be unchecked
     const checkbox = await screen.findByLabelText(/select bob/i);

@@ -12,10 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import {
-  getConnections,
-  type Connection,
-} from "@/services/users/userService";
+import { getConnections, type Connection } from "@/services/users/userService";
 import { addParticipantsToThread } from "@/services/threadService";
 
 interface ConnectionItem {
@@ -42,14 +39,10 @@ const AddParticipantsDialog = ({
   const [connections, setConnections] = React.useState<ConnectionItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(
-    new Set(),
-  );
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [isAdding, setIsAdding] = React.useState(false);
 
-  /* ────────────────────────────────────────────────────────────────────────── *
-   * Load connections when the dialog is opened
-   * ────────────────────────────────────────────────────────────────────────── */
+  // Load connections whenever the dialog opens (unless disabled)
   React.useEffect(() => {
     if (!open || disabled) return;
 
@@ -95,7 +88,11 @@ const AddParticipantsDialog = ({
   const toggleUser = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -195,9 +192,7 @@ const AddParticipantsDialog = ({
                 disabled={selectedIds.size === 0 || isAdding}
                 onClick={handleAdd}
               >
-                {isAdding && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
+                {isAdding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Add
               </Button>
             </DialogFooter>
