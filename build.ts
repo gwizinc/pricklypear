@@ -158,16 +158,15 @@ const result = await build({
   // Base definitions always included in the bundle
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
-    ...(process.env.SENTRY_DSN
-      ? { "process.env.SENTRY_DSN": JSON.stringify(process.env.SENTRY_DSN) }
-      : {}),
     ...(process.env.APP_VERSION
       ? { "process.env.APP_VERSION": JSON.stringify(process.env.APP_VERSION) }
       : {}),
 
     // Browser-side replacements consumed through `import.meta.env`
     "import.meta.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? ""),
-    "import.meta.env.SENTRY_DSN": JSON.stringify(process.env.SENTRY_DSN ?? ""),
+    "import.meta.env.SENTRY_DSN": JSON.stringify(
+      "https://f0b39040299b245a914fdd95a6425c8b@o4504148959756288.ingest.us.sentry.io/4509333190148096",
+    ),
     "import.meta.env.APP_VERSION": JSON.stringify(
       process.env.APP_VERSION ?? "",
     ),
