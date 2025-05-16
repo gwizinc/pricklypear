@@ -34,6 +34,22 @@ export const getConnections = async (): Promise<Connection[]> => {
     // Format the connections to include necessary information
     const formattedConnections = await Promise.all(
       allConnections.map(async (connection) => {
+        // If user_id is null, this is a pending invite with only invitee_email
+        if (connection.connected_user_id === null) {
+          return {
+            id: connection.id,
+            otherUserId: null,
+            username: connection.invitee_email,
+            avatarUrl: undefined,
+            status: connection.status as ConnectionStatus,
+            createdAt: connection.created_at,
+            updatedAt: connection.updated_at,
+            isUserSender: false, // The current user is not the sender in this case
+          };
+        }
+
+        console.log("connection", connection);
+
         // Determine if the current user is the sender
         const isUserSender = connection.user_id === userId;
 

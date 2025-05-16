@@ -11,25 +11,28 @@ export type Database = {
     Tables: {
       connections: {
         Row: {
-          connected_user_id: string
+          connected_user_id: string | null
           created_at: string
           id: string
+          invitee_email: string | null
           status: Database["public"]["Enums"]["connection_status"]
           updated_at: string
           user_id: string
         }
         Insert: {
-          connected_user_id: string
+          connected_user_id?: string | null
           created_at?: string
           id?: string
+          invitee_email?: string | null
           status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
           user_id: string
         }
         Update: {
-          connected_user_id?: string
+          connected_user_id?: string | null
           created_at?: string
           id?: string
+          invitee_email?: string | null
           status?: Database["public"]["Enums"]["connection_status"]
           updated_at?: string
           user_id?: string
