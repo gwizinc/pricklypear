@@ -45,16 +45,43 @@ serve(async (req) => {
       .ilike("email", email)
       .maybeSingle();
 
-    if (invitedErr || !invitedUser) {
+    // If Supabase returned an error, surface it to the global catch.
+    if (invitedErr) {
+      throw invitedErr;
+    }
+
+    // ── 1.b No user exists yet – create a pending connection with NULL connected_user_id.
+    if (!invitedUser) {
+      const { data: connection, error: insertAnonErr } = await supabase
+        .from("connections")
+        .insert({
+          user_id: userId,
+          connected_user_id: null,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (insertAnonErr) {
+        throw insertAnonErr;
+      }
+
       return new Response(
         JSON.stringify({
-          success: false,
-          message: "User not found with that email",
+          success: true,
+          message: "Connection request created",
+          connection: {
+            id: connection.id,
+            otherUserId: null,
+            username: email,
+            avatarUrl: undefined,
+            status: connection.status,
+            createdAt: connection.created_at,
+            updatedAt: connection.updated_at,
+            isUserSender: true,
+          },
         }),
-        {
-          status: 404,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
