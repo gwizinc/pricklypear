@@ -83,7 +83,11 @@ export default function ThreadMessageComposer(
     // Guard again inside the handler to satisfy TypeScript without assertions
     const SpeechCtor = SpeechRecognitionCtor;
     if (!SpeechCtor) {
-      toast.error("Speech recognition is not supported in this browser.");
+      toast({
+        title: "Speech recognition unsupported",
+        description: "Your browser doesn’t support the Web Speech API.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -97,7 +101,11 @@ export default function ThreadMessageComposer(
       // Request permission early to surface any errors before starting recognition.
       await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch {
-      toast.error("Microphone permission denied");
+      toast({
+        title: "Microphone permission denied",
+        description: "Please allow microphone access to enable dictation.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -153,7 +161,11 @@ export default function ThreadMessageComposer(
       if (event.error === "no-speech" || event.error === "aborted") {
         return;
       }
-      toast.error("Speech recognition error");
+      toast({
+        title: "Speech recognition error",
+        description: "Something went wrong while transcribing your speech.",
+        variant: "destructive",
+      });
       stopRecognition();
       setIsDictating(false);
     };
