@@ -50,7 +50,27 @@ export function useFeatureFlag(flagName: string): boolean {
       ([key]) => key.toUpperCase() === expectedKey,
     );
 
-    if (!match) return false;
+    if (!match) {
+      /**
+       * No explicit flag present.  During local development we *want* new,
+       * flag-gated UI to be visible by default so that engineers notice and
+       * iterate on it quickly.  Therefore, when we detect a development
+       * runtime we opt-in automatically; all non-dev targets keep the feature
+       * disabled unless explicitly enabled via an environment variable.
+       *
+       * Detection rules (checked in order):
+       *   1. `import.meta.env.DEV === true`         – Vite dev server
+       *   2. `import.meta.env.MODE === "development"`
+       *   3. `process.env.NODE_ENV === "development"`
+       */
+      const isDevRuntime =
+        metaEnv?.DEV === true ||
+        metaEnv?.MODE === "development" ||
+        (typeof process !== "undefined" &&
+          process.env?.NODE_ENV === "development");
+
+      return isDevRuntime;
+    }
 
     const [, raw] = match;
     return raw === "true" || raw === "1" || raw === true;
