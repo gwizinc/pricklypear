@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
 import { Loader2, Send, Plus, Mic } from "lucide-react";
 
 interface ThreadMessageComposerProps {
@@ -18,6 +26,19 @@ const ThreadMessageComposer = ({
   isThreadClosed,
   onSendMessage,
 }: ThreadMessageComposerProps) => {
+  const [autoAccept, setAutoAccept] = useState(false);
+
+  // Initialise from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("autoAcceptAISuggestions");
+    setAutoAccept(stored === "true");
+  }, []);
+
+  const handleToggleAutoAccept = (value: boolean) => {
+    setAutoAccept(value);
+    localStorage.setItem("autoAcceptAISuggestions", value.toString());
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) sends the message
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -60,18 +81,44 @@ const ThreadMessageComposer = ({
             <Mic className="h-4 w-4" />
           </Button>
         </div>
-        <Button
-          onClick={onSendMessage}
-          disabled={!newMessage.trim() || isSending || isThreadClosed}
-          size="icon"
-          className="shrink-0"
-        >
-          {isSending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1">
+                  <Switch
+                    id="auto-accept-toggle"
+                    checked={autoAccept}
+                    disabled={isThreadClosed}
+                    onCheckedChange={handleToggleAutoAccept}
+                  />
+                  <Label
+                    htmlFor="auto-accept-toggle"
+                    className="cursor-pointer select-none"
+                  >
+                    Auto-accept AI suggestions
+                  </Label>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                Automatically send the AI-reviewed message without opening the
+                review dialog.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Button
+            onClick={onSendMessage}
+            disabled={!newMessage.trim() || isSending || isThreadClosed}
+            size="icon"
+            className="shrink-0"
+          >
+            {isSending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

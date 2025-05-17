@@ -59,18 +59,31 @@ export const useThreadMessages = (
 
     setIsReviewingMessage(true);
 
+    let reviewedText: string;
     try {
-      // Call the message review API
-      const kindText = await reviewMessage(newMessage);
-      setKindMessage(kindText);
+      reviewedText = await reviewMessage(newMessage);
     } catch (error) {
       console.error("Error reviewing message:", error);
-      // If review fails, use the original message
-      setKindMessage(newMessage);
-    } finally {
-      setIsReviewingMessage(false);
-      setIsReviewDialogOpen(true);
+      // Fall back to original message on failure
+      reviewedText = newMessage;
     }
+
+    setIsReviewingMessage(false);
+
+    // Decide whether to auto-accept based on stored preference
+    const autoAccept =
+      typeof window !== "undefined" &&
+      localStorage.getItem("autoAcceptAISuggestions") === "true";
+
+    if (autoAccept) {
+      // Immediately send the reviewed (or original) message
+      await handleSendReviewedMessage(reviewedText);
+      return; // Skip opening the review dialog
+    }
+
+    // Normal flow – show review dialog
+    setKindMessage(reviewedText);
+    setIsReviewDialogOpen(true);
   };
 
   const handleGenerateSummary = async () => {
